@@ -2,11 +2,21 @@
 #ifndef DATASTRUCTURES_BINARY_TREE_H
 #define DATASTRUCTURES_BINARY_TREE_H
 
-#include "../MemoryManager/memory_manager.h"
+#include "../Utilities//memory_manager.h"
 
-template <typename T, class Allocator = MemoryManager<T>>
+template <typename T>
 class BinaryTree {
     public:
+        BinaryTree() {
+            std::cout << "constructor binary tree" << std::endl;
+            int *array = new int[10];
+            delete[] array;
+        }
+
+        ~BinaryTree() {
+            std::cout << "destructor binary tree" << std::endl;
+        }
+
         class TreeNode {
             T data;
             TreeNode *left;
@@ -14,7 +24,6 @@ class BinaryTree {
         };
 
     private:
-        Allocator manager;
         TreeNode *root;
 };
 
