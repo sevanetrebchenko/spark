@@ -207,7 +207,7 @@ unsigned _MemoryManager::hash(const unsigned int &blockSize) const {
 
 _NODISCARD_ void *_MemoryManager::allocate(const unsigned int &blockSize, const std::string && label, const void *locationHint) {
     unsigned bucketID = hash(blockSize);
-    ASSERT(ASSERT_LEVEL_DEBUG, bucketID > _config->numBuckets - 1, "message");
+    ASSERT(ASSERT_LEVEL_ERROR, bucketID < _config->numBuckets - 1, "message");
 
     return nullptr;
 }

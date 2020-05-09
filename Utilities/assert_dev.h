@@ -5,54 +5,59 @@
 #include <iostream>
 #include <cstdarg>
 #include <cstdio>
+#include "logger.h"
 
-#define ASSERT_LEVEL_WARNING 0
-#define ASSERT_LEVEL_DEBUG 1
-#define ASSERT_LEVEL_ERROR 2
-#define ASSERT_LEVEL_FATAL 3
+#define ASSERT_LEVEL_WARNING 0 // Conditions that are not fatal, but not expected
+#define ASSERT_LEVEL_ERROR 1    // Conditions are not fatal, program will run incorrectly
+#define ASSERT_LEVEL_FATAL 2    // Program will be terminated
 
+// Function used when more parameters are passed with the message (printf-style assert).
 #define ASSERT_VARIADIC(level, check, formatString, ...) \
-    do {\
-        std::cout << "VARIADIC of condition: " << #check << " failed at " << __FILE__ << ":" << __LINE__;\
-        std::cout << " inside " << __PRETTY_FUNCTION__ << std::endl;\
-        std::cout << "Supplied assertion message: ";\
-        fprintf(stdout, formatString, __VA_ARGS__);\
-        std::cout << std::endl;\
+    do {                                                                                                                                                    \
         if (!(check)) {\
             switch(level) { \
                 case ASSERT_LEVEL_WARNING:\
                     break;\
-                case ASSERT_LEVEL_DEBUG:\
-                    break;\
                 case ASSERT_LEVEL_ERROR:\
                     break;\
-                case ASSERT_LEVEL_FATAL:\
-                    abort();\
-                    break;\
-                default:\
+                case ASSERT_LEVEL_FATAL:                                                                                                                                                            \
+                    std::cerr << "Assert of condition: " << #check << " failed at " << __FILE__ << ":" << __LINE__ << " inside " << __PRETTY_FUNCTION__ << std::endl;                               \
+                    std::cerr << "Supplied assertion message: ";                                                                                                                                    \
+                    fprintf(stderr, formatString, __VA_ARGS__);                                                                                                                                  \
+                    std::cerr << std::endl;                                                                                                                                                         \
+                    std::cerr << "Aborting program execution." << std::endl;                                                                                                                        \
+                    UtilityBox::Logger::LogMessage(UtilityBox::Logger::ERROR, "Assert of condition: %s failed in: %s:%i inside %s.", #check, __FILE__, __LINE__, __PRETTY_FUNCTION__);              \
+                    UtilityBox::Logger::LogMessage(UtilityBox::Logger::ERROR, "Supplied assertion message:", __VA_ARGS__);                                                                          \
+                    UtilityBox::Logger::LogMessage(UtilityBox::Logger::ERROR, "Aborting program execution.");                                                                                       \
+                    abort();                                                                                                                                                                        \
+                    break;                                                                                                                                                                          \
+                default:                                                                                                                                                                            \
                     std::cerr << "Invalid assert level." << std::endl;\
             }\
         }\
     }\
     while (false) \
 
-#define ASSERT_FIXED(level, check, formatString) \
-    do {\
-        std::cout << "FIXED of condition: " << #check << " failed at " << __FILE__ << ":" << __LINE__;\
-        std::cout << " inside " << __PRETTY_FUNCTION__ << std::endl;\
-        std::cout << "Supplied assertion message: ";\
-        printf(formatString);\
+// Function used when only a message (string) is passed with the assert.
+#define ASSERT_FIXED(level, check, formatString)                                                                                                            \
+    do {                                                                                                                                                    \
         if (!(check)) {\
             switch(level) { \
                 case ASSERT_LEVEL_WARNING:\
                     break;\
-                case ASSERT_LEVEL_DEBUG:\
-                    break;\
                 case ASSERT_LEVEL_ERROR:\
                     break;\
-                case ASSERT_LEVEL_FATAL:\
-                    break;\
-                default:\
+                case ASSERT_LEVEL_FATAL:                                                                                                                                                            \
+                    std::cerr << "Assert of condition: " << #check << " failed at " << __FILE__ << ":" << __LINE__ << " inside " << __PRETTY_FUNCTION__ << std::endl;                               \
+                    std::cerr << "Supplied assertion message: ";                                                                                                                                    \
+                    std::cerr << formatString << std::endl;                                                                                                                                         \
+                    std::cerr << "Aborting program execution." << std::endl;                                                                                                                        \
+                    UtilityBox::Logger::LogMessage(UtilityBox::Logger::ERROR, "Assert of condition: %s failed in: %s:%i inside %s.", #check, __FILE__, __LINE__, __PRETTY_FUNCTION__);              \
+                    UtilityBox::Logger::LogMessage(UtilityBox::Logger::ERROR, "Supplied assertion message: %s", formatString);                                                                          \
+                    UtilityBox::Logger::LogMessage(UtilityBox::Logger::ERROR, "Aborting program execution.");                                                                                       \
+                    abort();                                                                                                                                                                        \
+                    break;                                                                                                                                                                          \
+                default:                                                                                                                                                                            \
                     std::cerr << "Invalid assert level." << std::endl;\
             }\
         }\
@@ -60,12 +65,12 @@
     while (false) \
 
 // The argument look-up table returns the element in MACRO_DECORATION that falls in the RESULT position.
-#define ARG_TABLE(arg1,  arg2,  arg3,  arg4,  arg5,  arg6,  arg7,  arg8,  arg9, arg10,   \
-                 arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20,   \
-                 arg21, arg22, arg23, arg24, arg25, arg26, arg27, arg28, arg29, arg30,   \
-                 arg31, arg32, arg33, arg34, arg35, arg36, arg37, arg38, arg39, arg40,   \
-                 arg41, arg42, arg43, arg44, arg45, arg46, arg47, arg48, arg49, arg50,   \
-                 arg51, arg52, arg53, arg54, arg55, arg56, arg57, arg58, arg59, arg60,   \
+#define ARG_TABLE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, \
+                 arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, \
+                 arg21, arg22, arg23, arg24, arg25, arg26, arg27, arg28, arg29, arg30, \
+                 arg31, arg32, arg33, arg34, arg35, arg36, arg37, arg38, arg39, arg40, \
+                 arg41, arg42, arg43, arg44, arg45, arg46, arg47, arg48, arg49, arg50, \
+                 arg51, arg52, arg53, arg54, arg55, arg56, arg57, arg58, arg59, arg60, \
                  arg61, arg62, arg63, RESULT, ...) RESULT                                \
 
 
@@ -104,6 +109,5 @@
 
 // Definition for ASSERT
 #define ASSERT(level, check, formatString, ...) _GET_FUNCTION_SIGNATURE(ASSERT, level, check, formatString, ##__VA_ARGS__)
-
 
 #endif //DATASTRUCTURES_ASSERT_DEV_H
