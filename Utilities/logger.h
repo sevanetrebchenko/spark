@@ -19,7 +19,7 @@ namespace UtilityBox {
         };
 
         void LogMessage(MessageSeverity, const char* formatString, ...);
-        void SetLogFile(const std::string &newfilename);
+        void SetLogFile(const std::string &newFilename);
 
         void SetLoggingLevel(LoggerLevel level);
         void PrintSampleLogMessage();

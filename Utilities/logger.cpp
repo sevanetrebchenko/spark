@@ -26,17 +26,25 @@ class _Logger {
         // FUNCTIONS
         _Logger();
         ~_Logger();
-        std::string GetTimestamp();
-        std::string GetSeverity(UtilityBox::Logger::MessageSeverity);
+
+        // Log message formatting
+        std::string PrintLogTimestamp();
+        std::string PrintLogSeverity(UtilityBox::Logger::MessageSeverity);
+        std::string PrintLogCount();
+        std::string PrintDate();
 
         // DATA
         std::chrono::time_point<std::chrono::system_clock> _startTime;
         std::ostringstream _format;
         std::ofstream _logger;
         std::string _logFile;
-        char* _buffer;
-        unsigned _bufferSize;
+        unsigned _logBufferSize;
+        unsigned _calendarBufferSize;
+        unsigned _logCount;
         UtilityBox::Logger::LoggerLevel _level;
+        std::time_t _calendarTime;
+        char* _logBuffer;
+        char* _calendarBuffer;
 };
 
 _Logger* _Logger::_loggingSystem = nullptr;
@@ -51,8 +59,8 @@ _Logger *_Logger::GetInstance() {
         UtilityBox::Logger::LogMessage(UtilityBox::Logger::DEBUG, "File \"log.txt\" successfully opened.");
 
         // check the allocation status of the buffer (marked as nothrow)
-        ASSERT(ASSERT_LEVEL_FATAL, _loggingSystem->_buffer != nullptr, "Logger failed to allocate buffer.");
-        UtilityBox::Logger::LogMessage(UtilityBox::Logger::DEBUG, "Logging buffer successfully allocated with size: %i", _loggingSystem->_bufferSize);
+        ASSERT(ASSERT_LEVEL_FATAL, _loggingSystem->_logBuffer != nullptr, "Logger failed to allocate buffer.");
+        UtilityBox::Logger::LogMessage(UtilityBox::Logger::DEBUG, "Logging buffer successfully allocated with size: %i", _loggingSystem->_logBufferSize);
     }
 
     return _loggingSystem;
@@ -60,11 +68,11 @@ _Logger *_Logger::GetInstance() {
 
 void _Logger::logMessage(const char *formatString, std::va_list args, UtilityBox::Logger::MessageSeverity severity) {
     // buffer could fail to allocate - this is only here to log the error message from failing to allocate the buffer
-    if (_buffer) {
-        int writeResult = vsnprintf(_loggingSystem->_buffer, _bufferSize, formatString, args);
-        ASSERT(ASSERT_LEVEL_WARNING, writeResult > _bufferSize - 1,
-               "Buffer write limit was reached. Supplied log message may have been truncated. Increase buffer limit. Characters written: %i. Buffer size: %i.",
-               writeResult, _bufferSize);
+    if (_logBuffer) {
+        int writeResult = vsnprintf(_loggingSystem->_logBuffer, _logBufferSize, formatString, args);
+        ASSERT(ASSERT_LEVEL_WARNING, writeResult > _logBufferSize - 1,
+               "Buffer write limit was reached. Supplied log message may have been truncated. Use UtilityBox::Logger::UpdateBufferSize() to increase the buffer limit. Characters written: %i. Current buffer size: %i.",
+               writeResult, _logBufferSize);
         bool log = false;
 
         switch (_level) {
@@ -88,21 +96,18 @@ void _Logger::logMessage(const char *formatString, std::va_list args, UtilityBox
         }
 
         if (log) {
-            _logger << GetTimestamp() << GetSeverity(severity) << _buffer << std::endl;
+            _logger << PrintLogCount() << " " << PrintDate() << " " << PrintLogTimestamp() << PrintLogSeverity(severity) << "    " << _logBuffer << std::endl;
             _logger.flush();
         }
     }
     else {
-        _logger << GetTimestamp() << GetSeverity(severity) << formatString << std::endl;
+        _logger << PrintLogCount() << " " << PrintDate() << " " << PrintLogTimestamp() << PrintLogSeverity(severity) << "      " << formatString << std::endl;
         _logger.flush();
     }
+
+    ++_logCount;
 }
 
-
-_Logger::~_Logger() {
-    _loggingSystem->_logger.close();
-    delete[] _buffer;
-}
 
 void _Logger::SetLogFile(const std::string &logFile) {
     if (!strcmp(_loggingSystem->_logFile.c_str(), logFile.c_str())) {
@@ -117,13 +122,51 @@ void _Logger::SetLogFile(const std::string &logFile) {
 
 _Logger::_Logger() {
     _logFile = "log.txt";
-    _bufferSize = 1024;
+    _logBufferSize = 1024;
+    _calendarBufferSize = 64;
     _level = UtilityBox::Logger::ALL;
-    _buffer = new (std::nothrow) char[_bufferSize];
+    _logBuffer = new (std::nothrow) char[_logBufferSize];
+    _calendarBuffer = new (std::nothrow) char[_calendarBufferSize];
     _startTime = std::chrono::high_resolution_clock::now();
+    _calendarTime = std::time(nullptr);
+    _logCount = 0;
 }
 
-std::string _Logger::GetTimestamp() {
+_Logger::~_Logger() {
+    _loggingSystem->_logger.close();
+    delete[] _logBuffer;
+}
+
+std::string _Logger::PrintLogCount() {
+    _format << "[";
+    _format << std::setfill('0') << std::setw(3);
+    _format << _logCount / 1000;
+
+    _format << " ";
+
+    _format << std::setfill('0') << std::setw(3);
+    _format << _logCount % 1000;
+    _format << "]";
+
+    std::string formattedLog = _format.str();
+    _format.str(std::string()); // clear buffer
+
+    return formattedLog;
+}
+
+std::string _Logger::PrintDate() {
+    // longest possible string with given setup is 42 characters - [WEDNESDAY 00, SEPTEMBER 0000 - 00:00::00]
+    if (std::strftime(_calendarBuffer, _calendarBufferSize, "[%A %d, %B %Y - %H:%M:%S] ", std::localtime(&_calendarTime))) {
+        _format << _calendarBuffer;
+    }
+
+    std::string formattedDate = _format.str();
+    _format.str(std::string()); // clear buffer
+
+    return formattedDate;
+}
+
+std::string _Logger::PrintLogTimestamp() {
     // time since logger was initialized
     std::chrono::time_point<std::chrono::system_clock> currentTime = std::chrono::high_resolution_clock::now();
     // get the time in milliseconds
@@ -155,7 +198,7 @@ std::string _Logger::GetTimestamp() {
     return currentTimeStamp;
 }
 
-std::string _Logger::GetSeverity(UtilityBox::Logger::MessageSeverity severity) {
+std::string _Logger::PrintLogSeverity(UtilityBox::Logger::MessageSeverity severity) {
     _format << "[";
 
     // [  DEBUG  ]
@@ -177,7 +220,7 @@ std::string _Logger::GetSeverity(UtilityBox::Logger::MessageSeverity severity) {
             break;
     }
 
-    _format << "]   ";
+    _format << "]";
     std::string messageSeverity = _format.str();
     _format.str(std::string());
 
