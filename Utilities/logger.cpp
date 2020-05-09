@@ -10,23 +10,26 @@
 #include <chrono>
 #include <sstream>
 #include <iomanip>
+#include <cstdio>
 
 class _Logger {
     public:
         static _Logger *GetInstance();
-        void SetLogFile(const std::string &logFile);
 
+        void SetLogFile(const std::string &logFile);
         void logMessage(const char* formatString, va_list args, UtilityBox::Logger::MessageSeverity = UtilityBox::Logger::DEBUG);
 
     private:
+        // SINGLETON
+        static _Logger* _loggingSystem;
+
+        // FUNCTIONS
         _Logger();
         ~_Logger();
-
         std::string GetTimestamp();
         std::string GetSeverity(UtilityBox::Logger::MessageSeverity);
 
-        static _Logger* _loggingSystem;
-
+        // DATA
         std::chrono::time_point<std::chrono::system_clock> _startTime;
         std::ostringstream _format;
         std::ofstream _logger;
@@ -55,9 +58,10 @@ _Logger *_Logger::GetInstance() {
     return _loggingSystem;
 }
 
-void _Logger::logMessage(const char *formatString, va_list args, UtilityBox::Logger::MessageSeverity severity) {
+void _Logger::logMessage(const char *formatString, std::va_list args, UtilityBox::Logger::MessageSeverity severity) {
+    // buffer could fail to allocate - this is only here to log the error message from failing to allocate the buffer
     if (_buffer) {
-        int writeResult = snprintf(_loggingSystem->_buffer, _bufferSize, formatString, args);
+        int writeResult = vsnprintf(_loggingSystem->_buffer, _bufferSize, formatString, args);
         ASSERT(ASSERT_LEVEL_WARNING, writeResult > _bufferSize - 1,
                "Buffer write limit was reached. Supplied log message may have been truncated. Increase buffer limit. Characters written: %i. Buffer size: %i.",
                writeResult, _bufferSize);
@@ -79,10 +83,9 @@ void _Logger::logMessage(const char *formatString, va_list args, UtilityBox::Log
                 break;
 
             default:
-                UtilityBox::Logger::LogMessage(UtilityBox::Logger::ERROR,
-                                               "Logged message with unknown or invalid log level.");
+                UtilityBox::Logger::LogMessage(UtilityBox::Logger::ERROR,"Logged message with unknown or invalid log level.");
+                break;
         }
-
 
         if (log) {
             _logger << GetTimestamp() << GetSeverity(severity) << _buffer << std::endl;
@@ -98,6 +101,7 @@ void _Logger::logMessage(const char *formatString, va_list args, UtilityBox::Log
 
 _Logger::~_Logger() {
     _loggingSystem->_logger.close();
+    delete[] _buffer;
 }
 
 void _Logger::SetLogFile(const std::string &logFile) {
@@ -122,14 +126,15 @@ _Logger::_Logger() {
 std::string _Logger::GetTimestamp() {
     // time since logger was initialized
     std::chrono::time_point<std::chrono::system_clock> currentTime = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> elapsed = currentTime - _startTime;
+    // get the time in milliseconds
+    unsigned long elapsed = (currentTime - _startTime).count() / 1000;
 
     // milliseconds
-    auto milliseconds = static_cast<unsigned long>(elapsed.count() * 1000.);
+    unsigned long milliseconds = elapsed;
     // seconds
-    auto seconds = static_cast<unsigned long>(elapsed.count());
+    unsigned long seconds = elapsed / 1000;
     // minutes
-    auto minutes = static_cast<unsigned long>(elapsed.count() / 60.);
+    unsigned long minutes = elapsed / 60000;
 
     // 000m 00s 0000ms [SEVERITY] MESSAGE
     // append minutes
@@ -145,7 +150,7 @@ std::string _Logger::GetTimestamp() {
     _format << milliseconds << "ms ";
 
     std::string currentTimeStamp = _format.str();
-    _format.str(std::string());
+    _format.str(std::string()); // clear buffer
 
     return currentTimeStamp;
 }
