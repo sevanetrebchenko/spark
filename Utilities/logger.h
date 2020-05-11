@@ -13,12 +13,20 @@ namespace UtilityBox {
         };
 
         enum MessageSeverity {
-            DEBUG = 0,
+            DEBUG,
             WARNING,
             ERROR
         };
 
         void LogMessage(MessageSeverity, const char* formatString, ...);
+
+        // support for block messages
+        unsigned GetOpenBlockID();
+        void StartMessageBlock(unsigned blockID);
+        void LogBlockMessage(unsigned blockID, MessageSeverity severity, const char* formatString, ...);
+        void EndMessageBlock(unsigned blockID);
+
+
         void SetLogFile(const std::string &newFilename);
 
         void SetLoggingLevel(LoggerLevel level);

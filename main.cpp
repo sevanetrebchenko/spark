@@ -5,7 +5,7 @@
 #include <chrono>
 
 int main() {
-    //void* a = UtilityBox::MemoryManager::allocate(45);
+    void* a = UtilityBox::MemoryManager::allocate(45);
 
     UtilityBox::Logger::LogMessage(UtilityBox::Logger::DEBUG, "this is a debug message");
 

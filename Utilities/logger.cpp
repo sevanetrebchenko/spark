@@ -11,13 +11,20 @@
 #include <sstream>
 #include <iomanip>
 #include <cstdio>
+#include <vector>
 
 class _Logger {
     public:
         static _Logger *GetInstance();
 
         void SetLogFile(const std::string &logFile);
-        void logMessage(const char* formatString, va_list args, UtilityBox::Logger::MessageSeverity = UtilityBox::Logger::DEBUG);
+        void LogMessage(UtilityBox::Logger::MessageSeverity severity, const char* formatString, va_list args);
+
+        // support for block messages
+        unsigned GetOpenBlockID();
+        void StartBlockMessage(unsigned blockID);
+        void LogBlockMessage(unsigned int blockID, UtilityBox::Logger::MessageSeverity, const char *formatString, std::va_list args);
+        void EndBlockMessage(unsigned blockID);
 
     private:
         // SINGLETON
@@ -33,7 +40,7 @@ class _Logger {
         std::string PrintLogCount();
         std::string PrintDate();
 
-        // DATA
+        // Logger data
         std::chrono::time_point<std::chrono::system_clock> _startTime;
         std::ostringstream _format;
         std::ofstream _logger;
@@ -41,11 +48,30 @@ class _Logger {
         unsigned _logBufferSize;
         unsigned _calendarBufferSize;
         unsigned _logCount;
+        unsigned _logHeaderLength;
         UtilityBox::Logger::LoggerLevel _level;
         std::time_t _calendarTime;
         char* _logBuffer;
         char* _calendarBuffer;
+
+        // Block message data
+        struct _blockMessageHeader {
+            _blockMessageHeader();
+            ~_blockMessageHeader();
+
+            bool _inUse;
+            std::vector<std::string> _data;
+        };
+        std::vector<_blockMessageHeader> _blockMessageStorage;
 };
+
+_Logger::_blockMessageHeader::_blockMessageHeader() : _inUse(false) {
+}
+
+_Logger::_blockMessageHeader::~_blockMessageHeader() {
+    _inUse = false;
+    _data.clear();
+}
 
 _Logger* _Logger::_loggingSystem = nullptr;
 
@@ -66,7 +92,7 @@ _Logger *_Logger::GetInstance() {
     return _loggingSystem;
 }
 
-void _Logger::logMessage(const char *formatString, std::va_list args, UtilityBox::Logger::MessageSeverity severity) {
+void _Logger::LogMessage(UtilityBox::Logger::MessageSeverity severity, const char* formatString, va_list args) {
     // buffer could fail to allocate - this is only here to log the error message from failing to allocate the buffer
     if (_logBuffer) {
         int writeResult = vsnprintf(_loggingSystem->_logBuffer, _logBufferSize, formatString, args);
@@ -112,11 +138,15 @@ void _Logger::logMessage(const char *formatString, std::va_list args, UtilityBox
 void _Logger::SetLogFile(const std::string &logFile) {
     if (!strcmp(_loggingSystem->_logFile.c_str(), logFile.c_str())) {
         // flush and close previous file
-        _loggingSystem->_logger.flush();
-        _loggingSystem->_logger.close();
+        _logger.flush();
+        _logger.close();
 
         // open new file and set up logger
         _loggingSystem->_logFile = logFile;
+        // check the open status of the log file
+        _loggingSystem->_logger.open(_loggingSystem->_logFile, std::ios_base::in | std::ios_base::trunc);
+        ASSERT(ASSERT_LEVEL_FATAL, _loggingSystem->_logger.is_open(), "Logging system failed to open provided log file. Supplied log file name: %s", _loggingSystem->_logFile.c_str());
+        UtilityBox::Logger::LogMessage(UtilityBox::Logger::DEBUG, "File \"%s\" successfully opened.", _logFile.c_str());
     }
 }
 
@@ -169,6 +199,7 @@ std::string _Logger::PrintDate() {
 std::string _Logger::PrintLogTimestamp() {
     // time since logger was initialized
     std::chrono::time_point<std::chrono::system_clock> currentTime = std::chrono::high_resolution_clock::now();
+
     // get the time in milliseconds
     unsigned long elapsed = (currentTime - _startTime).count() / 1000;
 
@@ -227,14 +258,81 @@ std::string _Logger::PrintLogSeverity(UtilityBox::Logger::MessageSeverity severi
     return messageSeverity;
 }
 
+unsigned _Logger::GetOpenBlockID() {
+    if (_blockMessageStorage.empty()) {
+        _blockMessageStorage.emplace_back();
+        return 0;
+    }
+    else {
+        for (int i = 0; i < _blockMessageStorage.size(); ++i) {
+            if (!_blockMessageStorage.at(i)._inUse) {
+                return i;
+            }
+        }
+    }
+
+    _blockMessageStorage.emplace_back();
+    return _blockMessageStorage.size();
+}
+
+void _Logger::StartBlockMessage(unsigned int blockID) {
+    _blockMessageStorage[blockID]._inUse = true;
+}
+
+void _Logger::LogBlockMessage(unsigned int blockID, UtilityBox::Logger::MessageSeverity, const char *formatString, std::va_list args) {
+    // buffer could fail to allocate - this is only here to log the error message from failing to allocate the buffer
+    int writeResult = vsnprintf(_logBuffer, _logBufferSize, formatString, args);
+//    ASSERT(ASSERT_LEVEL_WARNING, writeResult > _logBufferSize - 1,
+//           "Buffer write limit was reached. Supplied log message may have been truncated. Use UtilityBox::Logger::UpdateBufferSize() to increase the buffer limit. Characters written: %i. Current buffer size: %i.",
+//           writeResult, _logBufferSize);
+
+    _blockMessageStorage[blockID]._data.emplace_back(_logBuffer);
+}
+
+void _Logger::EndBlockMessage(unsigned int blockID) {
+    for (auto& string : _blockMessageStorage[blockID]._data) {
+        _logger << string << std::endl;
+    }
+
+    _blockMessageStorage[blockID]._data.clear();
+    _blockMessageStorage[blockID]._inUse = false;
+}
+
+
 // PUBLIC API DEFINITIONS
 namespace UtilityBox {
     namespace Logger {
+        // single-line messages
         void LogMessage(MessageSeverity severityLevel, const char* formatString, ...) {
             va_list args;
             va_start(args, formatString);
-            _Logger::GetInstance()->logMessage(formatString, args, severityLevel);
+            _Logger::GetInstance()->LogMessage(severityLevel, formatString, args);
             va_end(args);
+        }
+
+        // block messages
+        unsigned GetOpenBlockID() {
+            return _Logger::GetInstance()->GetOpenBlockID();
+        }
+
+        void StartMessageBlock(unsigned blockID) {
+            _Logger::GetInstance()->StartBlockMessage(blockID);
+        }
+
+        void LogBlockMessage(unsigned blockID, MessageSeverity severityLevel, const char* formatString, ...) {
+            va_list args;
+            va_start(args, formatString);
+            _Logger::GetInstance()->LogBlockMessage(blockID, severityLevel, formatString, args);
+            va_end(args);
+        }
+
+        void EndMessageBlock(unsigned blockID) {
+            _Logger::GetInstance()->EndBlockMessage(blockID);
+        }
+
+        // updating file
+        void SetLogFile(const std::string &newFilename) {
+            _Logger::GetInstance()->SetLogFile(newFilename);
         }
     }
 }
