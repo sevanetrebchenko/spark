@@ -1,7 +1,3 @@
-
-#ifndef DATASTRUCTURES_ASSERT_DEV_H
-#define DATASTRUCTURES_ASSERT_DEV_H
-
 #include <iostream>
 #include <cstdarg>
 #include <cstdio>
@@ -23,12 +19,9 @@
                 case ASSERT_LEVEL_FATAL:                                                                                                                                                            \
                     std::cerr << "Assert of condition: " << #check << " failed at " << __FILE__ << ":" << __LINE__ << " inside " << __PRETTY_FUNCTION__ << std::endl;                               \
                     std::cerr << "Supplied assertion message: ";                                                                                                                                    \
-                    fprintf(stderr, formatString, __VA_ARGS__);                                                                                                                                  \
+                    fprintf(stderr, formatString, __VA_ARGS__);                                                                                                                                     \
                     std::cerr << std::endl;                                                                                                                                                         \
                     std::cerr << "Aborting program execution." << std::endl;                                                                                                                        \
-                    UtilityBox::Logger::LogMessage(UtilityBox::Logger::ERROR, "Assert of condition: %s failed in: %s:%i inside %s.", #check, __FILE__, __LINE__, __PRETTY_FUNCTION__);              \
-                    UtilityBox::Logger::LogMessage(UtilityBox::Logger::ERROR, "Supplied assertion message:", __VA_ARGS__);                                                                          \
-                    UtilityBox::Logger::LogMessage(UtilityBox::Logger::ERROR, "Aborting program execution.");                                                                                       \
                     abort();                                                                                                                                                                        \
                     break;                                                                                                                                                                          \
                 default:                                                                                                                                                                            \
@@ -52,9 +45,6 @@
                     std::cerr << "Supplied assertion message: ";                                                                                                                                    \
                     std::cerr << formatString << std::endl;                                                                                                                                         \
                     std::cerr << "Aborting program execution." << std::endl;                                                                                                                        \
-                    UtilityBox::Logger::LogMessage(UtilityBox::Logger::ERROR, "Assert of condition: %s failed in: %s:%i inside %s.", #check, __FILE__, __LINE__, __PRETTY_FUNCTION__);              \
-                    UtilityBox::Logger::LogMessage(UtilityBox::Logger::ERROR, "Supplied assertion message: %s", formatString);                                                                          \
-                    UtilityBox::Logger::LogMessage(UtilityBox::Logger::ERROR, "Aborting program execution.");                                                                                       \
                     abort();                                                                                                                                                                        \
                     break;                                                                                                                                                                          \
                 default:                                                                                                                                                                            \
@@ -109,5 +99,3 @@
 
 // Definition for ASSERT
 #define ASSERT(level, check, formatString, ...) _GET_FUNCTION_SIGNATURE(ASSERT, level, check, formatString, ##__VA_ARGS__)
-
-#endif //DATASTRUCTURES_ASSERT_DEV_H

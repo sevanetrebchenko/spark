@@ -114,7 +114,7 @@ _MemoryManager::MemoryManagerConfiguration::MemoryManagerConfiguration() {
     bucketSizes = static_cast<unsigned int *>(malloc(sizeof(unsigned) * numBuckets));
 
     // failed to allocate memory
-    ASSERT(ASSERT_LEVEL_FATAL, bucketSizes, "Memory manager failed to allocate memory for bucket sizes.");
+    //ASSERT(ASSERT_LEVEL_FATAL, bucketSizes, "Memory manager failed to allocate memory for bucket sizes.");
 
     // fill data
     unsigned counter = 0;
@@ -132,7 +132,7 @@ _MemoryManager::MMBucketHeader::MMBucketHeader(unsigned int lowerBound, unsigned
 // MEMORY MANAGER PAGE HEADER
 _MemoryManager::MMPageHeader::MMPageHeader(unsigned int upperBound) : _dataSize(upperBound) {
     // block sizes are designed to evenly split the page of memory
-    ASSERT(ASSERT_LEVEL_ERROR, _config->PAGE_SIZE % _dataSize == 0, "Page was not divided evenly without fragmentation with the given block size. Block size: %i", _dataSize);
+    //ASSERT(ASSERT_LEVEL_ERROR, _config->PAGE_SIZE % _dataSize == 0, "Page was not divided evenly without fragmentation with the given block size. Block size: %i", _dataSize);
 
     std::cout << "data size: " << _dataSize << std::endl;
     std::cout << "num headers: " << _config->PAGE_SIZE / _dataSize << std::endl << std::endl;
@@ -150,7 +150,7 @@ _MemoryManager::_MemoryManager() {
     _buckets = static_cast<MMBucketHeader*>(malloc(sizeof(MMBucketHeader) * (_config->numBuckets - 1)));
 
     // initialize bucket data using constructor / placement new into the above memory
-    UtilityBox::Logger::LogMessage(UtilityBox::Logger::DEBUG, "Allocating memory manager buckets.");
+//    UtilityBox::Logger::LogMessage(UtilityBox::Logger::DEBUG, "Allocating memory manager buckets.");
 
     int counter = 0;
     for (unsigned i = 1; i < _config->numBuckets; ++i) {
@@ -158,14 +158,14 @@ _MemoryManager::_MemoryManager() {
         ++counter;
     }
 
-    UtilityBox::Logger::LogMessage(UtilityBox::Logger::DEBUG, "Finished allocating %i buckets.", counter);
+//    UtilityBox::Logger::LogMessage(UtilityBox::Logger::DEBUG, "Finished allocating %i buckets.", counter);
 
-    unsigned blockID = UtilityBox::Logger::GetOpenBlockID();
-    UtilityBox::Logger::StartMessageBlock(blockID);
+//    unsigned blockID = UtilityBox::Logger::GetOpenBlockID();
+//    UtilityBox::Logger::StartMessageBlock(blockID);
     for (unsigned i = 0; i < _config->numBuckets - 1; ++i) {
-        UtilityBox::Logger::LogBlockMessage(blockID, UtilityBox::Logger::DEBUG, "Bucket ID: %i\nLower Bound: %i\nUpper Bound: %i\nMinimum/Maximum data size: %i/%i", i, _buckets[i]._blockSizeRange.first, _buckets[i]._blockSizeRange.second, _buckets[i]._minDataSize, _buckets[i]._maxDataSize);
+//        UtilityBox::Logger::LogBlockMessage(blockID, UtilityBox::Logger::DEBUG, "Bucket ID: %i\nLower Bound: %i\nUpper Bound: %i\nMinimum/Maximum data size: %i/%i", i, _buckets[i]._blockSizeRange.first, _buckets[i]._blockSizeRange.second, _buckets[i]._minDataSize, _buckets[i]._maxDataSize);
     }
-    UtilityBox::Logger::EndMessageBlock(blockID);
+//    UtilityBox::Logger::EndMessageBlock(blockID);
 }
 
 _MemoryManager *_MemoryManager::GetInstance() {
@@ -204,7 +204,7 @@ unsigned _MemoryManager::hash(const unsigned int &blockSize) const {
 
 _NODISCARD_ void *_MemoryManager::allocate(const unsigned int &blockSize, const std::string& label, const void *locationHint) {
     unsigned bucketID = hash(blockSize);
-    ASSERT(ASSERT_LEVEL_ERROR, bucketID < _config->numBuckets - 1, "message");
+    //ASSERT(ASSERT_LEVEL_ERROR, bucketID < _config->numBuckets - 1, "message");
 
     return nullptr;
 }
