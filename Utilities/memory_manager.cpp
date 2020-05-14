@@ -150,7 +150,7 @@ _MemoryManager::_MemoryManager() {
     _buckets = static_cast<MMBucketHeader*>(malloc(sizeof(MMBucketHeader) * (_config->numBuckets - 1)));
 
     // initialize bucket data using constructor / placement new into the above memory
-//    UtilityBox::Logger::LogMessage(UtilityBox::Logger::DEBUG, "Allocating memory manager buckets.");
+//    UtilityBox::LoggingSystem::LogMessage(UtilityBox::LoggingSystem::DEBUG, "Allocating memory manager buckets.");
 
     int counter = 0;
     for (unsigned i = 1; i < _config->numBuckets; ++i) {
@@ -158,14 +158,14 @@ _MemoryManager::_MemoryManager() {
         ++counter;
     }
 
-//    UtilityBox::Logger::LogMessage(UtilityBox::Logger::DEBUG, "Finished allocating %i buckets.", counter);
+//    UtilityBox::LoggingSystem::LogMessage(UtilityBox::LoggingSystem::DEBUG, "Finished allocating %i buckets.", counter);
 
-//    unsigned blockID = UtilityBox::Logger::GetOpenBlockID();
-//    UtilityBox::Logger::StartMessageBlock(blockID);
+//    unsigned blockID = UtilityBox::LoggingSystem::GetOpenBlockID();
+//    UtilityBox::LoggingSystem::StartMessageBlock(blockID);
     for (unsigned i = 0; i < _config->numBuckets - 1; ++i) {
-//        UtilityBox::Logger::LogBlockMessage(blockID, UtilityBox::Logger::DEBUG, "Bucket ID: %i\nLower Bound: %i\nUpper Bound: %i\nMinimum/Maximum data size: %i/%i", i, _buckets[i]._blockSizeRange.first, _buckets[i]._blockSizeRange.second, _buckets[i]._minDataSize, _buckets[i]._maxDataSize);
+//        UtilityBox::LoggingSystem::LogBlockMessage(blockID, UtilityBox::LoggingSystem::DEBUG, "Bucket ID: %i\nLower Bound: %i\nUpper Bound: %i\nMinimum/Maximum data size: %i/%i", i, _buckets[i]._blockSizeRange.first, _buckets[i]._blockSizeRange.second, _buckets[i]._minDataSize, _buckets[i]._maxDataSize);
     }
-//    UtilityBox::Logger::EndMessageBlock(blockID);
+//    UtilityBox::LoggingSystem::EndMessageBlock(blockID);
 }
 
 _MemoryManager *_MemoryManager::GetInstance() {
