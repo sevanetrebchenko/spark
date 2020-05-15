@@ -13,12 +13,18 @@ namespace UtilityBox {
 
         struct LogMessageData {
             LogMessageData() = default;
-            std::string _messageFormatted;
-            std::string _logNumberFormatted;
-            std::string _calendarDateFormatted;
-            std::string _severityFormatted;
-            std::string _timestampFormatted;
+            std::string _messageFormatted;      // Formatted log message
+            std::string _logNumberFormatted;    // Log number
+            std::string _calendarDateFormatted; // Calendar date and local time of this log
+            std::string _severityFormatted;     // Formatted log severity
+            std::string _timestampFormatted;    // Timestamp of this log since the log file was open
 
+            /**
+             * Print the formatted log to the given stream
+             * @param stream Stream to print to
+             * @param message Log message to print
+             * @return Stream that was printed to
+             */
             friend std::ostream& operator<<(std::ostream &stream, const LogMessageData &message);
         };
 
@@ -33,11 +39,11 @@ namespace UtilityBox {
 
             private:
                 // formatting functions
-                std::string FormatMessage(const char* formatString, std::va_list args);
-                std::string FormatLogNumber();
-                std::string FormatCalendarDate();
-                std::string FormatMessageSeverity(LogMessageSeverity severity);
-                std::string FormatTimestamp(timestampType timestamp);
+                _NODISCARD_ std::string FormatMessage(const char* formatString, std::va_list args);
+                _NODISCARD_ std::string FormatLogNumber();
+                _NODISCARD_ std::string FormatCalendarDate();
+                _NODISCARD_ std::string FormatMessageSeverity(LogMessageSeverity severity);
+                _NODISCARD_ std::string FormatTimestamp(timestampType timestamp);
 
                 std::stringstream _format;
 
@@ -47,20 +53,25 @@ namespace UtilityBox {
                 unsigned _logBufferSize;
                 unsigned _calendarBufferSize;
                 std::time_t _calendarTime;
+                bool _isMultiLine;
 
-                std::vector<LogMessageData*> _messages;
+                std::vector<LogMessageData> _messages;
+        };
+
+        struct LogMessageBackEndHeader {
+            LogMessageBackEndHeader(bool inUse, LogMessageBackEnd* data);
+            bool _inUse;
+            LogMessageBackEnd* _data;
         };
 
         class LoggingSystem {
             public:
-                __NO_DISCARD__ static LoggingSystem *GetInstance();
-
-                __NO_DISCARD__ unsigned ConstructMessageStorage();
-                __NO_DISCARD__ std::pair<bool, LogMessageBackEnd*>& GetBackEnd(unsigned ID);
-
-                __NO_DISCARD__ UtilityBox::Logger::LoggerConfiguration& GetConfig();
-                __NO_DISCARD__ unsigned GetLogCount();
-                __NO_DISCARD__ timestampType GetLogStartTime();
+                _NODISCARD_ static LoggingSystem *GetInstance();
+                _NODISCARD_ unsigned ConstructMessageStorage();
+                _NODISCARD_ LogMessageBackEndHeader & GetBackEnd(unsigned ID);
+                _NODISCARD_ UtilityBox::Logger::LoggerConfiguration& GetConfig();
+                _NODISCARD_ unsigned GetLogCount();
+                _NODISCARD_ timestampType GetLogStartTime();
 
                 void Log(SingleLineMessage*);
                 void Log(MultiLineMessage*);
@@ -81,8 +92,12 @@ namespace UtilityBox {
                 std::string _logFile;
                 unsigned _logCount;
 
-                std::vector<std::pair<bool, LogMessageBackEnd*>> _messages;
+                std::vector<LogMessageBackEndHeader> _messages;
+
         };
+
+        LogMessageBackEndHeader::LogMessageBackEndHeader(bool inUse, LogMessageBackEnd *data) : _inUse(inUse), _data(data) {
+        }
 
         LoggingSystem* LoggingSystem::_loggingSystem = nullptr;
 
@@ -92,51 +107,13 @@ namespace UtilityBox {
 
                 // check the open status of the log file
                 _loggingSystem->_logger.open(_loggingSystem->_logFile, std::ios_base::in | std::ios_base::trunc);
-//        ASSERT(ASSERT_LEVEL_FATAL, _loggingSystem->_logger.is_open(), "Logging system failed to open provided log file. Supplied log file name: %s", _loggingSystem->_logFile.c_str());
-//        UtilityBox::LoggingSystem::LogMessage(UtilityBox::LoggingSystem::DEBUG, "File \"log.txt\" successfully opened.");
-
-                // check the allocation status of the buffer (marked as nothrow)
-//        ASSERT(ASSERT_LEVEL_FATAL, _loggingSystem->_logBuffer != nullptr, "LoggingSystem failed to allocate buffer.");
-//        UtilityBox::LoggingSystem::LogMessage(UtilityBox::LoggingSystem::DEBUG, "Logging buffer successfully allocated with size: %i", _loggingSystem->_logBufferSize);
             }
 
             return _loggingSystem;
         }
 
         void LoggingSystem::Log(SingleLineMessage* message) {
-            // buffer could fail to allocate - this is only here to log the error message from failing to allocate the buffer
             _logger << *message;
-//        int writeResult = vsnprintf(_loggingSystem->_logBuffer, _logBufferSize, formatString, args);
-//        ASSERT(ASSERT_LEVEL_WARNING, writeResult > _logBufferSize - 1,
-//               "Buffer write limit was reached. Supplied log message may have been truncated. Use UtilityBox::LoggingSystem::UpdateBufferSize() to increase the buffer limit. Characters written: %i. Current buffer size: %i.",
-//               writeResult, _logBufferSize);
-//        bool log = false;
-//
-//        switch (_level) {
-//            case UtilityBox::LoggingSystem::ALL:
-//                log = true;
-//                break;
-//            case UtilityBox::LoggingSystem::VERBOSE:
-//                if (severity == UtilityBox::LoggingSystem::WARNING || severity == UtilityBox::LoggingSystem::ERROR) {
-//                    log = true;
-//                }
-//                break;
-//            case UtilityBox::LoggingSystem::MINIMAL:
-//                if (severity == UtilityBox::LoggingSystem::ERROR) {
-//                    log = true;
-//                }
-//                break;
-//
-//            default:
-//                UtilityBox::LoggingSystem::LogMessage(UtilityBox::LoggingSystem::ERROR,"Logged message with unknown or invalid log level.");
-//                break;
-//        }
-//
-//        if (log) {
-//            _logger << PrintLogCount() << " " << PrintDate() << " " << PrintLogTimestamp() << PrintLogSeverity(severity) << "    " << _logBuffer << std::endl;
-//            _logger.flush();
-//        }
-//    }
         }
 
         void LoggingSystem::Log(MultiLineMessage *message) {
@@ -144,7 +121,7 @@ namespace UtilityBox {
         }
 
         void LoggingSystem::Log(unsigned ID) {
-            _logger << *(_messages.at(ID).second);
+            _logger << *(_messages.at(ID)._data);
         }
 
         LoggingSystem::LoggingSystem() {
@@ -171,20 +148,23 @@ namespace UtilityBox {
 
         unsigned LoggingSystem::ConstructMessageStorage() {
             unsigned size = _messages.size();
-            for (unsigned i = 0; i < size; ++i) {
-                auto& pair = _messages.at(i);
 
-                if (pair.first) {
-                    pair.first = true;
+            // find an already existing header that has been cleared and is not in use
+            for (unsigned i = 0; i < size; ++i) {
+                auto& header = _messages.at(i);
+
+                if (!header._inUse) {
+                    header._inUse = true;
                     return i;
                 }
             }
 
-            _messages.emplace_back(std::make_pair(true, new LogMessageBackEnd()));
+            // all headers are taken, create a new one
+            _messages.emplace_back(true, new LogMessageBackEnd());
             return size;
         }
 
-        std::pair<bool, LogMessageBackEnd*>& LoggingSystem::GetBackEnd(unsigned int ID) {
+        LogMessageBackEndHeader& LoggingSystem::GetBackEnd(unsigned int ID) {
             return _messages.at(ID);
         }
 
@@ -331,7 +311,7 @@ namespace UtilityBox {
             return _logBuffer;
         }
 
-        LogMessageBackEnd::LogMessageBackEnd() : _logBufferSize(256u), _calendarBufferSize(64u), _calendarTime(std::time(nullptr)) {
+        LogMessageBackEnd::LogMessageBackEnd() : _logBufferSize(256u), _calendarBufferSize(64u), _calendarTime(std::time(nullptr)), _isMultiLine(false) {
             // allocate buffers
             _logBuffer = new(std::nothrow) char[_logBufferSize];
             _calendarBuffer = new(std::nothrow) char[_calendarBufferSize];
@@ -344,20 +324,20 @@ namespace UtilityBox {
         }
 
         void LogMessageBackEnd::ProcessMessage(LogMessageSeverity messageSeverity, timestampType timestamp, const char* formatString, std::va_list args) {
-            auto* messageData = new LogMessageData();
-            messageData->_messageFormatted = FormatMessage(formatString, args);
-            messageData->_logNumberFormatted = FormatLogNumber();
-            messageData->_severityFormatted = FormatMessageSeverity(messageSeverity);
-            messageData->_calendarDateFormatted = FormatCalendarDate();
-            messageData->_timestampFormatted = FormatTimestamp(timestamp);
-            _messages.emplace_back(messageData);
+            _messages.emplace_back();
+            LogMessageData& data = _messages.at(_messages.size() - 1);
+            data._messageFormatted = FormatMessage(formatString, args);
+            data._logNumberFormatted = FormatLogNumber();
+            data._severityFormatted = FormatMessageSeverity(messageSeverity);
+            data._calendarDateFormatted = FormatCalendarDate();
+            data._timestampFormatted = FormatTimestamp(timestamp);
         }
 
         std::ostream &operator<<(std::ostream &stream, const LogMessageBackEnd &storage) {
             const LoggerConfiguration& config = LoggingSystem::GetInstance()->GetConfig();
 
             for (auto& message : storage._messages) {
-                stream << *message;
+                stream << message;
             }
 
             if (config.separateMessages) {
@@ -394,17 +374,17 @@ namespace UtilityBox {
             timestampType timeStamp = std::chrono::high_resolution_clock::now();
 
             unsigned constructedID = LoggingSystem::GetInstance()->ConstructMessageStorage();
-            std::pair<bool, LogMessageBackEnd*>& storage = LoggingSystem::GetInstance()->GetBackEnd(constructedID);
+            LogMessageBackEndHeader& storage = LoggingSystem::GetInstance()->GetBackEnd(constructedID);
 
             std::va_list args;
             va_start(args, formatString);
-            storage.second->ProcessMessage(messageSeverity, timeStamp, formatString, args);
+            storage._data->ProcessMessage(messageSeverity, timeStamp, formatString, args);
             va_end(args);
 
             LoggingSystem::GetInstance()->Log(constructedID);
 
-            storage.first = false;
-            storage.second->Clear();
+            storage._inUse = false;
+            storage._data->Clear();
         }
 
         LoggerConfiguration &GetLoggerConfig() {
@@ -419,20 +399,24 @@ namespace UtilityBox {
             timestampType timeStamp = std::chrono::high_resolution_clock::now();
 
             _dataIndex = LoggingSystem::GetInstance()->ConstructMessageStorage();
-            std::pair<bool, LogMessageBackEnd*>& storage = LoggingSystem::GetInstance()->GetBackEnd(_dataIndex);
+            LogMessageBackEndHeader& storage = LoggingSystem::GetInstance()->GetBackEnd(_dataIndex);
 
             std::va_list args;
             va_start(args, formatString);
-            storage.second->ProcessMessage(messageSeverity, timeStamp, formatString, args);
+            storage._data->ProcessMessage(messageSeverity, timeStamp, formatString, args);
             va_end(args);
         }
 
         std::ostream &operator<<(std::ostream &stream, const SingleLineMessage &msg) {
-            std::pair<bool, LogMessageBackEnd*>& storage = LoggingSystem::GetInstance()->GetBackEnd(msg._dataIndex);
-            stream << *(storage.second);
-            storage.first = false;
-            storage.second->Clear();
+            LogMessageBackEndHeader& storage = LoggingSystem::GetInstance()->GetBackEnd(msg._dataIndex);
+            stream << *(storage._data);
+            storage._inUse = false;
+            storage._data->Clear();
             return stream;
+        }
+
+        unsigned SingleLineMessage::GetDataIndex() {
+            return _dataIndex;
         }
 
         // Multiple-line message functions
@@ -445,11 +429,11 @@ namespace UtilityBox {
             timestampType timeStamp = std::chrono::high_resolution_clock::now();
 
             _dataIndex = LoggingSystem::GetInstance()->ConstructMessageStorage();
-            std::pair<bool, LogMessageBackEnd*>& storage = LoggingSystem::GetInstance()->GetBackEnd(_dataIndex);
+            LogMessageBackEndHeader& storage = LoggingSystem::GetInstance()->GetBackEnd(_dataIndex);
 
             std::va_list args;
             va_start(args, formatString);
-            storage.second->ProcessMessage(messageSeverity, timeStamp, formatString, args);
+            storage._data->ProcessMessage(messageSeverity, timeStamp, formatString, args);
             va_end(args);
         }
 
@@ -457,22 +441,26 @@ namespace UtilityBox {
             // record timestamp immediately
             timestampType timeStamp = std::chrono::high_resolution_clock::now();
 
-            std::pair<bool, LogMessageBackEnd*>& storage = LoggingSystem::GetInstance()->GetBackEnd(_dataIndex);
+            LogMessageBackEndHeader& storage = LoggingSystem::GetInstance()->GetBackEnd(_dataIndex);
 
             std::va_list args;
             va_start(args, formatString);
-            storage.second->ProcessMessage(messageSeverity, timeStamp, formatString, args);
+            storage._data->ProcessMessage(messageSeverity, timeStamp, formatString, args);
             va_end(args);
         }
 
         MultiLineMessage::~MultiLineMessage() = default;
 
         std::ostream &operator<<(std::ostream &stream, const MultiLineMessage &msg) {
-            std::pair<bool, LogMessageBackEnd*>& storage = LoggingSystem::GetInstance()->GetBackEnd(msg._dataIndex);
-            stream << *(storage.second);
-            storage.first = false;
-            storage.second->Clear();
+            LogMessageBackEndHeader& storage = LoggingSystem::GetInstance()->GetBackEnd(msg._dataIndex);
+            stream << *(storage._data);
+            storage._inUse = false;
+            storage._data->Clear();
             return stream;
+        }
+
+        unsigned MultiLineMessage::GetDataIndex() {
+            return _dataIndex;
         }
     }
 }
