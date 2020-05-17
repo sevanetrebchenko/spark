@@ -50,40 +50,47 @@ namespace UtilityBox {
                 void Supply(const char* formatString, ...);
 
             private:
-                // Opaque pointer to abstract data
-                struct LogMessageData;
+                // Opaque pointer to abstract data - data should not be available
+                class LogMessageData;
                 std::unique_ptr<LogMessageData> _data;
+
+                // Allow the logging system processing these messages to access the data
+                friend class LoggingSystem;
         };
-
-
-
-        // MySingleton.hpp
-        class MySingleton {
-            public:
-                static MySingleton * instance();
-                MySingleton();
-
-            private:
-        };
-
-        MySingleton * MySingleton::instance() {
-            static const std::unique_ptr<MySingleton> singleton = std::make_unique<MySingleton>();
-            return singleton.get();
-        }
-
-        MySingleton::MySingleton() {
-
-        }
 
         class LoggingSystem {
             public:
-                LoggingSystem(SystemType ID);
+                /**
+                 * Constructor.
+                 * @param name - Name for the new logging system. System name will be attached to log messages that are
+                 *               sent through this instance.
+                 */
+                explicit LoggingSystem(std::string&& name = "");
+
+                /**
+                 * Destructor.
+                 */
                 ~LoggingSystem();
 
+                /**
+                 * Log an instance of the message class.
+                 * @param message
+                 */
                 void Log(LogMessage* message);
-                void Log(LogMessageSeverity messageSeverity, const char* format, ...);
-            private:
 
+                /**
+                 * Log a message directly.
+                 * @param messageSeverity
+                 * @param formatString
+                 * @param ...
+                 */
+                void Log(LogMessageSeverity messageSeverity, const char* formatString, ...);
+            private:
+                // Opaque pointer to abstract data
+                struct LoggingSystemData;
+                std::unique_ptr<LoggingSystemData> _data;
+
+//                friend class LoggingHub;
         };
 
 //        struct LoggerConfiguration {

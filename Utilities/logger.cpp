@@ -6,16 +6,63 @@
 #include <vector>
 
 namespace UtilityBox::Logger {
-    struct LogMessage::LogMessageData {
-        explicit LogMessageData(LogMessageSeverity messageSeverity);
-        ~LogMessageData();
-        void ProcessMessage(const char* formatString, std::va_list argList);
 
-        unsigned _processingBufferSize;
-        char* _processingBuffer;
-        LogMessageSeverity _severity;
+    struct DataPacket {
         std::vector<std::string> _formattedMessages;
+        LogMessageSeverity _messageSeverity;
+        std::chrono::time_point<std::chrono::high_resolution_clock> _messageTimestamp;
+        std::vector<unsigned> _messageTags;
+        std::string _loggingSystemName;
+        unsigned _logCount;
     };
+
+    class LogMessage::LogMessageData {
+        public:
+            explicit LogMessageData(LogMessageSeverity messageSeverity);
+            ~LogMessageData();
+            void ProcessMessage(const char* formatString, std::va_list argList);
+
+            std::vector<std::string> _formattedMessages;
+            LogMessageSeverity _severity;
+
+            struct TimeStamp {
+                TimeStamp(std::chrono::time_point<std::chrono::high_resolution_clock>);
+                ~TimeStamp() = default;
+                unsigned _milliseconds;
+                unsigned _seconds;
+                unsigned _minutes;
+            };
+
+        private:
+            unsigned _processingBufferSize;
+            char* _processingBuffer;
+    };
+
+    struct LoggingSystem::LoggingSystemData {
+        explicit LoggingSystemData(std::basic_string<char> name);
+        std::string _systemName;
+        unsigned _logCounter;
+    };
+
+    struct LoggingHub {
+        static LoggingHub* GetInstance();
+        LoggingHub();
+
+        void AddLogger(LoggingSystem* logger);
+
+        std::vector<LoggingSystem*> _loggingSystems;
+    };
+
+    LoggingHub *LoggingHub::GetInstance() {
+        // constructs a singleton logging hub if it hasn't been already
+        static const std::unique_ptr<LoggingHub> loggingHub = std::make_unique<LoggingHub>();
+        return loggingHub.get();
+    }
+
+    void LoggingHub::AddLogger(LoggingSystem *logger) {
+
+    }
+
 
     // LogMessage functions begin
     LogMessage::LogMessage(LogMessageSeverity messageSeverity) : _data(std::make_unique<LogMessageData>(messageSeverity)) {
@@ -80,6 +127,39 @@ namespace UtilityBox::Logger {
         _formattedMessages.emplace_back(_processingBuffer);
     }
     // LogMessageData functions end
+
+
+    // LoggingSystem functions begin
+    LoggingSystem::LoggingSystem(std::string&& name) : _data(std::make_unique<LoggingSystemData>(std::move(name))){
+        // nothing to do here
+    }
+
+    LoggingSystem::~LoggingSystem() {
+        _data.reset();
+    }
+
+    void LoggingSystem::Log(LogMessage* message) {
+
+    }
+
+    void LoggingSystem::Log(LogMessageSeverity messageSeverity, const char *formatString, ...) {
+        // create message instance
+        auto* message = new LogMessage(messageSeverity);
+
+        // TODO: optimize?
+        std::va_list args;
+        va_start(args, formatString);
+        message->Supply(formatString, args);
+        va_end(args);
+
+        Log(message);
+    }
+    // LoggingSystem functions end
+
+    // LoggingSystemData functions begin
+    LoggingSystem::LoggingSystemData::LoggingSystemData(std::basic_string<char> name) : _systemName(std::move(name)), _logCounter(0) {
+    }
+    // LoggingSystemData functions end
 }
 
 #endif
