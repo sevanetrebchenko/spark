@@ -3,11 +3,20 @@
 #include "Utilities/logger.h"
 #include "Tree/binary_tree.h"
 #include <chrono>
+#include <thread>
 
 int main() {
+    auto time = std::chrono::high_resolution_clock::now();
+
     //void* a = UtilityBox::MemoryManager::allocate(45);
+    using namespace UtilityBox::Logger;
+    auto* loggingSystem = new LoggingSystem("testing");
+    auto* logMessage = new LogMessage(DEBUG);
+    logMessage->Supply("hello with numbers! %i", 42);
+    logMessage->Supply("2 hello with 2 numbers! %i %i", 42, 54);
+    loggingSystem->Log(logMessage);
 
-
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
     //LogMessage<int> *v = new LogMessage<int>(DEBUG, "lmao");
 
 //    auto *ml = new UtilityBox::Logger::MultiLineMessage();
@@ -29,6 +38,9 @@ int main() {
 
     int *r = new int[10];
     delete[] r;
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "program ran for " << (end - time).count() / 1000 << " milliseconds" << std::endl;
 
     return 0;
 }

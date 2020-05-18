@@ -15,6 +15,14 @@
 namespace UtilityBox {
     namespace Logger {
 
+        enum LogMessageTags {
+//            DEBUG,
+//            WARNING,
+//            ERROR,
+//
+            NUM_TAGS
+        };
+
         enum LogMessageSeverity {
             DEBUG,
             WARNING,
@@ -89,8 +97,15 @@ namespace UtilityBox {
                 // Opaque pointer to abstract data
                 struct LoggingSystemData;
                 std::unique_ptr<LoggingSystemData> _data;
+        };
 
-//                friend class LoggingHub;
+        class Adapter {
+            public:
+                Adapter();
+                virtual ~Adapter() = 0;
+
+                virtual void FormatOutputMessage();
+            private:
         };
 
 //        struct LoggerConfiguration {
