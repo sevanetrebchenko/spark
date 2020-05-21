@@ -1,11 +1,13 @@
 #include <iostream>
 #include "Utilities/memory_manager.h"
-#include "Utilities/logger.h"
+#include "Utilities/Logger/logger.h"
 #include "Tree/binary_tree.h"
 #include <chrono>
 #include <thread>
 
 int main() {
+    UtilityBox::Logger::InitializeLoggingSystem();
+
     auto time = std::chrono::high_resolution_clock::now();
 
     //void* a = UtilityBox::MemoryManager::allocate(45);
@@ -15,8 +17,10 @@ int main() {
     logMessage->Supply("hello with numbers! %i", 42);
     logMessage->Supply("2 hello with 2 numbers! %i %i", 42, 54);
     loggingSystem->Log(logMessage);
+    loggingSystem->Log(DEBUG, "testing");
+    loggingSystem->Log(DEBUG, "testing");
+    loggingSystem->Log(DEBUG, "testing");
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
     //LogMessage<int> *v = new LogMessage<int>(DEBUG, "lmao");
 
 //    auto *ml = new UtilityBox::Logger::MultiLineMessage();
