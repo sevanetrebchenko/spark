@@ -2,7 +2,15 @@ cmake_minimum_required(VERSION 3.16)
 project(DataStructures)
 
 set(CMAKE_CXX_STANDARD 17)
-SET(CMAKE_CXX_FLAGS -pthread)
+set(CMAKE_CXX_FLAGS "-pthread")
+set(SOURCE_FILES main.cpp
+        Tree/binary_tree.cpp
+        Utilities/memory_manager.cpp
+        Utilities/Logger/logger.cpp
+        Utilities/Logger/timestamp.cpp
+        Utilities/exception.cpp
+        Utilities/Logger/logmessage.cpp
+        )
 
-add_executable(DataStructures main.cpp Tree/binary_tree.cpp Tree/binary_tree.h Utilities/memory_manager.cpp Utilities/memory_manager.h Utilities/Logger/logger.cpp Utilities/Logger/logger.h Utilities/assert_dev.h Utilities/Logger/timestamp.cpp Utilities/Logger/timestamp.h Utilities/Logger/exception.cpp Utilities/Logger/exception.h)
+add_executable(DataStructures ${SOURCE_FILES})
 

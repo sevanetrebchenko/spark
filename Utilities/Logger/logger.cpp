@@ -1,115 +1,25 @@
-
-#ifndef DATASTRUCTURES_LOGGER_CPP
-#define DATASTRUCTURES_LOGGER_CPP
-
 #include "logger.h"
-#include <utility>
-#include <vector>
-#include <bitset>
-#include <queue>
-#include <thread>
-#include <mutex>
-#include <atomic>
+#include "../assert_dev.h"
+#include "../exception.h"
 
 namespace UtilityBox::Logger {
-    // LogMessageData begin
-    class LogMessage::LogMessageData {
-        public:
-            explicit LogMessageData(LogMessageSeverity messageSeverity);
-            ~LogMessageData();
-            void ProcessMessage(const char* formatString, std::va_list argList);
-
-            std::vector<std::string> _messageData;
-            std::vector<TimeStamp::TimeStamp> _timestampData;
-            LogMessageSeverity _messageSeverity;
-
-        private:
-            unsigned _processingBufferSize;
-            char* _processingBuffer;
-    };
-
-    LogMessage::LogMessageData::LogMessageData(LogMessageSeverity messageSeverity) : _processingBufferSize(64u), _messageSeverity(messageSeverity) {
-        _processingBuffer = new (std::nothrow) char[_processingBufferSize];
-        // TODO: assert
-}
-
-    LogMessage::LogMessageData::~LogMessageData() {
-        delete [] _processingBuffer;
-        // TODO: _formattedMessages.clear();
-    }
-
-    void LogMessage::LogMessageData::ProcessMessage(const char* formatString, std::va_list argList) {
-        // record timestamp
-        _timestampData.emplace_back();
-
-        // calculate correct number of bytes to write
-        unsigned currentBufferSize = _processingBufferSize;
-
-        // copy args list to not modify passed parameters
-        std::va_list argsCopy;
-        va_copy(argsCopy, argList);
-        // If size of the buffer is zero, nothing is written and buffer may be a null pointer, however the return value (number of bytes that would be written not including the null terminator) is still calculated and returned.
-        int writeResult = vsnprintf(nullptr, 0, formatString, argsCopy);
-
-        // get buffer size of powers of 2 to match the size correctly
-        // if buffer size is equal to write result, there will not be space for the null terminator for the string
-        while (_processingBufferSize <= writeResult) {
-            _processingBufferSize *= 2;
-        }
-
-        // reallocate buffer
-        if (currentBufferSize != _processingBufferSize) {
-            delete [] _processingBuffer;
-            _processingBuffer = new char[_processingBufferSize];
-        }
-
-        // write data to buffer
-        vsnprintf(_processingBuffer, _processingBufferSize, formatString, argList);
-
-        _messageData.emplace_back(_processingBuffer);
-    }
-    // LogMessageData end
-
-    // DataPacket begin
     struct DataPacket {
-        DataPacket(LogMessageSeverity messageSeverity, unsigned logCount, std::vector<std::string> &&messages, std::vector<TimeStamp::TimeStamp>&& timestamps, std::string logname);
+        DataPacket(LogMessageSeverity messageSeverity, std::vector<std::string> &&messages, std::vector<Timing::TimeStamp>&& timestamps, std::vector<std::string> &&loggingSystemNames, unsigned logCount);
         DataPacket(DataPacket&& other) noexcept;
         ~DataPacket();
         std::vector<std::string> _messageData;
-        std::vector<TimeStamp::TimeStamp> _timestampData;
+        std::vector<std::string> _loggingSystemNames;
+        std::vector<Timing::TimeStamp> _timestampData;
         LogMessageSeverity _messageSeverity;
-//        std::bitset<NUM_TAGS> a;
-        std::string _loggingSystemName;
         unsigned _logCount;
     };
 
-    DataPacket::DataPacket(LogMessageSeverity messageSeverity, unsigned int logCount, std::vector<std::string> &&messages, std::vector<TimeStamp::TimeStamp>&& timestamps,  std::string logname) : _messageSeverity(messageSeverity), _logCount(logCount), _messageData(std::move(messages)), _timestampData(std::move(timestamps)), _loggingSystemName(std::move(logname)) {
-    }
-
-    DataPacket::DataPacket(DataPacket&& other) noexcept {
-        _messageData = std::move(other._messageData);
-        _timestampData = std::move(other._timestampData);
-        _loggingSystemName = other._loggingSystemName;
-        _messageSeverity = other._messageSeverity;
-        _logCount = other._logCount;
-    }
-
-    DataPacket::~DataPacket() {
-        std::cout << "destroying data packet" << std::endl;
-    }
-    // DataPacket end
-
-    // LoggingSystemData begin
     struct LoggingSystem::LoggingSystemData {
         explicit LoggingSystemData(std::string name);
 
         std::string _systemName;
         unsigned _logCounter;
     };
-
-    LoggingSystem::LoggingSystemData::LoggingSystemData(std::string name) : _systemName(std::move(name)), _logCounter(0) {
-    }
-    // LoggingSystemData end
 
     // LoggingHub begin
     class LoggingHub {
@@ -121,6 +31,7 @@ namespace UtilityBox::Logger {
             ~LoggingHub();
 
             bool& IsInitialized();
+            std::chrono::time_point<std::chrono::high_resolution_clock>& GetInitializationTimestamp();
             void AddCustomAdapter(Adapter* adapter);
             void Emplace(DataPacket&& data);
             void Distribute();
@@ -128,9 +39,11 @@ namespace UtilityBox::Logger {
             _NODISCARD_ bool VerifyMessageAddress(void* messageAddress);
 
         private:
+
             void SwitchBuffers();
 
             bool _initializationToggle;
+            std::chrono::time_point<std::chrono::high_resolution_clock> _initializationTime;
 
             // threading
             std::mutex _bufferMutex;
@@ -150,6 +63,34 @@ namespace UtilityBox::Logger {
             std::vector<Adapter*> _adapters;
     };
 
+    // LogMessageData end
+    DataPacket::DataPacket(DataPacket&& other) noexcept {
+        _messageData = std::move(other._messageData);
+        _timestampData = std::move(other._timestampData);
+        _loggingSystemNames = std::move(other._loggingSystemNames);
+        _messageSeverity = other._messageSeverity;
+        _logCount = other._logCount;
+    }
+
+    DataPacket::~DataPacket() {
+        std::cout << "destroying data packet" << std::endl;
+    }
+
+    DataPacket::DataPacket(LogMessageSeverity messageSeverity, std::vector<std::string> &&messages,
+                           std::vector<Timing::TimeStamp> &&timestamps, std::vector<std::string> &&loggingSystemNames,
+                           unsigned int logCount) : _messageSeverity(messageSeverity), _messageData(std::move(messages)), _timestampData(std::move(timestamps)), _loggingSystemNames(std::move(loggingSystemNames)), _logCount(logCount){
+    }
+    // DataPacket end
+
+    // LoggingSystemData begin
+
+
+    LoggingSystem::LoggingSystemData::LoggingSystemData(std::string name) : _systemName(std::move(name)), _logCounter(0) {
+    }
+    // LoggingSystemData end
+
+
+
     LoggingHub *LoggingHub::GetLoggingHubInstance() {
         // constructs a singleton logging hub if it hasn't been already
         static const std::unique_ptr<LoggingHub> loggingHub = std::make_unique<LoggingHub>();
@@ -163,7 +104,7 @@ namespace UtilityBox::Logger {
     }
 
     // starts an asynchronous worker thread working on the Distribute function once per asynchronousInterval. Uses _distributeMessages as a toggle.
-    LoggingHub::LoggingHub() : _initializationToggle(false), _asynchronousInterval(std::chrono::milliseconds(200)), _distributeMessages(true), _distributingThread(std::thread(&LoggingHub::Distribute, this)), _printingBufferLocation(&_printingBuffer1), _currentPacketAddress(nullptr) {
+    LoggingHub::LoggingHub() : _initializationToggle(false), _initializationTime(std::chrono::high_resolution_clock::now()), _asynchronousInterval(std::chrono::milliseconds(100)), _distributeMessages(true), _distributingThread(std::thread(&LoggingHub::Distribute, this)), _printingBufferLocation(&_printingBuffer1), _currentPacketAddress(nullptr) {
     }
 
     void LoggingHub::Distribute() {
@@ -192,7 +133,7 @@ namespace UtilityBox::Logger {
                     for (auto* adapter : _adapters) {
                         try {
                             adapter->ProcessMessage(_currentPacketAddress);
-                            adapter->OutputMessages();
+                            adapter->OutputMessage();
                         }
                         catch (const Exceptions::Exception& exception) {
                             std::cout << exception.what() << std::endl;
@@ -200,13 +141,14 @@ namespace UtilityBox::Logger {
                         }
 
                     buffer.pop();
+                    std::cout << "size at location: " << &buffer << " : " << buffer.size() << std::endl << std::endl;
+
                     }
                 }
 
                 _bufferMutex.unlock();
             }
 
-            std::cout << "size at location: " << *&_printingBufferLocation << " : " << _printingBufferLocation->size() << std::endl << std::endl;
             std::this_thread::sleep_for(_asynchronousInterval);
         }
     }
@@ -220,12 +162,16 @@ namespace UtilityBox::Logger {
         _distributingThread.join();
 
         if (!_printingBuffer1.empty() || !_printingBuffer2.empty()) {
-            //DistributeRemainder();
+            std::cout << "not empty" << std::endl;
         }
     }
 
     void LoggingHub::AddCustomAdapter(Adapter *adapter) {
         _adapters.push_back(adapter);
+    }
+
+    std::chrono::time_point<std::chrono::high_resolution_clock> GetLoggingInitializationTimestamp() {
+        return LoggingHub::GetLoggingHubInstance()->GetInitializationTimestamp();
     }
 
     void LoggingHub::SwitchBuffers() {
@@ -254,37 +200,21 @@ namespace UtilityBox::Logger {
     bool& LoggingHub::IsInitialized() {
         return _initializationToggle;
     }
+
+    std::chrono::time_point<std::chrono::high_resolution_clock> &LoggingHub::GetInitializationTimestamp() {
+        return _initializationTime;
+    }
     // LoggingHub end
 
-    // LogMessage functions begin
-    LogMessage::LogMessage(LogMessageSeverity messageSeverity) : _data(std::make_unique<LogMessageData>(messageSeverity)) {
-    }
-
-    LogMessage::LogMessage(LogMessageSeverity messageSeverity, const char* formatString, ...) : _data(std::make_unique<LogMessageData>(messageSeverity)){
-        // _data is guaranteed to be initialized when the constructor body code is executed
-        std::va_list args;
-        va_start(args, formatString);
-        _data->ProcessMessage(formatString, args);
-        va_end(args);
-    }
 
     LogMessage::~LogMessage() {
         _data.reset();
-    }
-
-    void LogMessage::Supply(const char* formatString, ...) {
-        std::va_list args;
-        va_start(args, formatString);
-        _data->ProcessMessage(formatString, args);
-        va_end(args);
     }
 
     std::ostream &operator<<(std::ostream &stream, const LogMessage &message) {
         //stream << message._data. << std::endl;
         return stream;
     }
-    // LogMessage functions end
-
 
     // LoggingSystem functions begin
     LoggingSystem::LoggingSystem(std::string&& name) : _data(std::make_unique<LoggingSystemData>(std::move(name))){
@@ -297,8 +227,12 @@ namespace UtilityBox::Logger {
 
     void LoggingSystem::Log(LogMessage* message) {
         InitializeLoggingSystem();
+        // record that it went through this system
+        ++_data->_logCounter;
+        message->Supply("Passed through system: %s", _data->_systemName.c_str());
+//        message->_data->_loggingSystemNames.emplace_back(_data->_systemName);
+//        LoggingHub::GetLoggingHubInstance()->Emplace(DataPacket(message->_data->_messageSeverity, std::move(message->_data->_messageData), std::move(message->_data->_timestampData), std::move(message->_data->_loggingSystemNames), _data->_logCounter));
 
-        LoggingHub::GetLoggingHubInstance()->Emplace(DataPacket(message->_data->_messageSeverity, _data->_logCounter, std::move(message->_data->_messageData), std::move(message->_data->_timestampData), _data->_systemName));
         delete message;
     }
 
@@ -337,7 +271,7 @@ namespace UtilityBox::Logger {
         _formattedMessages.emplace_back(std::move(message));
     }
 
-    const std::vector<TimeStamp::TimeStamp> *Adapter::GetMessageTimestamps(void *messageAddress) {
+    const std::vector<Timing::TimeStamp> *Adapter::GetMessageTimestamps(void *messageAddress) {
         if (LoggingHub::GetLoggingHubInstance()->VerifyMessageAddress(messageAddress)) {
             auto* dataPacket = static_cast<DataPacket*>(messageAddress);
             return &dataPacket->_timestampData;
@@ -364,10 +298,10 @@ namespace UtilityBox::Logger {
         throw Exceptions::Exception("Invalid pointer provided to GetMessageSeverity from custom adapter %s.", _data->_name.c_str());
     }
 
-    const std::string* Adapter::GetMessageLoggingSystemName(void* messageAddress) {
+    const std::vector<std::string>* Adapter::GetMessageLoggingSystemNames(void* messageAddress) {
         if (LoggingHub::GetLoggingHubInstance()->VerifyMessageAddress(messageAddress)) {
             auto* dataPacket = static_cast<DataPacket*>(messageAddress);
-            return &dataPacket->_loggingSystemName;
+            return &dataPacket->_loggingSystemNames;
         }
 
         throw Exceptions::Exception("Invalid pointer provided to GetMessageLoggingSystemName from custom adapter %s.", _data->_name.c_str());
@@ -398,8 +332,11 @@ namespace UtilityBox::Logger {
             ~StandardOutputAdapter() override;
 
             void ProcessMessage(void* messageData) override;
-            void OutputMessages() override;
+            void OutputMessage() override;
         private:
+            std::string FormatLogCounter(unsigned logCount);
+            std::string FormatSeverity(LogMessageSeverity severity);
+
             std::vector<std::string> _formattedMessages;
     };
 
@@ -409,29 +346,25 @@ namespace UtilityBox::Logger {
     void StandardOutputAdapter::ProcessMessage(void *messageData) {
         auto* timestamps = GetMessageTimestamps(messageData);
         auto* messages = GetMessageLogs(messageData);
-        auto* newptr = static_cast<int*>(messageData);
-        newptr++;
-
-        auto* logSystemName = GetMessageLoggingSystemName(static_cast<void*>(newptr));
-//        auto* logSystemName = GetMessageLoggingSystemName(messageData);
+        auto* logSystemNames = GetMessageLoggingSystemNames(messageData);
         auto* logCount = GetMessageLogCount(messageData);
         LogMessageSeverity severity = GetMessageSeverity(messageData);
 
         std::stringstream stream;
-        stream << "log number: " << logCount << ", logging system name: " << logSystemName << std::endl;
+        stream << "log number: " << *logCount << ", message severity: " << severity << std::endl;
         _formattedMessages.emplace_back(stream.str());
         stream.str(std::string());
 
         unsigned size = messages->size();
 
         for (unsigned i = 0; i < size; ++i) {
-            stream << "timestamp: " << (*timestamps)[i].ConvertToMillis() << " message: " << (*messages)[i] << std::endl;
+            stream << "timestamp: " << (*timestamps)[i] << " message: " << (*messages)[i] << std::endl;
             _formattedMessages.emplace_back(stream.str());
             stream.str(std::string());
         }
     }
 
-    void StandardOutputAdapter::OutputMessages() {
+    void StandardOutputAdapter::OutputMessage() {
         for (auto& message : _formattedMessages) {
             std::cout << message;
         }
@@ -448,14 +381,13 @@ namespace UtilityBox::Logger {
         if (!initialized) {
             initialized = true;
             LoggingHub::GetLoggingHubInstance()->AddCustomAdapter(new StandardOutputAdapter());
-            auto* hubInitMessage = new LogMessage(DEBUG, "Initializing logging systems.");
+            auto* hubInitMessage = new LogMessage();
+            hubInitMessage->Supply("Initializing logging systems.");
             LoggingHub::GetLoggingSystemInstance()->Log(hubInitMessage);
         }
     }
 
 }
-
-#endif
 
 //namespace UtilityBox {
 //    namespace Logger {
@@ -468,7 +400,7 @@ namespace UtilityBox::Logger {
 //            std::string _logNumberFormatted;    // Log number
 //            std::string _calendarDateFormatted; // Calendar date and local time of this log
 //            std::string _severityFormatted;     // Formatted log severity
-//            std::string _timestampFormatted;    // Timestamp of this log since the log file was open
+//            std::string _timestampFormatted;    // TimeStamp of this log since the log file was open
 //
 //            /**
 //             * Print the formatted log to the given stream
@@ -703,40 +635,6 @@ namespace UtilityBox::Logger {
 //            return severityFormatted;
 //        }
 //
-//        std::string LogMessageBackEnd::FormatTimestamp(timestampType timestamp) {
-//            // get the time in milliseconds
-//            unsigned long elapsed = (timestamp - LoggingSystem::GetLoggingHubInstance()->GetLogStartTime()).count() / 1000;
-//
-//            // milliseconds
-//            unsigned long milliseconds = elapsed;
-//            // seconds
-//            unsigned long seconds = elapsed / 1000;
-//            // minutes
-//            unsigned long minutes = elapsed / 60000;
-//
-//            // 000m 00s 0000ms [SEVERITY] MESSAGE
-//            // append minutes
-//            _format << std::setfill('0') << std::setw(3);
-//            _format << minutes << "m ";
-//
-//            // append seconds
-//            _format << std::setfill('0') << std::setw(2);
-//            _format << seconds << "s ";
-//
-//            // append milliseconds
-//            _format << std::setfill('0') << std::setw(4);
-//            _format << milliseconds << "ms ";
-//
-//            std::string timestampFormatted = _format.str();
-//
-//            // clear buffer
-//            _format.str(std::string());
-//            return timestampFormatted;
-//        }
-//
-//        std::string LogMessageBackEnd::FormatMessage(const char *formatString, std::va_list args) {
-
-//        }
 //
 //        LogMessageBackEnd::LogMessageBackEnd() : _logBufferSize(256u), _calendarBufferSize(64u), _calendarTime(std::time(nullptr)), _isMultiLine(false) {
 //            // allocate buffers

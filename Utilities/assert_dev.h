@@ -3,7 +3,6 @@
 #include <cstdio>
 #include "Logger/logger.h"
 
-
 #define ASSERT_LEVEL_WARNING 0 // Conditions that are not fatal, but not expected
 #define ASSERT_LEVEL_ERROR 1    // Conditions are not fatal, program will run incorrectly
 #define ASSERT_LEVEL_FATAL 2    // Program will be terminated

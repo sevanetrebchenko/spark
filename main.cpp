@@ -7,6 +7,12 @@
 
 int main() {
     UtilityBox::Logger::InitializeLoggingSystem();
+    std::string a = "\0";
+    std::string b = "\0";
+
+    if (a == b) {
+        std::cout << "equal" << std::endl;
+    }
 
     auto time = std::chrono::high_resolution_clock::now();
 
@@ -14,7 +20,7 @@ int main() {
     using namespace UtilityBox::Logger;
     auto* loggingSystem = new LoggingSystem("testing");
     auto* logMessage = new LogMessage(DEBUG);
-    logMessage->Supply("hello with numbers! %i", 42);
+    logMessage->Supply("hello with numbers! %i");
     logMessage->Supply("2 hello with 2 numbers! %i %i", 42, 54);
     loggingSystem->Log(logMessage);
     loggingSystem->Log(DEBUG, "testing");

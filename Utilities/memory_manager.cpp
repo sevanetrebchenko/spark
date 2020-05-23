@@ -1,6 +1,3 @@
-#ifndef DATASTRUCTURES_MEMORY_MANAGER_CPP
-#define DATASTRUCTURES_MEMORY_MANAGER_CPP
-
 #include "memory_manager.h"
 
 class _MemoryManager {
@@ -222,7 +219,3 @@ namespace UtilityBox {
         }
     }
 }
-
-#endif
-
-

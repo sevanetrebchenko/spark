@@ -24,6 +24,4 @@ namespace UtilityBox::Exceptions {
 }
 
 
-
-
 #endif //DATASTRUCTURES_EXCEPTION_H

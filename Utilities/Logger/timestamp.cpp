@@ -1,34 +1,28 @@
-//
-// Created by seva on 5/19/20.
-//
-
 #include "timestamp.h"
+#include "logger.h"
 
-namespace UtilityBox::TimeStamp {
+namespace UtilityBox::Timing {
     struct TimeStamp::TimeStampData {
-        TimeStampData() = default;
+        explicit TimeStampData(std::chrono::time_point<std::chrono::high_resolution_clock> timestamp);
         std::chrono::time_point<std::chrono::high_resolution_clock> _raw;
         unsigned _milliseconds;
         unsigned _seconds;
         unsigned _minutes;
     };
 
-    TimeStamp::TimeStamp() {
-        _data = std::make_unique<TimeStampData>();
+    TimeStamp::TimeStampData::TimeStampData(std::chrono::time_point<std::chrono::high_resolution_clock> timestamp) {
         // get the time in milliseconds
-        unsigned long elapsed = 0;//(std::chrono::high_resolution_clock::now() - LoggingSystem::GetLoggingHubInstance()->GetLogStartTime()).count() / 1000;
-        _data->_milliseconds = elapsed % 1000;
-        _data->_seconds = (elapsed / 1000) % 60;
-        _data->_minutes = (elapsed / 60000) % 60;
+        _raw = timestamp;
+        unsigned long elapsed = (_raw - Logger::GetLoggingInitializationTimestamp()).count() / 1000;
+        _milliseconds = elapsed % 1000;
+        _seconds = (elapsed / 1000) % 60;
+        _minutes = (elapsed / 60000) % 60;
     }
 
-    TimeStamp::TimeStamp(const std::chrono::time_point<std::chrono::high_resolution_clock> &timestamp) {
-        _data = std::make_unique<TimeStampData>();
-        // get the time in milliseconds
-        unsigned long elapsed = 0;//(timestamp - LoggingSystem::GetLoggingHubInstance()->GetLogStartTime()).count() / 1000;
-        _data->_milliseconds = elapsed % 1000;
-        _data->_seconds = (elapsed / 1000) % 60;
-        _data->_minutes = (elapsed / 60000) % 60;
+    TimeStamp::TimeStamp() : _data(std::make_unique<TimeStampData>(std::chrono::high_resolution_clock::now())) {
+    }
+
+    TimeStamp::TimeStamp(const std::chrono::time_point<std::chrono::high_resolution_clock> &timestamp) : _data(std::make_unique<TimeStampData>(timestamp)) {
     }
 
     bool TimeStamp::operator<(const TimeStamp &other) const {
@@ -56,7 +50,7 @@ namespace UtilityBox::TimeStamp {
     }
 
     TimeStamp::TimeStamp(const TimeStamp &other) {
-        _data = std::make_unique<TimeStampData>();
+        _data = std::make_unique<TimeStampData>(other._data->_raw);
         _data->_milliseconds = other.GetMillis();
         _data->_seconds = other.GetSeconds();
         _data->_minutes = other.GetMinutes();
@@ -70,5 +64,24 @@ namespace UtilityBox::TimeStamp {
         _data = std::move(other._data);
     }
 
+    std::ostream &operator<<(std::ostream &os, const TimeStamp &stamp) {
+        static std::stringstream format;
 
+        // default format: 000m 00s 0000ms
+        // append minutes
+        format << std::setfill('0') << std::setw(3);
+        format << stamp._data->_minutes << "m ";
+
+        // append seconds
+        format << std::setfill('0') << std::setw(2);
+        format << stamp._data->_seconds << "s ";
+
+        // append milliseconds
+        format << std::setfill('0') << std::setw(4);
+        format << stamp._data->_milliseconds << "ms ";
+
+        os << format.str();
+        format.str(std::string());
+        return os;
+    }
 }
