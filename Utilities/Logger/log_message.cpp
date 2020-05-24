@@ -88,9 +88,16 @@ namespace UtilityBox {
             _logMessages.emplace_back(processedMessage, "", Timing::TimeStamp(), DebugLogRecord(std::move(callingFunction), std::move(fileName), lineNumber));
         }
 #else
-        LogMessage::LogRecord::LogRecord(std::string &&message, std::string&& loggingSystemName, Timing::TimeStamp &&timestamp) : _message(std::move(message)),
-                                                                                                                                 _loggingSystemName(std::move(loggingSystemName)),
-                                                                                                                                 _timestamp(std::move(timestamp)) {
+        LogMessage::LogRecord::LogRecord(std::string &&message, Timing::TimeStamp &&timestamp) : _message(std::move(message)),
+                                                                                                 _timestamp(std::move(timestamp)) {
+        }
+
+        std::string &&LogMessage::LogRecord::GetMessage() {
+            return std::move(_message);
+        }
+
+        Timing::TimeStamp &&LogMessage::LogRecord::GetTimestamp() {
+            return std::move(_timestamp);
         }
 
         void LogMessage::Supply(const char* formatString, ...) {
@@ -99,7 +106,7 @@ namespace UtilityBox {
             const char* processedMessage = _data->ProcessMessage(formatString, args);
             va_end(args);
 
-            _logMessages.emplace_back(processedMessage, "", Timing::TimeStamp());
+            _logMessages.emplace_back(processedMessage, Timing::TimeStamp());
         }
 #endif
     }

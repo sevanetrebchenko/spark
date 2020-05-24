@@ -5,40 +5,45 @@
 #include <vector>
 #include "timestamp.h"
 
-//#define DEBUG_MESSAGES
+#define DEBUG_MESSAGES
 
 namespace UtilityBox {
     namespace Logger {
 
-        enum LogMessageSeverity {
+        enum class LogMessageSeverity {
             DEBUG,
             WARNING,
             SEVERE
         };
 
         class LogMessage {
-            private:
-                // Opaque pointer to abstract data - this data is not available
-                class LogMessageBackEnd;
-                std::unique_ptr<LogMessageBackEnd> _data;
+            public:
+                class LogRecord {
+                    public:
+                        LogRecord(std::string&& message, Timing::TimeStamp&& timestamp);
+                        std::string&& GetMessage();
+                        Timing::TimeStamp&& GetTimestamp();
 
-                struct LogRecord {
-                    LogRecord(std::string&& message, std::string&& loggingSystemName, Timing::TimeStamp&& timestamp);
-                    std::string _message;
-                    std::string _loggingSystemName;
-                    Timing::TimeStamp _timestamp;
+                    private:
+                        std::string _message;
+                        Timing::TimeStamp _timestamp;
                 };
 
-                std::vector<LogRecord> _logMessages;
-                LogMessageSeverity _messageSeverity;
-
-            public:
-                explicit LogMessage(LogMessageSeverity messageSeverity = DEBUG);
+                explicit LogMessage(LogMessageSeverity messageSeverity = LogMessageSeverity::DEBUG);
                 ~LogMessage();
                 void Supply(const char *formatString, ...);
 
                 const std::vector<LogRecord>* GetLogMessages();
                 LogMessageSeverity GetMessageSeverity();
+
+            private:
+                // Opaque pointer to abstract data - this data is not available
+                class LogMessageBackEnd;
+                std::unique_ptr<LogMessageBackEnd> _data;
+
+                std::vector<LogRecord> _logMessages;
+                LogMessageSeverity _messageSeverity;
+
         };
 
 #ifdef DEBUG_MESSAGES
@@ -57,9 +62,8 @@ namespace UtilityBox {
                 };
 
                 struct LogRecord {
-                    LogRecord(std::string&& message, std::string&& loggingSystemName, Timing::TimeStamp&& timestamp, DebugLogRecord&& calleeInformation);
+                    LogRecord(std::string&& message, Timing::TimeStamp&& timestamp, DebugLogRecord&& calleeInformation);
                     std::string _message;
-                    std::string _loggingSystemName;
                     Timing::TimeStamp _timestamp;
                     DebugLogRecord _calleeInformation;
                 };
@@ -68,6 +72,17 @@ namespace UtilityBox {
                 LogMessageSeverity _messageSeverity;
 
             public:
+                class LogRecord {
+                    public:
+                        LogRecord(std::string&& message, Timing::TimeStamp&& timestamp);
+                        std::string&& GetMessage();
+                        Timing::TimeStamp&& GetTimestamp();
+
+                    private:
+                        std::string _message;
+                        Timing::TimeStamp _timestamp;
+                };
+
                 explicit DBG_LOG_MESSAGE(LogMessageSeverity messageSeverity = DEBUG);
                 ~DBG_LOG_MESSAGE();
                 void SUPPLY_DBG(std::string&& callingFunction, std::string&& fileName, int lineNumber, const char* formatString, ...);
@@ -76,7 +91,7 @@ namespace UtilityBox {
                 LogMessageSeverity GetMessageSeverity();
         };
 
-                // shorten file name - get the last occurrence of the '/' character to only get the file name
+        // shorten file name - get the last occurrence of the '/' character to only get the file name
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
 #undef LogMessage

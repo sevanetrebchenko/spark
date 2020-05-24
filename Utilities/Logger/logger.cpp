@@ -2,7 +2,8 @@
 #include "../assert_dev.h"
 #include "../exception.h"
 
-namespace UtilityBox::Logger {
+namespace UtilityBox {
+    namespace Logger {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// DATA PACKET
@@ -219,8 +220,10 @@ namespace UtilityBox::Logger {
         // record that it went through this system
         ++_data->_logCounter;
         message->Supply("Passed through system: %s", _data->_systemName.c_str());
-        message->_data->_loggingSystemNames.emplace_back(_data->_systemName);
-        LoggingHub::GetLoggingHubInstance()->Emplace(DataPacket(message->_data->_messageSeverity, std::move(message->_data->_messages), std::move(message->_data->_timestampData), std::move(message->_data->_loggingSystemNames), _data->_logCounter));
+        auto* a = message->GetLogMessages();
+        auto& string = (*a)[0]._loggingSystemName;
+//        message->_data->_loggingSystemNames.emplace_back(_data->_systemName);
+//        LoggingHub::GetLoggingHubInstance()->Emplace(DataPacket(message->_data->_messageSeverity, std::move(message->_data->_messages), std::move(message->_data->_timestampData), std::move(message->_data->_loggingSystemNames), _data->_logCounter));
 
         delete message;
     }
@@ -395,7 +398,7 @@ namespace UtilityBox::Logger {
         }
     }
 
-}
+} }
 
 //namespace UtilityBox {
 //    namespace Logger {
