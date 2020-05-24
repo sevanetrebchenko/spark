@@ -6,7 +6,6 @@
 #include <thread>
 
 int main() {
-    UtilityBox::Logger::InitializeLoggingSystem();
     std::string a = "\0";
     std::string b = "\0";
 
