@@ -220,8 +220,13 @@ namespace UtilityBox {
         // record that it went through this system
         ++_data->_logCounter;
         message->Supply("Passed through system: %s", _data->_systemName.c_str());
-        auto* a = message->GetLogMessages();
-        auto& string = (*a)[0]._loggingSystemName;
+        std::vector<std::string> messages;
+        std::vector<LogMessage::LogRecord>* a = message->GetLogMessages();
+        for (auto& strings : *a) {
+            std::string msg = strings._message;
+            messages.emplace_back(std::move(strings._message));
+            std::cout << msg << std::endl;
+        }
 //        message->_data->_loggingSystemNames.emplace_back(_data->_systemName);
 //        LoggingHub::GetLoggingHubInstance()->Emplace(DataPacket(message->_data->_messageSeverity, std::move(message->_data->_messages), std::move(message->_data->_timestampData), std::move(message->_data->_loggingSystemNames), _data->_logCounter));
 
@@ -282,13 +287,14 @@ namespace UtilityBox {
         _formattedMessages.emplace_back(std::move(message));
     }
 
+    /*
     const std::vector<Timing::TimeStamp> *Adapter::GetMessageTimestamps(void *messageAddress) {
         if (LoggingHub::GetLoggingHubInstance()->VerifyMessageAddress(messageAddress)) {
             auto* dataPacket = static_cast<DataPacket*>(messageAddress);
             return &dataPacket->_timestampData;
         }
 
-        throw Exceptions::Exception("Invalid pointer provided to GetMessageTimestamps from custom adapter %s.", _data->_name.c_str());
+        throw Exceptions::Exception("Invalid pointer provided to GetMessageTimestamps from custom adapter %s.");
     }
 
     const std::vector<std::string>* Adapter::GetMessageLogs(void* messageAddress) {
@@ -310,8 +316,8 @@ namespace UtilityBox {
     }
 
     const std::vector<std::string>* Adapter::GetMessageLoggingSystemNames(void* messageAddress) {
-        auto* dataPacketBase = static_cast<DataPacket*>(messageAddress);
-        if (auto* dataPacket = dynamic_cast<DataPacket*>(dataPacketBase)) {
+        auto* dataPacketBasePointer = static_cast<DataPacket*>(messageAddress);
+        if (auto* dataPacket = dynamic_cast<DataPacket*>(dataPacketBasePointer)) {
             return &dataPacket->_loggingSystemNames;
         }
 
@@ -326,6 +332,7 @@ namespace UtilityBox {
 
         throw Exceptions::Exception("Invalid pointer provided to GetMessageLogCount from custom adapter %s.", _data->_name.c_str());
     }
+     */
 
     Adapter::~Adapter() {
         _data.reset();
@@ -355,24 +362,24 @@ namespace UtilityBox {
     }
 
     void StandardOutputAdapter::ProcessMessage(void *messageData) {
-        auto* timestamps = GetMessageTimestamps(messageData);
-        auto* messages = GetMessageLogs(messageData);
-        auto* logSystemNames = GetMessageLoggingSystemNames(messageData);
-        auto* logCount = GetMessageLogCount(messageData);
-        LogMessageSeverity severity = GetMessageSeverity(messageData);
-
-        std::stringstream stream;
-        stream << "log number: " << *logCount << ", message severity: " << severity << std::endl;
-        _formattedMessages.emplace_back(stream.str());
-        stream.str(std::string());
-
-        unsigned size = messages->size();
-
-        for (unsigned i = 0; i < size; ++i) {
-            stream << "timestamp: " << (*timestamps)[i] << " message: " << (*messages)[i] << std::endl;
-            _formattedMessages.emplace_back(stream.str());
-            stream.str(std::string());
-        }
+//        auto* timestamps = GetMessageTimestamps(messageData);
+//        auto* messages = GetMessageLogs(messageData);
+//        auto* logSystemNames = GetMessageLoggingSystemNames(messageData);
+//        auto* logCount = GetMessageLogCount(messageData);
+//        LogMessageSeverity severity = GetMessageSeverity(messageData);
+//
+//        std::stringstream stream;
+//        stream << "log number: " << *logCount << ", message severity: " << 0 << std::endl;
+//        _formattedMessages.emplace_back(stream.str());
+//        stream.str(std::string());
+//
+//        unsigned size = messages->size();
+//
+//        for (unsigned i = 0; i < size; ++i) {
+//            stream << "timestamp: " << (*timestamps)[i] << " message: " << (*messages)[i] << std::endl;
+//            _formattedMessages.emplace_back(stream.str());
+//            stream.str(std::string());
+//        }
     }
 
     void StandardOutputAdapter::OutputMessage() {

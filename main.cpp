@@ -18,13 +18,13 @@ int main() {
     //void* a = UtilityBox::MemoryManager::allocate(45);
     using namespace UtilityBox::Logger;
     auto* loggingSystem = new LoggingSystem("testing");
-    auto* logMessage = new LogMessage(DEBUG);
-    logMessage->Supply("hello with numbers! %i");
+    auto* logMessage = new LogMessage(LogMessageSeverity::DEBUG);
+    logMessage->Supply("hello with numbers! %i", 1);
     logMessage->Supply("2 hello with 2 numbers! %i %i", 42, 54);
     loggingSystem->Log(logMessage);
-    loggingSystem->Log(DEBUG, "testing");
-    loggingSystem->Log(DEBUG, "testing");
-    loggingSystem->Log(DEBUG, "testing");
+    loggingSystem->Log(LogMessageSeverity::DEBUG, "testing");
+    loggingSystem->Log(LogMessageSeverity::DEBUG, "testing");
+    loggingSystem->Log(LogMessageSeverity::DEBUG, "testing");
 
     //LogMessage<int> *v = new LogMessage<int>(DEBUG, "lmao");
 

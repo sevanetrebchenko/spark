@@ -1,5 +1,6 @@
 #include "log_message.h"
 #include <cstdarg>
+#include <utility>
 
 namespace UtilityBox {
     namespace Logger {
@@ -31,7 +32,7 @@ namespace UtilityBox {
             _data.reset();
         }
 
-        const std::vector<LogMessage::LogRecord> *LogMessage::GetLogMessages() {
+        std::vector<LogMessage::LogRecord> *LogMessage::GetLogMessages() {
             return &_logMessages;
         }
 
@@ -69,9 +70,9 @@ namespace UtilityBox {
 
 #ifdef DEBUG_MESSAGES
         DBG_LOG_MESSAGE::LogRecord::LogRecord(std::string &&message, std::string&& loggingSystemName, Timing::TimeStamp &&timestamp, DebugLogRecord&& calleeInformation) : _message(std::move(message)),
-                                                                                                                                                                          _loggingSystemName(std::move(loggingSystemName)),
-                                                                                                                                                                          _timestamp(std::move(timestamp)),
-                                                                                                                                                                          _calleeInformation(std::move(calleeInformation)) {
+                                                                                                                                                                           _loggingSystemName(std::move(loggingSystemName)),
+                                                                                                                                                                           _timestamp(std::move(timestamp)),
+                                                                                                                                                                           _calleeInformation(std::move(calleeInformation)) {
         }
 
         DBG_LOG_MESSAGE::DebugLogRecord::DebugLogRecord(std::string &&filename, std::string &&functionName, int lineNumber) : _fileName(std::move(filename)),
@@ -88,16 +89,9 @@ namespace UtilityBox {
             _logMessages.emplace_back(processedMessage, "", Timing::TimeStamp(), DebugLogRecord(std::move(callingFunction), std::move(fileName), lineNumber));
         }
 #else
-        LogMessage::LogRecord::LogRecord(std::string &&message, Timing::TimeStamp &&timestamp) : _message(std::move(message)),
-                                                                                                 _timestamp(std::move(timestamp)) {
-        }
-
-        std::string &&LogMessage::LogRecord::GetMessage() {
-            return std::move(_message);
-        }
-
-        Timing::TimeStamp &&LogMessage::LogRecord::GetTimestamp() {
-            return std::move(_timestamp);
+        LogMessage::LogRecord::LogRecord(std::string &&message, std::string &&loggingSystemName, Timing::TimeStamp &&timestamp) : _message(std::move(message)),
+                                                                                                                                  _loggingSystemName(std::move(loggingSystemName)),
+                                                                                                                                  _timestamp(std::move(timestamp)) {
         }
 
         void LogMessage::Supply(const char* formatString, ...) {
@@ -106,7 +100,7 @@ namespace UtilityBox {
             const char* processedMessage = _data->ProcessMessage(formatString, args);
             va_end(args);
 
-            _logMessages.emplace_back(processedMessage, Timing::TimeStamp());
+            _logMessages.emplace_back(processedMessage, "", Timing::TimeStamp());
         }
 #endif
     }
