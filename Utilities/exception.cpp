@@ -16,7 +16,7 @@ namespace UtilityBox {
         }
 
         Exception::ExceptionData::~ExceptionData() {
-            delete _processingBuffer;
+            delete[] _processingBuffer;
         }
 
         Exception::Exception(const char *formatString, ...) : _data(std::make_unique<ExceptionData>()){
@@ -58,6 +58,10 @@ namespace UtilityBox {
 
         Exception::~Exception() noexcept {
             _data.reset();
+        }
+
+        Exception::Exception(Exception const &exception) noexcept {
+
         }
     }
 }

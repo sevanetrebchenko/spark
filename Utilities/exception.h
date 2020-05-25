@@ -13,6 +13,9 @@ namespace UtilityBox {
         class Exception : public std::exception {
             public:
                 explicit Exception(const char* formatString, ...);
+
+                Exception(Exception const &exception) noexcept;
+
                 ~Exception() noexcept override;
                 _NODISCARD_ const char* what() const noexcept override;
 

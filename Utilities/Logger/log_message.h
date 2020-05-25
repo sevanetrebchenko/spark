@@ -45,19 +45,19 @@ namespace UtilityBox {
         // Class captures caller and records debug information
         class DBG_LOG_MESSAGE {
             public:
-                struct DebugLogRecord {
-                    DebugLogRecord(std::string&& filename, std::string&& functionName, int lineNumber);
+                struct DBG_LOG_RECORD {
+                    DBG_LOG_RECORD(std::string&& filename, std::string&& functionName, int lineNumber);
                     std::string _fileName;
                     std::string _functionName;
                     int _lineNumber;
                 };
 
                 struct LogRecord {
-                    LogRecord(std::string&& message, std::string&& loggingSystemName, Timing::TimeStamp&& timestamp, DebugLogRecord&& calleeInformation);
+                    LogRecord(std::string&& message, std::string&& loggingSystemName, Timing::TimeStamp&& timestamp, DBG_LOG_RECORD&& calleeInformation);
                     std::string _message;
                     std::string _loggingSystemName;
                     Timing::TimeStamp _timestamp;
-                    DebugLogRecord _calleeInformation;
+                    DBG_LOG_RECORD _calleeInformation;
                 };
 
                 explicit DBG_LOG_MESSAGE(LogMessageSeverity messageSeverity = LogMessageSeverity::DEBUG);

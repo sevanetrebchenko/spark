@@ -10,20 +10,16 @@ namespace UtilityBox {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     class DataPacket final {
         public:
-            DataPacket(LogMessageSeverity messageSeverity, std::vector<std::string> &&messages, std::vector<Timing::TimeStamp>&& timestamps, std::vector<std::string> &&loggingSystemNames, unsigned logCount);
+            DataPacket(LogMessageSeverity messageSeverity, std::vector<LogMessage::LogRecord>&& messageData, unsigned logCount);
             DataPacket(DataPacket&& other) noexcept;
             virtual ~DataPacket();
-            std::vector<std::string> _messageData;
-            std::vector<std::string> _loggingSystemNames;
-            std::vector<Timing::TimeStamp> _timestampData;
+            std::vector<LogMessage::LogRecord> _messageData;
             LogMessageSeverity _messageSeverity;
             unsigned _logCount;
     };
 
     DataPacket::DataPacket(DataPacket&& other) noexcept {
         _messageData = std::move(other._messageData);
-        _timestampData = std::move(other._timestampData);
-        _loggingSystemNames = std::move(other._loggingSystemNames);
         _messageSeverity = other._messageSeverity;
         _logCount = other._logCount;
     }
@@ -32,9 +28,7 @@ namespace UtilityBox {
         std::cout << "destroying data packet" << std::endl;
     }
 
-    DataPacket::DataPacket(LogMessageSeverity messageSeverity, std::vector<std::string> &&messages,
-                           std::vector<Timing::TimeStamp> &&timestamps, std::vector<std::string> &&loggingSystemNames,
-                           unsigned int logCount) : _messageSeverity(messageSeverity), _messageData(std::move(messages)), _timestampData(std::move(timestamps)), _loggingSystemNames(std::move(loggingSystemNames)), _logCount(logCount){
+    DataPacket::DataPacket(LogMessageSeverity messageSeverity, std::vector<LogMessage::LogRecord> &&messageData, unsigned int logCount) : _messageSeverity(messageSeverity), _messageData(std::move(messageData)), _logCount(logCount){
     }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +48,6 @@ namespace UtilityBox {
             void AddCustomAdapter(Adapter* adapter);
             void Emplace(DataPacket&& data);
             void Distribute();
-            _NODISCARD_ bool VerifyMessageAddress(void* messageAddress);
 
         private:
 
@@ -67,16 +60,12 @@ namespace UtilityBox {
             std::mutex _bufferMutex;
             std::chrono::milliseconds _asynchronousInterval;
             std::atomic<bool> _distributeMessages;
+            std::atomic<std::queue<DataPacket>*> _printingBufferLocation;
             std::thread _distributingThread;
 
             // buffers
             std::queue<DataPacket> _printingBuffer1;
             std::queue<DataPacket> _printingBuffer2;
-            std::queue<DataPacket> _printingError;
-
-            // abstraction to allow buffer swapping
-            std::queue<DataPacket>* _printingBufferLocation;
-            void* _currentPacketAddress;
 
             std::vector<Adapter*> _adapters;
     };
@@ -89,12 +78,13 @@ namespace UtilityBox {
 
     void LoggingHub::Emplace(DataPacket&& data) {
         // call move constructor and emplace into queue
-        _printingBufferLocation->emplace(std::move(data));
+        (*_printingBufferLocation).emplace(std::move(data));
         std::cout << "writing to " << &*_printingBufferLocation << std::endl;
     }
 
     // starts an asynchronous worker thread working on the Distribute function once per asynchronousInterval. Uses _distributeMessages as a toggle.
-    LoggingHub::LoggingHub() : _initializationToggle(false), _initializationTime(std::chrono::high_resolution_clock::now()), _asynchronousInterval(std::chrono::milliseconds(100)), _distributeMessages(true), _distributingThread(std::thread(&LoggingHub::Distribute, this)), _printingBufferLocation(&_printingBuffer1), _currentPacketAddress(nullptr) {
+    LoggingHub::LoggingHub() : _initializationToggle(false), _initializationTime(std::chrono::high_resolution_clock::now()), _asynchronousInterval(std::chrono::milliseconds(100)), _distributeMessages(true), _distributingThread(std::move(std::thread(&LoggingHub::Distribute, this))), _printingBufferLocation(&_printingBuffer1) {
+        std::cout << "called constructor for logging hub" << std::endl;
     }
 
     void LoggingHub::Distribute() {
@@ -102,14 +92,17 @@ namespace UtilityBox {
 
             // lock this area so only one thread can access it
             // lock guard automatically gets unlocked when lock goes out of scope
-            _bufferMutex.lock();
+            std::cout << "before lock" << std::endl;
+            std::scoped_lock<std::mutex> lock(_bufferMutex);
             // asynchronous code here
 
             std::cout << "entered lock" << std::endl;
             // redirect data flow to the other buffer
-            std::cout << "size at location: " << *&_printingBufferLocation << " : " << _printingBufferLocation->size() << std::endl;
+            void* location = _printingBufferLocation;
+            unsigned size = (*_printingBufferLocation).size();
+            std::cout << "size at location: " << location << " : " << size << std::endl;
 
-            if (!_printingBufferLocation->empty()) {
+            if (!(*_printingBufferLocation).empty()) {
                 // get the buffer to empty
                 std::queue<DataPacket>& buffer = *_printingBufferLocation;
 
@@ -118,11 +111,10 @@ namespace UtilityBox {
 
                 while (!buffer.empty()) {
                     DataPacket& packet = buffer.front();
-                    _currentPacketAddress = static_cast<void*>(&packet);
 
                     for (auto* adapter : _adapters) {
                         try {
-                            adapter->ProcessMessage(_currentPacketAddress);
+                            adapter->ProcessMessage(static_cast<void*>(&packet));
                             adapter->OutputMessage();
                         }
                         catch (const Exceptions::Exception& exception) {
@@ -135,8 +127,6 @@ namespace UtilityBox {
 
                     }
                 }
-
-                _bufferMutex.unlock();
             }
 
             std::this_thread::sleep_for(_asynchronousInterval);
@@ -144,12 +134,16 @@ namespace UtilityBox {
     }
 
     LoggingHub::~LoggingHub() {
+        std::cout << "destructor for logging hub called" << std::endl;
         // send 'shutdown' message to worker thread
         _distributeMessages = false;
 
+        std::cout << "location is: " << _printingBufferLocation << std::endl;
+
         // pause the main thread to ensure worker thread has enough time to process 'shutdown' message
-        std::this_thread::sleep_for(_asynchronousInterval);
+        std::cout << "waiting for thread" << std::endl;
         _distributingThread.join();
+        std::cout << "thread finished" << std::endl;
 
         if (!_printingBuffer1.empty() || !_printingBuffer2.empty()) {
             std::cout << "not empty" << std::endl;
@@ -172,10 +166,6 @@ namespace UtilityBox {
             std::cout << "current active buffer is " << &_printingBuffer1 << std::endl << std::endl;
             _printingBufferLocation = &_printingBuffer1;
         }
-    }
-
-    bool LoggingHub::VerifyMessageAddress(void* messageAddress) {
-        return reinterpret_cast<std::intptr_t>(messageAddress) == reinterpret_cast<std::intptr_t>(_currentPacketAddress);
     }
 
     LoggingSystem *LoggingHub::GetLoggingSystemInstance() {
@@ -220,15 +210,9 @@ namespace UtilityBox {
         // record that it went through this system
         ++_data->_logCounter;
         message->Supply("Passed through system: %s", _data->_systemName.c_str());
-        std::vector<std::string> messages;
-        std::vector<LogMessage::LogRecord>* a = message->GetLogMessages();
-        for (auto& strings : *a) {
-            std::string msg = strings._message;
-            messages.emplace_back(std::move(strings._message));
-            std::cout << msg << std::endl;
-        }
 //        message->_data->_loggingSystemNames.emplace_back(_data->_systemName);
-//        LoggingHub::GetLoggingHubInstance()->Emplace(DataPacket(message->_data->_messageSeverity, std::move(message->_data->_messages), std::move(message->_data->_timestampData), std::move(message->_data->_loggingSystemNames), _data->_logCounter));
+
+        LoggingHub::GetLoggingHubInstance()->Emplace(DataPacket(message->GetMessageSeverity(), std::move(*(message->GetLogMessages())), _data->_logCounter));
 
         delete message;
     }
@@ -287,52 +271,53 @@ namespace UtilityBox {
         _formattedMessages.emplace_back(std::move(message));
     }
 
-    /*
     const std::vector<Timing::TimeStamp> *Adapter::GetMessageTimestamps(void *messageAddress) {
-        if (LoggingHub::GetLoggingHubInstance()->VerifyMessageAddress(messageAddress)) {
-            auto* dataPacket = static_cast<DataPacket*>(messageAddress);
-            return &dataPacket->_timestampData;
+        auto* dataPacketBasePointer = static_cast<DataPacket*>(messageAddress);
+        if (auto* dataPacket = dynamic_cast<DataPacket*>(dataPacketBasePointer)) {
+            std::cout << "successful cast, data is accessed" << std::endl;
+            return nullptr;
         }
 
         throw Exceptions::Exception("Invalid pointer provided to GetMessageTimestamps from custom adapter %s.");
     }
+        /*
 
-    const std::vector<std::string>* Adapter::GetMessageLogs(void* messageAddress) {
-        if (LoggingHub::GetLoggingHubInstance()->VerifyMessageAddress(messageAddress)) {
-            auto* dataPacket = static_cast<DataPacket*>(messageAddress);
-            return &dataPacket->_messageData;
+        const std::vector<std::string>* Adapter::GetMessageLogs(void* messageAddress) {
+            if (LoggingHub::GetLoggingHubInstance()->VerifyMessageAddress(messageAddress)) {
+                auto* dataPacket = static_cast<DataPacket*>(messageAddress);
+                return &dataPacket->_messageData;
+            }
+
+            throw Exceptions::Exception("Invalid pointer provided to GetMessageLogs from custom adapter %s.", _data->_name.c_str());
         }
 
-        throw Exceptions::Exception("Invalid pointer provided to GetMessageLogs from custom adapter %s.", _data->_name.c_str());
-    }
+        LogMessageSeverity Adapter::GetMessageSeverity(void* messageAddress) {
+            if (LoggingHub::GetLoggingHubInstance()->VerifyMessageAddress(messageAddress)) {
+                auto* dataPacket = static_cast<DataPacket*>(messageAddress);
+                return dataPacket->_messageSeverity;
+            }
 
-    LogMessageSeverity Adapter::GetMessageSeverity(void* messageAddress) {
-        if (LoggingHub::GetLoggingHubInstance()->VerifyMessageAddress(messageAddress)) {
-            auto* dataPacket = static_cast<DataPacket*>(messageAddress);
-            return dataPacket->_messageSeverity;
+            throw Exceptions::Exception("Invalid pointer provided to GetMessageSeverity from custom adapter %s.", _data->_name.c_str());
         }
 
-        throw Exceptions::Exception("Invalid pointer provided to GetMessageSeverity from custom adapter %s.", _data->_name.c_str());
-    }
+        const std::vector<std::string>* Adapter::GetMessageLoggingSystemNames(void* messageAddress) {
+            auto* dataPacketBasePointer = static_cast<DataPacket*>(messageAddress);
+            if (auto* dataPacket = dynamic_cast<DataPacket*>(dataPacketBasePointer)) {
+                return &dataPacket->_loggingSystemNames;
+            }
 
-    const std::vector<std::string>* Adapter::GetMessageLoggingSystemNames(void* messageAddress) {
-        auto* dataPacketBasePointer = static_cast<DataPacket*>(messageAddress);
-        if (auto* dataPacket = dynamic_cast<DataPacket*>(dataPacketBasePointer)) {
-            return &dataPacket->_loggingSystemNames;
+            throw Exceptions::Exception("Invalid pointer provided to GetMessageLoggingSystemName from custom adapter %s.", _data->_name.c_str());
         }
 
-        throw Exceptions::Exception("Invalid pointer provided to GetMessageLoggingSystemName from custom adapter %s.", _data->_name.c_str());
-    }
+        const unsigned* Adapter::GetMessageLogCount(void* messageAddress) {
+            if (LoggingHub::GetLoggingHubInstance()->VerifyMessageAddress(messageAddress)) {
+                auto* dataPacket = static_cast<DataPacket*>(messageAddress);
+                return &dataPacket->_logCount;
+            }
 
-    const unsigned* Adapter::GetMessageLogCount(void* messageAddress) {
-        if (LoggingHub::GetLoggingHubInstance()->VerifyMessageAddress(messageAddress)) {
-            auto* dataPacket = static_cast<DataPacket*>(messageAddress);
-            return &dataPacket->_logCount;
+            throw Exceptions::Exception("Invalid pointer provided to GetMessageLogCount from custom adapter %s.", _data->_name.c_str());
         }
-
-        throw Exceptions::Exception("Invalid pointer provided to GetMessageLogCount from custom adapter %s.", _data->_name.c_str());
-    }
-     */
+         */
 
     Adapter::~Adapter() {
         _data.reset();
@@ -362,7 +347,7 @@ namespace UtilityBox {
     }
 
     void StandardOutputAdapter::ProcessMessage(void *messageData) {
-//        auto* timestamps = GetMessageTimestamps(messageData);
+        auto* timestamps = GetMessageTimestamps(messageData);
 //        auto* messages = GetMessageLogs(messageData);
 //        auto* logSystemNames = GetMessageLoggingSystemNames(messageData);
 //        auto* logCount = GetMessageLogCount(messageData);
