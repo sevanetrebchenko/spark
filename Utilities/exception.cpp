@@ -59,9 +59,5 @@ namespace UtilityBox {
         Exception::~Exception() noexcept {
             _data.reset();
         }
-
-        Exception::Exception(Exception const &exception) noexcept {
-
-        }
     }
 }

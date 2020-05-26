@@ -6,14 +6,7 @@
 #include <thread>
 
 int main() {
-    std::string a = "\0";
-    std::string b = "\0";
-
-    if (a == b) {
-        std::cout << "equal" << std::endl;
-    }
-
-    auto time = std::chrono::high_resolution_clock::now();
+    UtilityBox::Logger::LoggingHub::Initialize();
 
     //void* a = UtilityBox::MemoryManager::allocate(45);
     using namespace UtilityBox::Logger;
@@ -22,9 +15,7 @@ int main() {
     logMessage->Supply("hello with numbers! %i", 1);
     logMessage->Supply("2 hello with 2 numbers! %i %i", 42, 54);
     loggingSystem->Log(logMessage);
-    loggingSystem->Log(LogMessageSeverity::DEBUG, "testing");
-    loggingSystem->Log(LogMessageSeverity::DEBUG, "testing");
-    loggingSystem->Log(LogMessageSeverity::DEBUG, "testing");
+    delete loggingSystem;
 
     //LogMessage<int> *v = new LogMessage<int>(DEBUG, "lmao");
 
@@ -48,8 +39,6 @@ int main() {
     int *r = new int[10];
     delete[] r;
 
-    auto end = std::chrono::high_resolution_clock::now();
-    std::cout << "program ran for " << (end - time).count() / 1000 << " milliseconds" << std::endl;
-
+    LoggingHub::Reset();
     return 0;
 }

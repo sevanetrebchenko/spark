@@ -5,7 +5,7 @@
 #include <vector>
 #include "timestamp.h"
 
-#define DEBUG_MESSAGES
+//#define DEBUG_MESSAGES
 
 namespace UtilityBox {
     namespace Logger {
@@ -19,9 +19,8 @@ namespace UtilityBox {
         class LogMessage {
             public:
                 struct LogRecord {
-                    LogRecord(std::string&& message, std::string&& loggingSystemName, Timing::TimeStamp&& timestamp);
+                    LogRecord(std::string&& message, Timing::TimeStamp&& timestamp);
                     std::string _message;
-                    std::string _loggingSystemName;
                     Timing::TimeStamp _timestamp;
                 };
 
@@ -53,9 +52,8 @@ namespace UtilityBox {
                 };
 
                 struct LogRecord {
-                    LogRecord(std::string&& message, std::string&& loggingSystemName, Timing::TimeStamp&& timestamp, DBG_LOG_RECORD&& calleeInformation);
+                    LogRecord(std::string&& message, Timing::TimeStamp&& timestamp, DBG_LOG_RECORD&& calleeInformation);
                     std::string _message;
-                    std::string _loggingSystemName;
                     Timing::TimeStamp _timestamp;
                     DBG_LOG_RECORD _calleeInformation;
                 };

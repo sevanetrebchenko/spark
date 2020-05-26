@@ -5,14 +5,14 @@
 namespace UtilityBox {
     namespace Logger {
         class LogMessage::LogMessageBackEnd {
-            private:
-                unsigned _processingBufferSize;
-                char* _processingBuffer;
-
             public:
                 LogMessageBackEnd();
                 ~LogMessageBackEnd();
                 const char* ProcessMessage(const char* formatString, std::va_list argList);
+
+            private:
+                unsigned _processingBufferSize;
+                char* _processingBuffer;
         };
 
         LogMessage::LogMessageBackEnd::LogMessageBackEnd() : _processingBufferSize(64u) {
@@ -69,10 +69,9 @@ namespace UtilityBox {
         }
 
 #ifdef DEBUG_MESSAGES
-        DBG_LOG_MESSAGE::LogRecord::LogRecord(std::string &&message, std::string&& loggingSystemName, Timing::TimeStamp &&timestamp, DBG_LOG_RECORD&& calleeInformation) : _message(std::move(message)),
-                                                                                                                                                                           _loggingSystemName(std::move(loggingSystemName)),
-                                                                                                                                                                           _timestamp(std::move(timestamp)),
-                                                                                                                                                                           _calleeInformation(std::move(calleeInformation)) {
+        DBG_LOG_MESSAGE::LogRecord::LogRecord(std::string &&message, Timing::TimeStamp &&timestamp, DBG_LOG_RECORD&& calleeInformation) : _message(std::move(message)),
+                                                                                                                                          _timestamp(std::move(timestamp)),
+                                                                                                                                          _calleeInformation(std::move(calleeInformation)) {
         }
 
         DBG_LOG_MESSAGE::DBG_LOG_RECORD::DBG_LOG_RECORD(std::string &&filename, std::string &&functionName, int lineNumber) : _fileName(std::move(filename)),
@@ -86,12 +85,11 @@ namespace UtilityBox {
             const char* processedMessage = _data->ProcessMessage(formatString, args);
             va_end(args);
 
-            _logMessages.emplace_back(processedMessage, "", Timing::TimeStamp(), DBG_LOG_RECORD(std::move(callingFunction), std::move(fileName), lineNumber));
+            _logMessages.emplace_back(processedMessage, Timing::TimeStamp(), DBG_LOG_RECORD(std::move(callingFunction), std::move(fileName), lineNumber));
         }
 #else
-        LogMessage::LogRecord::LogRecord(std::string &&message, std::string &&loggingSystemName, Timing::TimeStamp &&timestamp) : _message(std::move(message)),
-                                                                                                                                  _loggingSystemName(std::move(loggingSystemName)),
-                                                                                                                                  _timestamp(std::move(timestamp)) {
+        LogMessage::LogRecord::LogRecord(std::string &&message, Timing::TimeStamp &&timestamp) : _message(std::move(message)),
+                                                                                     _timestamp(std::move(timestamp)) {
         }
 
         void LogMessage::Supply(const char* formatString, ...) {
@@ -100,7 +98,7 @@ namespace UtilityBox {
             const char* processedMessage = _data->ProcessMessage(formatString, args);
             va_end(args);
 
-            _logMessages.emplace_back(processedMessage, "", Timing::TimeStamp());
+            _logMessages.emplace_back(processedMessage, Timing::TimeStamp());
         }
 #endif
     }
