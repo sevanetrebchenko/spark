@@ -30,6 +30,7 @@ namespace UtilityBox {
                 static void Initialize();
                 static void Reset();
                 void AttachCustomAdapter(Adapter* adapter);
+                Adapter* GetCustomAdapter(const std::string& name);
 
                 const std::vector<LogMessage::LogRecord>& GetLogRecords(void* messageAddress);
                 const LogMessageSeverity& GetMessageSeverity(void* messageAddress);
@@ -42,7 +43,6 @@ namespace UtilityBox {
                 LoggingHub();
                 ~LoggingHub();
                 static LoggingHub* _loggingHub;
-                std::chrono::time_point<std::chrono::high_resolution_clock> _initializationTime;
 
                 // Allow logging systems to access SendMessage()
                 friend class LoggingSystem;

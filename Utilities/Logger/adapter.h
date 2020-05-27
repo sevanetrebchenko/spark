@@ -25,7 +25,9 @@ namespace UtilityBox {
                 virtual ~Adapter();
                 virtual void ProcessMessage(void* messageData) = 0;
                 virtual void OutputMessage() = 0;
+
                 AdapterConfiguration& GetConfiguration();
+                const std::string& GetName();
 
             protected:
                 const char* FormatCalendarInformation();

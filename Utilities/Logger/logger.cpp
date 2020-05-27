@@ -9,7 +9,7 @@ namespace UtilityBox {
         // default adapters
         class StandardOutputAdapter final : public Adapter {
             public:
-                explicit StandardOutputAdapter(std::ostream* stream);
+                explicit StandardOutputAdapter(std::string&& name, std::ostream* stream);
                 ~StandardOutputAdapter() override;
 
                 void ProcessMessage(void* messageAddress) override;
@@ -21,7 +21,7 @@ namespace UtilityBox {
                 std::stringstream _format;
         };
 
-        StandardOutputAdapter::StandardOutputAdapter(std::ostream* stream) : Adapter("Standard Output"), _stream(stream) {
+        StandardOutputAdapter::StandardOutputAdapter(std::string&& name, std::ostream* stream) : Adapter(std::move(name)), _stream(stream) {
         }
 
         void StandardOutputAdapter::ProcessMessage(void *messageAddress) {
@@ -31,21 +31,24 @@ namespace UtilityBox {
             //          : supplied from (filename, function:000)
 
             // format message header
-            _format << FormatLogCounter() << " | " << FormatCalendarInformation() << " | " << FormatSeverity(LoggingHub::GetInstance().GetMessageSeverity(messageAddress)) << std::endl;
-            _formattedMessages.emplace_back(_format.str());
-            _format.str(std::string());
-
-            // format message body
-            const std::vector<LogMessage::LogRecord>& messageRecords = LoggingHub::GetInstance().GetLogRecords(messageAddress);
-            for (auto& message : messageRecords) {
-                _format << '\t' << FormatTimestamp(message._timestamp) << " - " << message._message << std::endl;
-#ifdef DEBUG_MESSAGES
-                _format << "\t\t" << ": supplied from (" << message._calleeInformation._fileName << ", " << message._calleeInformation._functionName << ':' << message._calleeInformation._lineNumber << ')' << std::endl;
-#endif
+            const LogMessageSeverity& messageSeverity = LoggingHub::GetInstance().GetMessageSeverity(messageAddress);
+            if (messageSeverity >= _config.severityCutoff) {
+                _format << FormatLogCounter() << " | " << FormatCalendarInformation() << " | " << FormatSeverity(messageSeverity) << std::endl;
                 _formattedMessages.emplace_back(_format.str());
                 _format.str(std::string());
+
+                // format message body
+                const std::vector<LogMessage::LogRecord>& messageRecords = LoggingHub::GetInstance().GetLogRecords(messageAddress);
+                for (auto& message : messageRecords) {
+                    _format << '\t' << FormatTimestamp(message._timestamp) << " - " << message._message << std::endl;
+    #ifdef DEBUG_MESSAGES
+                    _format << "\t\t" << ": supplied from (" << message._calleeInformation._fileName << ", " << message._calleeInformation._functionName << ':' << message._calleeInformation._lineNumber << ')' << std::endl;
+    #endif
+                    _formattedMessages.emplace_back(_format.str());
+                    _format.str(std::string());
+                }
+                ++_logCount;
             }
-            ++_logCount;
         }
 
         void StandardOutputAdapter::OutputMessage() {
@@ -65,12 +68,14 @@ namespace UtilityBox {
 
         class LoggingHub::LoggingHubData {
             public:
+                const std::chrono::time_point<std::chrono::high_resolution_clock>& GetLoggingHubInitializationTimestamp();
                 void AttachAdapter(Adapter* adapter);
+                Adapter* GetAdapter(const std::string& name);
                 void Emplace(std::vector<LogMessage::LogRecord>&& records, LogMessageSeverity messageSeverity);
                 const std::vector<LogMessage::LogRecord>& GetLogRecords(void *messageAddress);
                 const LogMessageSeverity& GetMessageSeverity(void *messageAddress);
 
-                LoggingHubData();
+                explicit LoggingHubData(const std::chrono::time_point<std::chrono::high_resolution_clock>& initTimestamp);
                 ~LoggingHubData();
 
             private:
@@ -78,7 +83,8 @@ namespace UtilityBox {
                 void SwitchBuffers();
 
                 LoggingSystem* _hubLoggingSystem;
-                std::vector<Adapter*> _adapters; //todo: change to move?
+                std::vector<Adapter*> _adapters;
+                std::chrono::time_point<std::chrono::high_resolution_clock> _initializationTime;
 
                 struct LogMessageStorage {
                     LogMessageStorage(std::vector<LogMessage::LogRecord>&& records, LogMessageSeverity messageSeverity);
@@ -106,9 +112,14 @@ namespace UtilityBox {
         }
 
         // starts an asynchronous worker thread working on the Distribute function once per asynchronousInterval. Uses _distributeMessages as a toggle.
-        LoggingHub::LoggingHubData::LoggingHubData() : _hubLoggingSystem(new LoggingSystem("Logging Hub")), _asynchronousInterval(std::chrono::milliseconds(100)), _distributeMessages(true), _distributingThread(std::move(std::thread(&LoggingHub::LoggingHubData::DistributeMessages, this))), _printingBufferLocation(&_printingBuffer1) {
-            AttachAdapter(new StandardOutputAdapter(&std::cout));
-            AttachAdapter(new StandardOutputAdapter(&std::cerr));
+        LoggingHub::LoggingHubData::LoggingHubData(const std::chrono::time_point<std::chrono::high_resolution_clock>& initTimestamp) : _hubLoggingSystem(new LoggingSystem("Logging Hub")), _initializationTime(initTimestamp), _asynchronousInterval(std::chrono::milliseconds(100)), _distributeMessages(true), _distributingThread(std::move(std::thread(&LoggingHub::LoggingHubData::DistributeMessages, this))), _printingBufferLocation(&_printingBuffer1) {
+            auto* stdcout = new StandardOutputAdapter("Standard Output", &std::cout);
+            stdcout->GetConfiguration().severityCutoff = LogMessageSeverity::DEBUG;
+            auto* stdcerr = new StandardOutputAdapter("Standard Error", &std::cerr);
+            stdcerr->GetConfiguration().severityCutoff = LogMessageSeverity::SEVERE;
+
+            AttachAdapter(stdcout);
+            AttachAdapter(stdcerr);
         }
 
         void LoggingHub::LoggingHubData::DistributeMessages() {
@@ -224,6 +235,20 @@ namespace UtilityBox {
             throw Exceptions::Exception("Invalid pointer provided to GetMessageTimestamps from custom adapter");
         }
 
+        const std::chrono::time_point<std::chrono::high_resolution_clock>& LoggingHub::LoggingHubData::GetLoggingHubInitializationTimestamp() {
+            return _initializationTime;
+        }
+
+        Adapter *LoggingHub::LoggingHubData::GetAdapter(const std::string &name) {
+            for (auto* adapter : _adapters) {
+                if (adapter->GetName() == name) {
+                    return adapter;
+                }
+            }
+
+            return nullptr;
+        }
+
         // Begin logger functions
         LoggingHub& Logger::LoggingHub::GetInstance() {
             if (!_loggingHub) {
@@ -242,7 +267,7 @@ namespace UtilityBox {
             delete _loggingHub;
         }
 
-        Logger::LoggingHub::LoggingHub() : _data(std::move(std::make_unique<LoggingHubData>())), _initializationTime(std::chrono::high_resolution_clock::now()) {
+        Logger::LoggingHub::LoggingHub() : _data(std::move(std::make_unique<LoggingHubData>(std::chrono::high_resolution_clock::now()))) {
             // nothing
         }
 
@@ -266,9 +291,12 @@ namespace UtilityBox {
         const LogMessageSeverity &LoggingHub::GetMessageSeverity(void *messageAddress) {
             return _data->GetMessageSeverity(messageAddress);
         }
-
         const std::chrono::time_point<std::chrono::high_resolution_clock> &LoggingHub::GetLoggingInitializationTime() {
-            return _initializationTime;
+            return _data->GetLoggingHubInitializationTimestamp();
+        }
+
+        Adapter* LoggingHub::GetCustomAdapter(const std::string &name) {
+            return _data->GetAdapter(name);
         }
     }
 }

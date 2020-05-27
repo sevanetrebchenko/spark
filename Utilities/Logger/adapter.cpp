@@ -203,5 +203,9 @@ namespace UtilityBox {
         Adapter::~Adapter() {
             _data.reset();
         }
+
+        const std::string &Adapter::GetName() {
+            return _adapterName;
+        }
     }
 }
