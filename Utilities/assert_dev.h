@@ -8,7 +8,7 @@
 #define ASSERT_LEVEL_FATAL 2    // Program will be terminated
 
 // Function used when more parameters are passed with the message (printf-style assert).
-#define ASSERT_VARIADIC(level, check, formatString, ...) \
+#define ASSERT_VARIADIC(function, file, line, level, check, formatString, ...) \
     do {                                                                                                                                                    \
         if (!(check)) {\
             switch(level) { \
@@ -32,7 +32,7 @@
     while (false) \
 
 // Function used when only a message (string) is passed with the assert.
-#define ASSERT_FIXED(level, check, formatString)                                                                                                            \
+#define ASSERT_FIXED(function, file, line, level, check, formatString)                                                                                                            \
     do {                                                                                                                                                    \
         if (!(check)) {\
             switch(level) { \
@@ -94,8 +94,9 @@
 // Generate macro decoration based on the number of parameters.
 #define _APPEND_SUFFIX(_FUNCTION_BASE, _SUFFIX) _FUNCTION_BASE##_##_SUFFIX
 #define _ASSERT_TYPE(_FUNCTION_BASE, _SUFFIX) _APPEND_SUFFIX(_FUNCTION_BASE, _SUFFIX)
-#define _GET_FUNCTION_SIGNATURE(_FUNCTION_BASE, level, check, formatString, ...) _ASSERT_TYPE(_FUNCTION_BASE, GET_NUM_ARGS(__VA_ARGS__))(level, check, formatString, ##__VA_ARGS__)
+#define _GET_FUNCTION_SIGNATURE(_FUNCTION_BASE, function, file, line, level, check, formatString, ...) _ASSERT_TYPE(_FUNCTION_BASE, GET_NUM_ARGS(__VA_ARGS__))(function, file, line, level, check, formatString, ##__VA_ARGS__)
 
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
 // Definition for ASSERT
-#define ASSERT(level, check, formatString, ...) _GET_FUNCTION_SIGNATURE(ASSERT, level, check, formatString, ##__VA_ARGS__)
+#define ASSERT(level, check, formatString, ...) _GET_FUNCTION_SIGNATURE(ASSERT, __PRETTY_FUNCTION__, __FILENAME__, __LINE__, level, check, formatString, ##__VA_ARGS__)

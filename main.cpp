@@ -1,9 +1,5 @@
 #include <iostream>
-#include "Utilities/memory_manager.h"
 #include "Utilities/Logger/logger.h"
-#include "Tree/binary_tree.h"
-#include <chrono>
-#include <thread>
 
 int main() {
     UtilityBox::Logger::LoggingHub::Initialize();
@@ -14,6 +10,7 @@ int main() {
     auto* logMessage = new LogMessage(LogMessageSeverity::DEBUG);
     logMessage->Supply("hello with numbers! %i", 1);
     logMessage->Supply("2 hello with 2 numbers! %i %i", 42, 54);
+    logMessage->Supply("This is going to be an exceptionally long message to test the dynamically resizing buffers of log messages and the subsequent intermediate log messages that will be included under the debug flag.");
     loggingSystem->Log(logMessage);
     delete loggingSystem;
 

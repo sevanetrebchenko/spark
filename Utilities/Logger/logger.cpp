@@ -271,6 +271,7 @@ namespace UtilityBox {
         void LoggingHub::Reset() {
             _loggingHub->_data.reset();
             delete _loggingHub;
+            _loggingHub = nullptr;
         }
 
         Logger::LoggingHub::LoggingHub() : _data(std::move(std::make_unique<LoggingHubData>(std::chrono::high_resolution_clock::now()))) {
@@ -278,8 +279,6 @@ namespace UtilityBox {
         }
 
         Logger::LoggingHub::~LoggingHub() {
-            _data.reset();
-            _loggingHub = nullptr;
         }
 
         void Logger::LoggingHub::SendMessage(LogMessage &&message) {
