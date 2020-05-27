@@ -57,7 +57,7 @@ namespace UtilityBox {
             }
 
             // add gaps between consecutive messages
-            (*_stream) << std::endl;
+            (*_stream) << "\n";
         }
 
         StandardOutputAdapter::~StandardOutputAdapter() {
@@ -113,13 +113,19 @@ namespace UtilityBox {
 
         // starts an asynchronous worker thread working on the Distribute function once per asynchronousInterval. Uses _distributeMessages as a toggle.
         LoggingHub::LoggingHubData::LoggingHubData(const std::chrono::time_point<std::chrono::high_resolution_clock>& initTimestamp) : _hubLoggingSystem(new LoggingSystem("Logging Hub")), _initializationTime(initTimestamp), _asynchronousInterval(std::chrono::milliseconds(100)), _distributeMessages(true), _distributingThread(std::move(std::thread(&LoggingHub::LoggingHubData::DistributeMessages, this))), _printingBufferLocation(&_printingBuffer1) {
+            // standard output (cout) and error (cerr) adapters
             auto* stdcout = new StandardOutputAdapter("Standard Output", &std::cout);
             stdcout->GetConfiguration().severityCutoff = LogMessageSeverity::DEBUG;
             auto* stdcerr = new StandardOutputAdapter("Standard Error", &std::cerr);
             stdcerr->GetConfiguration().severityCutoff = LogMessageSeverity::SEVERE;
-
             AttachAdapter(stdcout);
             AttachAdapter(stdcerr);
+
+            // log file adapter
+            auto* logFile = new FileAdapter("File Adapter");
+            logFile->GetConfiguration().severityCutoff = LogMessageSeverity::DEBUG;
+
+            AttachAdapter(logFile);
         }
 
         void LoggingHub::LoggingHubData::DistributeMessages() {

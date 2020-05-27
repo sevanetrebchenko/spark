@@ -3,6 +3,8 @@
 
 #include <string>
 #include "log_message.h"
+#include <fstream>
+#include <sstream>
 
 namespace UtilityBox {
     namespace Logger {
@@ -42,6 +44,23 @@ namespace UtilityBox {
             private:
                 class AdapterData;
                 std::unique_ptr<AdapterData> _data;
+        };
+
+        class FileAdapter : public Adapter {
+            public:
+                explicit FileAdapter(std::string&& name, std::string&& filename = "");
+                ~FileAdapter() override;
+
+                void ProcessMessage(void* messageAddress) override;
+                void OutputMessage() override;
+
+            private:
+                void LogInitializationMessage();
+
+                std::vector<std::string> _formattedMessages;
+                std::string _filename;
+                std::stringstream _format;
+                std::ofstream _logger;
         };
     }
 }

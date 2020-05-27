@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cstring>
+#include "logger.h"
 
 namespace UtilityBox {
     namespace Logger {
@@ -206,6 +207,68 @@ namespace UtilityBox {
 
         const std::string &Adapter::GetName() {
             return _adapterName;
+        }
+
+        // File adapter begin
+        FileAdapter::FileAdapter(std::string &&name, std::string &&filename) : Adapter(std::move(name)) {
+            if (filename.empty()) {
+                _filename = "temp-log.txt";
+            }
+            _logger.open(_filename, std::ios_base::out | std::ios_base::trunc);
+            // assert opening of file
+            LogInitializationMessage();
+        }
+
+        FileAdapter::~FileAdapter() {
+            _formattedMessages.clear();
+
+            if (_logger.is_open()) {
+                _logger.close();
+            }
+        }
+
+        void FileAdapter::OutputMessage() {
+            for (auto& message : _formattedMessages) {
+                _logger << message;
+            }
+
+            // add gaps between consecutive messages
+            _logger << "\n";
+        }
+
+        void FileAdapter::ProcessMessage(void *messageAddress) {
+            // format:
+            // [0000 0000] | DAY 00, MONTH 0000 | [ SEVERITY ]
+            //      [000m 00s 0000ms] - Message goes here
+            //          : supplied from (filename, function:000)
+
+            // format message header
+            const LogMessageSeverity& messageSeverity = LoggingHub::GetInstance().GetMessageSeverity(messageAddress);
+            if (messageSeverity >= _config.severityCutoff) {
+                _format << FormatLogCounter() << " | " << FormatCalendarInformation() << " | " << FormatSeverity(messageSeverity) << std::endl;
+                _formattedMessages.emplace_back(_format.str());
+                _format.str(std::string());
+
+                // format message body
+                const std::vector<LogMessage::LogRecord>& messageRecords = LoggingHub::GetInstance().GetLogRecords(messageAddress);
+                for (auto& message : messageRecords) {
+                    _format << '\t' << FormatTimestamp(message._timestamp) << " - " << message._message << std::endl;
+#ifdef DEBUG_MESSAGES
+                    _format << "\t\t" << ": supplied from (" << message._calleeInformation._fileName << ", " << message._calleeInformation._functionName << ':' << message._calleeInformation._lineNumber << ')' << std::endl;
+#endif
+                    _formattedMessages.emplace_back(_format.str());
+                    _format.str(std::string());
+                }
+                ++_logCount;
+            }
+        }
+
+        void FileAdapter::LogInitializationMessage() {
+            const char* calendarDate = FormatCalendarInformation();
+            _format << calendarDate << " : Logging file '" << _filename << "' opened successfully. " << "Adapter name: " << _adapterName << ".\n" << std::endl;
+            _formattedMessages.emplace_back(_format.str());
+            _format.str(std::string());
+            ++_logCount;
         }
     }
 }
