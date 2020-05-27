@@ -20,6 +20,7 @@ namespace UtilityBox {
 
             private:
                 void UpdateCalendarBuffer();
+                void CheckBufferSize(char** buffer, unsigned &bufferSize, unsigned size);
 
                 std::stringstream _format;
 
@@ -45,7 +46,7 @@ namespace UtilityBox {
         Adapter::AdapterData::AdapterData() : _calendarTime(std::time(nullptr)), _calendarBufferSize(64u),
                                                                                        _logCounterBufferSize(16u),
                                                                                        _messageSeverityBufferSize(16u),
-                                                                                       _timestampBufferSize(16u) {
+                                                                                       _timestampBufferSize(32u) {
             _calendarBuffer = new(std::nothrow) char[_calendarBufferSize];
             _logCounterBuffer = new(std::nothrow) char[_logCounterBufferSize];
             _messageSeverityBuffer = new(std::nothrow) char[_messageSeverityBufferSize];
@@ -53,7 +54,7 @@ namespace UtilityBox {
             // todo: check
         }
 
-        void Adapter::AdapterData::UpdateCalendarBuffer() {
+        void Adapter::AdapterData:: UpdateCalendarBuffer() {
             while(!std::strftime(_calendarBuffer, _calendarBufferSize, _calendarFormat.c_str(), std::localtime(&_calendarTime))) {
                 _calendarBufferSize *= 2;
                 delete[] _calendarBuffer;
@@ -89,6 +90,8 @@ namespace UtilityBox {
             _format << logCounter % 1000;
             _format << ']';
 
+            // leave room for terminating null character
+            CheckBufferSize(&_logCounterBuffer, _logCounterBufferSize, _format.str().length() + 1);
             strcpy(_logCounterBuffer, _format.str().c_str());
 
             // clear buffer
@@ -121,6 +124,8 @@ namespace UtilityBox {
 
             _format << ']';
 
+            // leave room for terminating null character
+            CheckBufferSize(&_messageSeverityBuffer, _messageSeverityBufferSize, _format.str().length() + 1);
             strcpy(_messageSeverityBuffer, _format.str().c_str());
 
             // clear buffer
@@ -153,12 +158,23 @@ namespace UtilityBox {
 
             _format << ']';
 
+            // leave room for null character
+            CheckBufferSize(&_timestampBuffer, _timestampBufferSize, _format.str().length() + 1);
             strcpy(_timestampBuffer, _format.str().c_str());
 
             // clear buffer
             _format.str(std::string());
 
             return _timestampBuffer;
+        }
+
+        void Adapter::AdapterData::CheckBufferSize(char** buffer, unsigned &bufferSize, unsigned size) {
+            while (size > bufferSize) {
+                bufferSize *= 2;
+            }
+
+            delete[] *buffer;
+            *buffer = new(std::nothrow) char[bufferSize];
         }
 
         Adapter::Adapter(std::string &&name) : _adapterName(std::move(name)), _logCount(0), _config(), _data(std::move(std::make_unique<AdapterData>())) {

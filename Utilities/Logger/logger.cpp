@@ -2,24 +2,26 @@
 #include "../assert_dev.h"
 #include "../exception.h"
 #include <mutex>
+#include <ostream>
 
 namespace UtilityBox {
     namespace Logger {
         // default adapters
         class StandardOutputAdapter final : public Adapter {
             public:
-                StandardOutputAdapter();
+                explicit StandardOutputAdapter(std::ostream* stream);
                 ~StandardOutputAdapter() override;
 
                 void ProcessMessage(void* messageAddress) override;
                 void OutputMessage() override;
 
             private:
+                std::ostream* _stream;
                 std::vector<std::string> _formattedMessages;
                 std::stringstream _format;
         };
 
-        StandardOutputAdapter::StandardOutputAdapter() : Adapter("Standard Output") {
+        StandardOutputAdapter::StandardOutputAdapter(std::ostream* stream) : Adapter("Standard Output"), _stream(stream) {
         }
 
         void StandardOutputAdapter::ProcessMessage(void *messageAddress) {
@@ -48,11 +50,11 @@ namespace UtilityBox {
 
         void StandardOutputAdapter::OutputMessage() {
             for (auto& message : _formattedMessages) {
-                std::cout << message;
+                (*_stream) << message;
             }
 
             // add gaps between consecutive messages
-            std::cout << std::endl;
+            (*_stream) << std::endl;
         }
 
         StandardOutputAdapter::~StandardOutputAdapter() {
@@ -105,7 +107,8 @@ namespace UtilityBox {
 
         // starts an asynchronous worker thread working on the Distribute function once per asynchronousInterval. Uses _distributeMessages as a toggle.
         LoggingHub::LoggingHubData::LoggingHubData() : _hubLoggingSystem(new LoggingSystem("Logging Hub")), _asynchronousInterval(std::chrono::milliseconds(100)), _distributeMessages(true), _distributingThread(std::move(std::thread(&LoggingHub::LoggingHubData::DistributeMessages, this))), _printingBufferLocation(&_printingBuffer1) {
-            AttachAdapter(new StandardOutputAdapter());
+            AttachAdapter(new StandardOutputAdapter(&std::cout));
+            AttachAdapter(new StandardOutputAdapter(&std::cerr));
         }
 
         void LoggingHub::LoggingHubData::DistributeMessages() {
@@ -141,11 +144,10 @@ namespace UtilityBox {
                                 std::cout << exception.what() << std::endl;
                                 // todo: better
                             }
-
-                            buffer.pop();
-                            std::cout << "size at location: " << &buffer << " : " << buffer.size() << std::endl << std::endl;
-
                         }
+
+                        buffer.pop();
+                        std::cout << "size at location: " << &buffer << " : " << buffer.size() << std::endl << std::endl;
                     }
                 }
             }
