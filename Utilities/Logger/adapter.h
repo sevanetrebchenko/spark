@@ -12,6 +12,8 @@ namespace UtilityBox {
             AdapterConfiguration() = default;
             ~AdapterConfiguration() = default;
 
+            unsigned messageWrapLimit = 80;
+
             bool includeTimestamp = true;
             bool includeMessageSeverity = true;
             bool includeCalendarInfo = true;
@@ -32,10 +34,11 @@ namespace UtilityBox {
                 const std::string& GetName();
 
             protected:
-                const char* FormatCalendarInformation();
-                const char* FormatLogCounter();
-                const char* FormatSeverity(LogMessageSeverity messageSeverity);
-                const char* FormatTimestamp(const Timing::TimeStamp& timeStamp);
+                virtual std::vector<std::string>& FormatMessage(const std::string& message, int timestampLength, unsigned lineLength);
+                virtual std::string FormatCalendarInformation();
+                virtual std::string FormatLogCounter();
+                virtual std::string FormatSeverity(LogMessageSeverity messageSeverity);
+                virtual std::string FormatTimestamp(const Timing::TimeStamp& timeStamp);
 
                 AdapterConfiguration _config;
                 std::string _adapterName;

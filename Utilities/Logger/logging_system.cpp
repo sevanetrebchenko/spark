@@ -28,8 +28,7 @@ namespace UtilityBox {
 
         void LoggingSystem::Log(LogMessage* message) {
             ++_data->_logCounter;
-            message->Supply("Passed through system: %s", _data->_systemName.c_str());
-            LoggingHub::GetInstance().SendMessage(std::move(*message));
+            LoggingHub::GetInstance().SendMessage(std::move(*message), _data->_systemName);
             delete message;
         }
     }

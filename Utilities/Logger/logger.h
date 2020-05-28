@@ -34,6 +34,7 @@ namespace UtilityBox {
 
                 const std::vector<LogMessage::LogRecord>& GetLogRecords(void* messageAddress);
                 const LogMessageSeverity& GetMessageSeverity(void* messageAddress);
+                const std::string& GetThroughLoggingSystem(void* messageAddress);
                 const std::chrono::time_point<std::chrono::high_resolution_clock>& GetLoggingInitializationTime();
 
             private:
@@ -46,7 +47,7 @@ namespace UtilityBox {
 
                 // Allow logging systems to access SendMessage()
                 friend class LoggingSystem;
-                void SendMessage(LogMessage&& message);
+                void SendMessage(LogMessage&& message, const std::string& loggingSystemName);
         };
     }
 }

@@ -14,6 +14,7 @@ namespace UtilityBox {
             public:
                 AdapterData();
                 ~AdapterData();
+                std::vector<std::string>& FormatMessage(const std::string& message, int timestampLength, unsigned lineLength);
                 const char* FormatCalendarBuffer(std::string formatString);
                 const char* FormatLogCounterBuffer(const unsigned& logCounter);
                 const char* FormatMessageSeverityBuffer(const LogMessageSeverity& messageSeverity);
@@ -24,6 +25,9 @@ namespace UtilityBox {
                 void CheckBufferSize(char** buffer, unsigned &bufferSize, unsigned size);
 
                 std::stringstream _format;
+
+                // message
+                std::vector<std::string> _formattedMessages;
 
                 // calendar
                 std::string _calendarFormat;
@@ -69,6 +73,58 @@ namespace UtilityBox {
             delete[] _logCounterBuffer;
             delete[] _messageSeverityBuffer;
             delete[] _timestampBuffer;
+        }
+
+        std::vector<std::string>& Adapter::AdapterData::FormatMessage(const std::string& message, int timestampLength, unsigned lineLength) {
+            if (message.length() > lineLength) {
+                // tokenize the string
+                unsigned length = 0;
+                bool firstLine = true;
+                std::vector<std::string> tokens;
+                std::stringstream parser(message);
+                std::string storage;
+
+                while (getline(parser, storage, ' ')) {
+                    // delimiter gets rid of the space, we must append 1 to count the space as a character
+                    length += storage.length() + 1;
+                    tokens.emplace_back(std::move(storage));
+
+                    if (length > lineLength) {
+                        if (!firstLine) {
+                            for (int i = 0; i < timestampLength; ++i) {
+                                _format << ' ';
+                            }
+                        }
+                        for (auto &token : tokens) {
+                            _format << token << ' ';
+                        }
+
+                        _formattedMessages.emplace_back(_format.str());
+                        _format.str(std::string());
+                        tokens.clear();
+                        firstLine = false;
+                        length = 0;
+                    }
+                }
+
+                if (!tokens.empty()) {
+                    for (int i = 0; i < timestampLength; ++i) {
+                        _format << ' ';
+                    }
+
+                    for (auto &token : tokens) {
+                        _format << token << ' ';
+                    }
+
+                    _formattedMessages.emplace_back(_format.str());
+                    _format.str(std::string());
+                }
+            }
+            else {
+                _formattedMessages.emplace_back(message);
+            }
+
+            return _formattedMessages;
         }
 
         const char *Adapter::AdapterData::FormatCalendarBuffer(std::string formatString) {
@@ -185,19 +241,23 @@ namespace UtilityBox {
             return _config;
         }
 
-        const char *Adapter::FormatCalendarInformation() {
+        std::vector<std::string>& Adapter::FormatMessage(const std::string& message, int timestampLength, unsigned lineLength) {
+            return _data->FormatMessage(message, timestampLength, lineLength);
+        }
+
+        std::string Adapter::FormatCalendarInformation() {
             return _data->FormatCalendarBuffer(_config.calendarFormat);
         }
 
-        const char *Adapter::FormatLogCounter() {
+        std::string Adapter::FormatLogCounter() {
             return _data->FormatLogCounterBuffer(_logCount);
         }
 
-        const char *Adapter::FormatSeverity(LogMessageSeverity messageSeverity) {
+        std::string Adapter::FormatSeverity(LogMessageSeverity messageSeverity) {
             return _data->FormatMessageSeverityBuffer(messageSeverity);
         }
 
-        const char *Adapter::FormatTimestamp(const Timing::TimeStamp &timeStamp) {
+        std::string Adapter::FormatTimestamp(const Timing::TimeStamp &timeStamp) {
             return _data->FormatMessageTimestampBuffer(timeStamp);
         }
 
@@ -208,6 +268,8 @@ namespace UtilityBox {
         const std::string &Adapter::GetName() {
             return _adapterName;
         }
+
+
 
         // File adapter begin
         FileAdapter::FileAdapter(std::string &&name, std::string &&filename) : Adapter(std::move(name)) {
@@ -264,7 +326,7 @@ namespace UtilityBox {
         }
 
         void FileAdapter::LogInitializationMessage() {
-            const char* calendarDate = FormatCalendarInformation();
+            std::string calendarDate = FormatCalendarInformation();
             _format << calendarDate << " : Logging file '" << _filename << "' opened successfully. " << "Adapter name: " << _adapterName << ".\n" << std::endl;
             _formattedMessages.emplace_back(_format.str());
             _format.str(std::string());
