@@ -68,6 +68,7 @@ namespace UtilityBox {
 
         class LoggingHub::LoggingHubData {
             public:
+                void TerminateWorkerThread();
                 const std::chrono::time_point<std::chrono::high_resolution_clock>& GetLoggingHubInitializationTimestamp();
                 void AttachAdapter(Adapter* adapter);
                 Adapter* GetAdapter(const std::string& name);
@@ -112,7 +113,7 @@ namespace UtilityBox {
         }
 
         // starts an asynchronous worker thread working on the Distribute function once per asynchronousInterval. Uses _distributeMessages as a toggle.
-        LoggingHub::LoggingHubData::LoggingHubData(const std::chrono::time_point<std::chrono::high_resolution_clock>& initTimestamp) : _hubLoggingSystem(new LoggingSystem("Logging Hub")), _initializationTime(initTimestamp), _asynchronousInterval(std::chrono::milliseconds(100)), _distributeMessages(true), _distributingThread(std::move(std::thread(&LoggingHub::LoggingHubData::DistributeMessages, this))), _printingBufferLocation(&_printingBuffer1) {
+        LoggingHub::LoggingHubData::LoggingHubData(const std::chrono::time_point<std::chrono::high_resolution_clock>& initTimestamp) : _hubLoggingSystem(new LoggingSystem("Logging Hub")), _initializationTime(initTimestamp), _asynchronousInterval(std::chrono::milliseconds(100)), _distributeMessages(true), _distributingThread(std::thread(&LoggingHub::LoggingHubData::DistributeMessages, this)), _printingBufferLocation(&_printingBuffer1) {
             // standard output (cout) and error (cerr) adapters
             auto* stdcout = new StandardOutputAdapter("Standard Output", &std::cout);
             stdcout->GetConfiguration().severityCutoff = LogMessageSeverity::DEBUG;
@@ -129,70 +130,60 @@ namespace UtilityBox {
         }
 
         void LoggingHub::LoggingHubData::DistributeMessages() {
-            if (_distributeMessages) {
-                // lock this area so only one thread can access it
-                // lock guard automatically gets unlocked when lock goes out of scope
+            while (_distributeMessages) {
                 std::cout << "before lock" << std::endl;
-                std::lock_guard<std::mutex> lock(_bufferMutex);
 
+                _bufferMutex.lock();
                 std::cout << "entered lock" << std::endl;
-                // redirect data flow to the other buffer
-                void* location = _printingBufferLocation;
-                unsigned size = (*_printingBufferLocation).size();
-                std::cout << "size at location: " << location << " : " << size << std::endl;
+                std::queue<LogMessageStorage>& buffer = *_printingBufferLocation;
+                std::cout << "switching buffers" << std::endl;
+                SwitchBuffers();
+                _bufferMutex.unlock();
 
-                if (!(*_printingBufferLocation).empty()) {
-                    // get the buffer to empty
-                    std::queue<LogMessageStorage>& buffer = *_printingBufferLocation;
+                // get the buffer to empty
 
-                    // data will now be written to other buffer while this one is being printed from
-                    SwitchBuffers();
+                // data will now be written to other buffer while this one is being printed from
+                while (!buffer.empty()) {
+                    LogMessageStorage& packet = buffer.front();
+                    std::cout << "emptying" << std::endl;
 
-                    while (!buffer.empty()) {
-                        LogMessageStorage& packet = buffer.front();
-                        std::cout << "emptying" << std::endl;
-
-                        for (auto* adapter : _adapters) {
-                            try {
-                                adapter->ProcessMessage(static_cast<void*>(&packet));
-                                adapter->OutputMessage();
-                            }
-                            catch (const Exceptions::Exception& exception) {
-                                std::cout << exception.what() << std::endl;
-                                // todo: better
-                            }
+                    for (auto* adapter : _adapters) {
+                        try {
+                            adapter->ProcessMessage(static_cast<void*>(&packet));
+                            adapter->OutputMessage();
                         }
-
-                        buffer.pop();
-                        std::cout << "size at location: " << &buffer << " : " << buffer.size() << std::endl << std::endl;
+                        catch (const Exceptions::Exception& exception) {
+                            std::cout << exception.what() << std::endl;
+                            // todo: better
+                        }
                     }
-                }
-            }
 
-            std::this_thread::sleep_for(_asynchronousInterval);
+                    buffer.pop();
+                    //std::cout << "size at location: " << &buffer << " : " << buffer.size() << std::endl << std::endl;
+                }
+
+                std::this_thread::sleep_for(_asynchronousInterval);
+            }
         }
 
         void LoggingHub::LoggingHubData::SwitchBuffers() {
             if (_printingBufferLocation == &(_printingBuffer1)) {
-                std::cout << "switching from " << &_printingBuffer1 << " to " << &_printingBuffer2 << std::endl;
-                std::cout << "current active buffer is " << &_printingBuffer2 << std::endl;
-                std::cout.flush();
+//                std::cout << "switching from " << &_printingBuffer1 << " to " << &_printingBuffer2 << std::endl;
+//                std::cout << "current active buffer is " << &_printingBuffer2 << std::endl;
                 _printingBufferLocation = &_printingBuffer2;
             }
             else {
-                std::cout << "switching from " << &_printingBuffer2 << " to " << &_printingBuffer1 << std::endl;
-                std::cout << "current active buffer is " << &_printingBuffer1 << std::endl << std::endl;
-                std::cout.flush();
+//                std::cout << "switching from " << &_printingBuffer2 << " to " << &_printingBuffer1 << std::endl;
+//                std::cout << "current active buffer is " << &_printingBuffer1 << std::endl << std::endl;
                 _printingBufferLocation = &_printingBuffer1;
             }
         }
 
         LoggingHub::LoggingHubData::~LoggingHubData() {
-            std::cout << "destructor for logging hub called" << std::endl;
+            std::cout << "terminate worker thread" << std::endl;
 
             // wait for both buffers to be completely empty
-            if (!_printingBuffer1.empty() || !_printingBuffer2.empty()) {
-                std::cout << "buffers not empty, yielding" << std::endl;
+            while (!_printingBuffer1.empty() || !_printingBuffer2.empty()) {
                 std::this_thread::yield();
             }
 
@@ -202,7 +193,6 @@ namespace UtilityBox {
             // pause the main thread to ensure worker thread has enough time to process 'shutdown' message
             std::cout << "waiting for thread" << std::endl;
             _distributingThread.join();
-            std::cout.flush();
             std::cout << "thread finished" << std::endl;
 
             for (auto* adapter : _adapters) {
@@ -218,6 +208,7 @@ namespace UtilityBox {
         }
 
         void LoggingHub::LoggingHubData::Emplace(std::vector<LogMessage::LogRecord> &&records, LogMessageSeverity messageSeverity) {
+            std::cout << "logging to " << &(*_printingBufferLocation) << std::endl;
             (*_printingBufferLocation).emplace(std::move(records), messageSeverity);
         }
 
@@ -255,7 +246,10 @@ namespace UtilityBox {
             return nullptr;
         }
 
-        // Begin logger functions
+        void LoggingHub::LoggingHubData::TerminateWorkerThread() {
+
+        }
+
         LoggingHub& Logger::LoggingHub::GetInstance() {
             if (!_loggingHub) {
                 _loggingHub = new LoggingHub();
@@ -269,6 +263,7 @@ namespace UtilityBox {
         }
 
         void LoggingHub::Reset() {
+            _loggingHub->_data->TerminateWorkerThread();
             _loggingHub->_data.reset();
             delete _loggingHub;
             _loggingHub = nullptr;
@@ -279,6 +274,7 @@ namespace UtilityBox {
         }
 
         Logger::LoggingHub::~LoggingHub() {
+
         }
 
         void Logger::LoggingHub::SendMessage(LogMessage &&message) {
