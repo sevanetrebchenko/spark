@@ -5,7 +5,7 @@
 #include <vector>
 #include "timestamp.h"
 
-//#define DEBUG_MESSAGES
+#define DEBUG_MESSAGES
 
 namespace UtilityBox {
     namespace Logger {
@@ -80,7 +80,7 @@ namespace UtilityBox {
 #undef LogMessage
 #define LogMessage DBG_LOG_MESSAGE
 #undef Supply
-#define Supply(formatString, ...) SUPPLY_DBG(__PRETTY_FUNCTION__, __FILENAME__, __LINE__, formatString, ##__VA_ARGS__)
+#define Supply(formatString, ...) SUPPLY_DBG(__FUNCTION__, __FILENAME__, __LINE__, formatString, ##__VA_ARGS__)
 #endif
     }
 }

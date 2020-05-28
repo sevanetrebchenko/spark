@@ -1,11 +1,10 @@
 #include "logger.h"
 #include "../assert_dev.h"
 #include "../exception.h"
+#include "adapter_defines.h"
 #include <mutex>
 #include <ostream>
 #include <utility>
-
-#define TAB_SPACE "    "
 
 namespace UtilityBox {
     namespace Logger {
@@ -36,33 +35,39 @@ namespace UtilityBox {
             // format message header
             const LogMessageSeverity& messageSeverity = LoggingHub::GetInstance().GetMessageSeverity(messageAddress);
             if (messageSeverity >= _config.severityCutoff) {
-                _format << FormatLogCounter() << " | " << FormatCalendarInformation() << " | " << FormatSeverity(messageSeverity) << std::endl;
-                _formattedMessages.emplace_back(_format.str());
-                _format.str(std::string());
-
-                _format << TAB_SPACE << "Logged through system: " << LoggingHub::GetInstance().GetThroughLoggingSystem(messageAddress) << std::endl;
-                _formattedMessages.emplace_back(_format.str());
-                _format.str(std::string());
-
-                // format message body
                 const std::vector<LogMessage::LogRecord>& messageRecords = LoggingHub::GetInstance().GetLogRecords(messageAddress);
-
                 // get timestamp length
                 _format << TAB_SPACE << FormatTimestamp(messageRecords.at(0)._timestamp) << " - ";
                 int timestampLength = _format.str().length();
                 _format.str(std::string());
 
+                _format << FormatLine(timestampLength + _config.messageWrapLimit) << std::endl;
+                _formattedMessages.emplace_back(_format.str());
+                _format.str(std::string());
+
+                _format << FormatLogCounter() << " | " << FormatCalendarInformation() << " | " << FormatSeverity(messageSeverity) << std::endl;
+                _formattedMessages.emplace_back(_format.str());
+                _format.str(std::string());
+
+
+                _format << TAB_SPACE << "Logged through system: " << LoggingHub::GetInstance().GetThroughLoggingSystem(messageAddress) << std::endl;
+                _formattedMessages.emplace_back(_format.str());
+                _format.str(std::string());
+
+                _format << FormatLine(timestampLength + _config.messageWrapLimit) << std::endl;
+                _formattedMessages.emplace_back(_format.str());
+                _format.str(std::string());
+
                 for (auto& logRecord : messageRecords) {
                     _format << TAB_SPACE << FormatTimestamp(logRecord._timestamp) << " - ";
-                    auto& messages = FormatMessage(logRecord._message, timestampLength, _config.messageWrapLimit);
-                    for (std::string& message : messages) {
+                    for (std::string& message : FormatMessage(logRecord._message, timestampLength, _config.messageWrapLimit)) {
                         _format << message << std::endl;
                     }
-                    messages.clear();
 
 #ifdef DEBUG_MESSAGES
-                    _format << TAB_SPACE << TAB_SPACE << ": supplied from (" << logRecord._calleeInformation._fileName << ", " << logRecord._calleeInformation._functionName << ':' << logRecord._calleeInformation._lineNumber << ')' << std::endl;
+                    _format << FormatDebugInformation(logRecord._calleeInformation) << std::endl;
 #endif
+                    _format << '\n';
                     _formattedMessages.emplace_back(_format.str());
                     _format.str(std::string());
                 }
@@ -78,6 +83,7 @@ namespace UtilityBox {
 
             // add gaps between consecutive messages
             (*_stream) << "\n";
+            _formattedMessages.clear();
         }
 
         StandardOutputAdapter::~StandardOutputAdapter() {
@@ -148,6 +154,7 @@ namespace UtilityBox {
             logFile->GetConfiguration().severityCutoff = LogMessageSeverity::DEBUG;
             AttachAdapter(logFile);
 
+            // start thread after initialization
             _distributeMessages = true;
         }
 

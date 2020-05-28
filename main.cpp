@@ -6,12 +6,16 @@ int main() {
 
     //void* a = UtilityBox::MemoryManager::allocate(45);
     using namespace UtilityBox::Logger;
-    auto* loggingSystem = new LoggingSystem("testing");
+    auto* loggingSystem = new LoggingSystem("Testing in main().");
     auto* logMessage = new LogMessage(LogMessageSeverity::DEBUG);
     logMessage->Supply("hello with numbers! %i", 1);
     logMessage->Supply("2 hello with 2 numbers! %i %i", 42, 54);
     logMessage->Supply("This is going to be an exceptionally long message to test the dynamically resizing buffers of log messages and the subsequent intermediate log messages that will be included under the debug flag.");
     loggingSystem->Log(logMessage);
+
+    LogMessage* newMessge = new LogMessage(LogMessageSeverity::WARNING);
+    newMessge->Supply("This is a different message to test multiple message format. %s", "Additional string parameters.");
+    loggingSystem->Log(newMessge);
     delete loggingSystem;
 
     //LogMessage<int> *v = new LogMessage<int>(DEBUG, "lmao");
