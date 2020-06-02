@@ -1,11 +1,43 @@
 #include <iostream>
 #include "Utilities/Logger/logger.h"
+#include "Utilities/Logger/adapter.h"
+using namespace UtilityBox::Logger;
+
+class myAdapter : public Adapter {
+    public:
+        myAdapter();
+        void ProcessMessage(void* messageAddress) override;
+        void OutputMessage() override;
+    private:
+};
+
+myAdapter::myAdapter() : Adapter("myAdapter") {
+}
+
+void myAdapter::ProcessMessage(void *messageAddress) {
+    messageAddress = static_cast<int*>(messageAddress) + 3;
+    const LogMessageSeverity& messageSeverity = LoggingHub::GetInstance().GetMessageSeverity(messageAddress);
+
+    if (messageSeverity >= _config.GetMessageSeverityCutoff()) {
+        ++_logCount;
+
+        // format header
+        FormatHeader(messageAddress);
+
+        // format messages
+        FormatMessages(messageAddress);
+    }
+}
+
+void myAdapter::OutputMessage() {
+    // nothing
+}
 
 int main() {
     UtilityBox::Logger::LoggingHub::Initialize();
 
-    //void* a = UtilityBox::MemoryManager::allocate(45);
-    using namespace UtilityBox::Logger;
+    LoggingHub::GetInstance().AttachCustomAdapter(new myAdapter());
+
     auto* loggingSystem = new LoggingSystem("Testing in main().");
     auto* logMessage = new LogMessage(LogMessageSeverity::DEBUG);
     logMessage->Supply("hello with numbers! %i", 1);

@@ -12,6 +12,7 @@ set(SOURCE_FILES main.cpp
         Utilities/Logger/log_message.cpp
         Utilities/Logger/logging_system.cpp
         Utilities/Logger/adapter.cpp
+        Utilities/Logger/adapter_config.cpp
         )
 
 add_executable(DataStructures ${SOURCE_FILES})

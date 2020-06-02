@@ -12,10 +12,9 @@ namespace UtilityBox {
                 explicit LoggingSystemData(std::string&& name);
 
                 std::string _systemName;
-                unsigned _logCounter;
         };
 
-        LoggingSystem::LoggingSystemData::LoggingSystemData(std::string&& name) : _systemName(std::move(name)), _logCounter(0) {
+        LoggingSystem::LoggingSystemData::LoggingSystemData(std::string&& name) : _systemName(std::move(name)) {
         }
 
         LoggingSystem::LoggingSystem(std::string&& name) : _data(std::make_unique<LoggingSystemData>(std::move(name))) {
@@ -27,7 +26,6 @@ namespace UtilityBox {
         }
 
         void LoggingSystem::Log(LogMessage* message) {
-            ++_data->_logCounter;
             LoggingHub::GetInstance().SendMessage(std::move(*message), _data->_systemName);
             delete message;
         }

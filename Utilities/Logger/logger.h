@@ -29,12 +29,14 @@ namespace UtilityBox {
                 static LoggingHub& GetInstance();
                 static void Initialize();
                 static void Reset();
-                void AttachCustomAdapter(Adapter* adapter);
+                void AttachCustomAdapter(Adapter *adapter);
                 Adapter* GetCustomAdapter(const std::string& name);
 
+                bool VerifyDataPointer(void* messageAddress);
                 const std::vector<LogMessage::LogRecord>& GetLogRecords(void* messageAddress);
                 const LogMessageSeverity& GetMessageSeverity(void* messageAddress);
                 const std::string& GetThroughLoggingSystem(void* messageAddress);
+
                 const std::chrono::time_point<std::chrono::high_resolution_clock>& GetLoggingInitializationTime();
 
             private:
