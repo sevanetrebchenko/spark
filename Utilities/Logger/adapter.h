@@ -18,16 +18,19 @@ namespace UtilityBox {
                 virtual void ProcessMessage(void* messageAddress);
                 virtual void OutputMessage() = 0;
                 void ClearMessages();
-                void OutputErrorMessage(std::queue<std::string>&& processedErrorMessages);
+                void OutputErrorMessage(std::queue<std::string>& processedErrorMessages);
 
                 AdapterConfiguration& GetConfiguration();
                 const std::string& GetName();
+                const int& GetLogCount();
+                void SetLogCount(const int& logCount);
 
             protected:
-                virtual void FormatHeader(void* messageAddress);
-                virtual void FormatMessages(void* messageAddress);
+                virtual void ConstructMessageHeader(void* messageAddress);
+                virtual void ConstructMessageBody(void* messageAddress);
 
-                virtual std::vector<std::string> FormatMessage(const std::string& message, int timestampLength, unsigned lineLength);
+                void ChangeName(const LogMessage::LogRecord* message);
+                virtual std::vector<std::string> FormatMessage(const std::string& message, int timestampLength, int lineLength);
                 virtual std::string FormatCalendarInformation();
                 virtual std::string FormatLogCounter();
                 virtual std::string FormatSeverity(LogMessageSeverity messageSeverity);
@@ -39,7 +42,7 @@ namespace UtilityBox {
 
                 AdapterConfiguration _config;
                 std::string _adapterName;
-                unsigned _logCount;
+                int _logCount;
                 std::queue<std::string> _formattedMessages;
 
             private:

@@ -108,18 +108,6 @@ namespace UtilityBox {
             _messageFormat.push(newFormat);
         }
 
-        void AdapterConfiguration::ResetHeaderFormatToDefault() {
-            while (_headerFormat.size() != 1) {
-                _headerFormat.pop();
-            }
-        }
-
-        void AdapterConfiguration::ResetMessageFormatToDefault() {
-            while (_messageFormat.size() != 1) {
-                _messageFormat.pop();
-            }
-        }
-
         void AdapterConfiguration::RevertHeaderFormat() {
             if (_headerFormat.size() != 1) {
                 _headerFormat.pop();
@@ -164,6 +152,14 @@ namespace UtilityBox {
             if (_calendarFormat != newFormat) {
                 _calendarFormat = newFormat;
             }
+        }
+
+        std::queue<HeaderFormatElement> AdapterConfiguration::GetDefaultHeaderFormat() {
+            return _data->GetDefaultHeaderFormat();
+        }
+
+        std::queue<MessageFormatElement> AdapterConfiguration::GetDefaultMessageFormat() {
+            return _data->GetDefaultMessageFormat();
         }
     }
 }

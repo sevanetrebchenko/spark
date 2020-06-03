@@ -24,9 +24,7 @@ namespace UtilityBox {
             NEWLINE,
             TIMESTAMP,
             MESSAGE,
-#ifdef DEBUG_MESSAGES
             DEBUGINFO,
-#endif
             TAB,
             ELLIPSIS,
             DASH,
@@ -43,10 +41,11 @@ namespace UtilityBox {
                 void AddCustomMessageFormatStructure(const std::queue<MessageFormatElement>& newFormat);
                 void RevertHeaderFormat();
                 void RevertMessageFormat();
-                void ResetHeaderFormatToDefault();
-                void ResetMessageFormatToDefault();
+
                 std::queue<HeaderFormatElement> GetHeaderFormat();
+                std::queue<HeaderFormatElement> GetDefaultHeaderFormat();
                 std::queue<MessageFormatElement> GetMessageFormat();
+                std::queue<MessageFormatElement> GetDefaultMessageFormat();
 
                 // other data
                 const int& GetMessageWrapLimit() const;

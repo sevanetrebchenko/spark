@@ -2,7 +2,7 @@
 #define DATASTRUCTURES_LOG_MESSAGE_H
 
 #include <memory>
-#include <vector>
+#include <queue>
 #include "timestamp.h"
 
 //#define DEBUG_MESSAGES

@@ -17,7 +17,7 @@ namespace UtilityBox {
                 ~AdapterData();
                 std::vector<std::string>&& FormatMessage(const std::string& message, int timestampLength, int lineLength);
                 std::string FormatCalendarBuffer(std::string formatString);
-                std::string FormatLogCounterBuffer(const unsigned& logCounter);
+                std::string FormatLogCounterBuffer(const int& logCounter);
                 std::string FormatMessageSeverityBuffer(const LogMessageSeverity& messageSeverity);
                 std::string FormatMessageTimestampBuffer(const Timing::TimeStamp& timestamp);
                 std::string FormatLine(const int& lineLength);
@@ -116,7 +116,7 @@ namespace UtilityBox {
             return _calendarBuffer;
         }
 
-        std::string Adapter::AdapterData::FormatLogCounterBuffer(const unsigned &logCounter) {
+        std::string Adapter::AdapterData::FormatLogCounterBuffer(const int &logCounter) {
             _format << '[';
             _format << std::setfill('0') << std::setw(4);
             _format << logCounter / 1000;
@@ -220,7 +220,7 @@ namespace UtilityBox {
             return _config;
         }
 
-        std::vector<std::string> Adapter::FormatMessage(const std::string& message, int timestampLength, unsigned lineLength) {
+        std::vector<std::string> Adapter::FormatMessage(const std::string& message, int timestampLength, int lineLength) {
             return _data->FormatMessage(message, timestampLength, lineLength);
         }
 
@@ -264,18 +264,16 @@ namespace UtilityBox {
                 const LogMessageSeverity& messageSeverity = LoggingHub::GetInstance().GetMessageSeverity(messageAddress);
 
                 if (messageSeverity >= _config.GetMessageSeverityCutoff()) {
-                    ++_logCount;
-
                     // format header
-                    FormatHeader(messageAddress);
+                    ConstructMessageHeader(messageAddress);
 
                     // format messages
-                    FormatMessages(messageAddress);
+                    ConstructMessageBody(messageAddress);
                 }
             }
         }
 
-        void Adapter::FormatHeader(void* messageAddress) {
+        void Adapter::ConstructMessageHeader(void* messageAddress) {
             std::queue<HeaderFormatElement> headerFormat = _config.GetHeaderFormat();
             const LogMessageSeverity& messageSeverity = LoggingHub::GetInstance().GetMessageSeverity(messageAddress);
             const std::string& throughSystem = LoggingHub::GetInstance().GetThroughLoggingSystem(messageAddress);
@@ -330,15 +328,40 @@ namespace UtilityBox {
             }
         }
 
-        void Adapter::FormatMessages(void *messageAddress) {
+        void Adapter::ConstructMessageBody(void *messageAddress) {
             // format message
             const std::vector<LogMessage::LogRecord>& messageRecords = LoggingHub::GetInstance().GetLogRecords(messageAddress);
-            for (auto& record : messageRecords) {
-                // format on a per-message basis
-                std::queue<MessageFormatElement> messageFormat = _config.GetMessageFormat();
+            if (messageRecords.empty()) {
+                ChangeName(nullptr);
+            }
+            else {
+                for (auto& record : messageRecords) {
+                    // format on a per-message basis
+                    ChangeName(&record);
+                }
+            }
+        }
 
+        void Adapter::OutputErrorMessage(std::queue<std::string>& processedErrorMessages) {
+            while (!processedErrorMessages.empty()) {
+                _formattedMessages.emplace(processedErrorMessages.front());
+                processedErrorMessages.pop();
+            }
+            OutputMessage();
+        }
+
+        void Adapter::ClearMessages() {
+            while (!_formattedMessages.empty()) {
+                _formattedMessages.pop();
+            }
+        }
+
+        void Adapter::ChangeName(const LogMessage::LogRecord* record) {
+            std::queue<MessageFormatElement> messageFormat = _config.GetMessageFormat();
+            if (record) {
                 while (!messageFormat.empty()) {
-                    MessageFormatElement& element = messageFormat.front();
+                    MessageFormatElement &element = messageFormat.front();
+
                     switch (element) {
                         // end message and place it into the formatted messages vector
                         case MessageFormatElement::NEWLINE:
@@ -347,16 +370,17 @@ namespace UtilityBox {
                             _format.str(std::string());
                             break;
 
-                        // append message timestamp
+                            // append message timestamp
                         case MessageFormatElement::TIMESTAMP:
-                            _format << FormatTimestamp(record._timestamp);
+                            _format << FormatTimestamp(record->_timestamp);
                             break;
 
-                        // append message
+                            // append message
                         case MessageFormatElement::MESSAGE:
                             // alignment so that messages get printed on the same line is the number of characters written
                             // before the start of the first line of the message
-                            for (std::string& message : FormatMessage(record._message, _format.str().length(), _config.GetMessageWrapLimit())) {
+                            for (std::string &message : FormatMessage(record->_message, _format.str().length(),
+                                                                      _config.GetMessageWrapLimit())) {
 //                                std::size_t tabPosition = message.find_first_of('\n');
 //                                while (tabPosition != std::string::npos) {
 //                                    message.insert(tabPosition + 1, TAB_SPACE);
@@ -366,23 +390,24 @@ namespace UtilityBox {
                             }
                             break;
 
+                            // append string detailing the debug information of the log message
+                            case MessageFormatElement::DEBUGINFO:
 #ifdef DEBUG_MESSAGES
-                        // append string detailing the debug information of the log message
-                        case MessageFormatElement::DEBUGINFO:
                             _format << FormatDebugInformation(record._calleeInformation);
-                            break;
 #endif
-                        // insert a tab formatting character
+                            break;
+
+                            // insert a tab formatting character
                         case MessageFormatElement::TAB:
                             _format << TAB_SPACE;
                             break;
 
-                        // insert a dash formatting character
+                            // insert a dash formatting character
                         case MessageFormatElement::DASH:
                             _format << " - ";
                             break;
 
-                        // insert a bar formatting character
+                            // insert a bar formatting character
                         case MessageFormatElement::BAR:
                             _format << " | ";
                             break;
@@ -395,20 +420,51 @@ namespace UtilityBox {
                     messageFormat.pop();
                 }
             }
+            else {
+                while (!messageFormat.empty()) {
+                    MessageFormatElement &element = messageFormat.front();
+                    switch (element) {
+                        // end message and place it into the formatted messages vector
+                        case MessageFormatElement::NEWLINE:
+                            _format << std::endl;
+                            _formattedMessages.emplace(_format.str());
+                            _format.str(std::string());
+                            break;
+
+                            // insert a tab formatting character
+                        case MessageFormatElement::TAB:
+                            _format << TAB_SPACE;
+                            break;
+
+                            // insert a dash formatting character
+                        case MessageFormatElement::DASH:
+                            _format << " - ";
+                            break;
+
+                            // insert a bar formatting character
+                        case MessageFormatElement::BAR:
+                            _format << " | ";
+                            break;
+
+                        case MessageFormatElement::ELLIPSIS:
+                            _format << "...";
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    messageFormat.pop();
+                }
+            }
         }
 
-        void Adapter::OutputErrorMessage(std::queue<std::string>&& processedErrorMessages) {
-            while (!processedErrorMessages.empty()) {
-                _formattedMessages.emplace(processedErrorMessages.front());
-                processedErrorMessages.pop();
-            }
-            OutputMessage();
+        const int &Adapter::GetLogCount() {
+            return _logCount;
         }
 
-        void Adapter::ClearMessages() {
-            while (!_formattedMessages.empty()) {
-                _formattedMessages.pop();
-            }
+        void Adapter::SetLogCount(const int &logCount) {
+            _logCount = logCount;
         }
     }
 }

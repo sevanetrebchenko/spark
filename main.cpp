@@ -19,18 +19,23 @@ void myAdapter::ProcessMessage(void *messageAddress) {
     const LogMessageSeverity& messageSeverity = LoggingHub::GetInstance().GetMessageSeverity(messageAddress);
 
     if (messageSeverity >= _config.GetMessageSeverityCutoff()) {
-        ++_logCount;
+        //++_logCount;
 
         // format header
-        FormatHeader(messageAddress);
+        ConstructMessageHeader(messageAddress);
 
         // format messages
-        FormatMessages(messageAddress);
+        ConstructMessageBody(messageAddress);
     }
 }
 
 void myAdapter::OutputMessage() {
-    // nothing
+    while (!_formattedMessages.empty()) {
+        std::cout << _formattedMessages.front();
+        _formattedMessages.pop();
+    }
+
+    std::cout << std::endl;
 }
 
 int main() {

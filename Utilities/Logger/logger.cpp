@@ -32,6 +32,7 @@ namespace UtilityBox {
             (*_stream).flush();
 
             ClearMessages();
+            ++_logCount;
         }
 
         StandardOutputAdapter::~StandardOutputAdapter() {
@@ -41,7 +42,6 @@ namespace UtilityBox {
         class ProcessingAdapter : public Adapter {
             public:
                 explicit ProcessingAdapter(std::string&& name);
-                void ProcessMessage(void* messageAddress, bool incrementLogCounter);
                 void OutputMessage() override;
                 std::queue<std::string>& GetFormattedMessages();
         };
@@ -56,23 +56,6 @@ namespace UtilityBox {
 
         std::queue<std::string>& ProcessingAdapter::GetFormattedMessages() {
             return _formattedMessages;
-        }
-
-        void ProcessingAdapter::ProcessMessage(void* messageAddress, bool incrementLogCounter) {
-            // no need to verify data pointer, this adapter is exclusively used within controlled circumstances
-            const LogMessageSeverity& messageSeverity = LoggingHub::GetInstance().GetMessageSeverity(messageAddress);
-
-            if (messageSeverity >= _config.GetMessageSeverityCutoff()) {
-                if (incrementLogCounter) {
-                    ++_logCount;
-                }
-
-                // format header
-                FormatHeader(messageAddress);
-
-                // format messages
-                FormatMessages(messageAddress);
-            }
         }
 
         LoggingHub* LoggingHub::_loggingHub = nullptr;
@@ -94,16 +77,24 @@ namespace UtilityBox {
                 ~LoggingHubData();
 
             private:
-                void ConstructErrorMessageComponent(std::queue<std::string>& formattedErrorMessages, std::queue<HeaderFormatElement>& headerFormat, std::queue<MessageFormatElement>& messageFormat, bool incrementLogCounter);
-                void ConstructErrorMessagePeek(std::queue<std::string>& formattedErrorMessages, std::queue<HeaderFormatElement>& headerFormat, std::queue<MessageFormatElement>& messageFormat, bool incrementLogCounter);
-                void ProcessMessageWithFormat(const std::queue<HeaderFormatElement>& headerFormat, const std::queue<MessageFormatElement>& messageFormat, void* messageAddress, bool incrementLogCounter);
+                StandardOutputAdapter* stdcout;
+                StandardOutputAdapter* stdcerr;
+
+                // error message processing
+                ProcessingAdapter* _errorMessageProcessing;
+                std::queue<std::string> _formattedErrorMessages;
+                void ConstructStandardErrorMessage(const Exceptions::Exception& exception, const char* adapterName);
+                void ConstructAdapterErrorMessage(const Exceptions::Exception& exception);
+                void ConstructErrorMessageHeader(std::queue<HeaderFormatElement>& headerFormat);
+                void ConstructErrorMessageBody(std::queue<MessageFormatElement>& messageFormat);
+                void ConstructErrorMessagePeek(std::queue<HeaderFormatElement>& headerFormat, std::queue<MessageFormatElement>& messageFormat);
+                void ProcessMessageWithFormat(const std::queue<HeaderFormatElement>& headerFormat, const std::queue<MessageFormatElement>& messageFormat, void* messageAddress);
 
                 void DistributeMessages();
                 void SwitchBuffers();
 
                 // Adapters
                 std::vector<Adapter*> _customAdapters;
-                ProcessingAdapter* _errorMessageProcessing;
 
                 // Message storage
                 struct LogMessageStorage {
@@ -138,11 +129,9 @@ namespace UtilityBox {
         // starts an asynchronous worker thread working on the Distribute function once per asynchronousInterval. Uses _distributeMessages as a toggle.
         LoggingHub::LoggingHubData::LoggingHubData(const std::chrono::time_point<std::chrono::high_resolution_clock>& initTimestamp) : _initializationTime(initTimestamp), _asynchronousInterval(std::chrono::milliseconds(100)), _distributeMessages(false), _printingBufferLocation(&_printingBuffer1) {
             // standard output (cout) and error (cerr) adapters
-            auto* stdcout = new StandardOutputAdapter("Standard Output", &std::cout);
-            auto* stdcerr = new StandardOutputAdapter("Standard Error", &std::cerr);
+            stdcout = new StandardOutputAdapter("Standard Output", &std::cout);
+            stdcerr = new StandardOutputAdapter("Standard Error", &std::cerr);
             stdcerr->GetConfiguration().SetMessageSeverityCutoff(LogMessageSeverity::SEVERE);
-            AttachAdapter(stdcout);
-            AttachAdapter(stdcerr);
 
             // yield thread performance until logging hub is ready
             _errorMessageProcessing = new ProcessingAdapter("Adapter for processing error messages.");
@@ -163,81 +152,29 @@ namespace UtilityBox {
                 while (!buffer.empty()) {
                     LogMessageStorage& packet = buffer.front();
                     _currentMessageAddress = static_cast<void*>(&packet);
-                    _errorMessageAddress = static_cast<void*>(&packet);
+                    _errorMessageAddress = _currentMessageAddress;
                     for (auto* adapter : _customAdapters) {
                         try {
+                            const int& logCount = adapter->GetLogCount();
                             adapter->ProcessMessage(_currentMessageAddress);
                             adapter->OutputMessage();
+                            if (logCount + 1 != adapter->GetLogCount()) {
+                                adapter->SetLogCount(logCount + 1);
+                            }
                         }
                         catch (const Exceptions::Exception& exception) {
-                            Adapter* error = GetAdapter("Standard Error");
-                            ASSERT(ASSERT_LEVEL_FATAL, error != nullptr, "Failed to get Standard Error adapter.");
-                            if (auto* stdcerr = dynamic_cast<StandardOutputAdapter*>(error)) {
-                                std::queue<std::string> formattedErrorMessages;
-                                std::queue<HeaderFormatElement> headerFormat;
-                                std::queue<MessageFormatElement> messageFormat;
+                            // send a message to std err about the exception
+                            _errorMessageProcessing->SetLogCount(stdcerr->GetLogCount());
+                            ConstructStandardErrorMessage(exception, adapter->GetName().c_str());
+                            stdcerr->OutputErrorMessage(_formattedErrorMessages);
 
-                                // construct message
-                                auto* errorMessage = new LogMessage(LogMessageSeverity::SEVERE);
-
-                                // construct storage for message to use throughout processing
-                                auto* processedMessageStorage = new LogMessageStorage(std::move(*errorMessage->GetLogMessages()), errorMessage->GetMessageSeverity(), "LoggingHub error processing.");
-                                _currentMessageAddress = static_cast<void*>(processedMessageStorage);
-
-                                // construct header for stdcerr error message
-                                headerFormat.push(HeaderFormatElement::SEPARATOR);
-                                headerFormat.push(HeaderFormatElement::NEWLINE);
-                                headerFormat.push(HeaderFormatElement::LOGCOUNT);
-                                headerFormat.push(HeaderFormatElement::BAR);
-                                headerFormat.push(HeaderFormatElement::DATE);
-                                headerFormat.push(HeaderFormatElement::BAR);
-                                headerFormat.push(HeaderFormatElement::SEVERITY);
-                                headerFormat.push(HeaderFormatElement::NEWLINE);
-                                headerFormat.push(HeaderFormatElement::TAB);
-                                headerFormat.push(HeaderFormatElement::SYSTEM);
-                                headerFormat.push(HeaderFormatElement::NEWLINE);
-                                headerFormat.push(HeaderFormatElement::SEPARATOR);
-                                headerFormat.push(HeaderFormatElement::NEWLINE);
-                                ConstructErrorMessageComponent(formattedErrorMessages, headerFormat, messageFormat, true);
-
-                                errorMessage->Supply("An exception occurred during message processing in custom adapter: %s.", adapter->GetName().c_str());
-                                errorMessage->Supply("Exception message: %s\n", exception.what());
-                                errorMessage->Supply("Message:");
-                                processedMessageStorage->_records = std::move(*errorMessage->GetLogMessages());
-
-                                // construct description for stdcerr error message
-                                messageFormat.push(MessageFormatElement::TAB);
-                                messageFormat.push(MessageFormatElement::MESSAGE);
-                                messageFormat.push(MessageFormatElement::NEWLINE);
-                                ConstructErrorMessageComponent(formattedErrorMessages, headerFormat, messageFormat, false);
-
-                                messageFormat.push(MessageFormatElement::TAB);
-                                messageFormat.push(MessageFormatElement::TAB);
-                                messageFormat.push(MessageFormatElement::TAB);
-                                messageFormat.push(MessageFormatElement::TIMESTAMP);
-                                messageFormat.push(MessageFormatElement::DASH);
-                                messageFormat.push(MessageFormatElement::MESSAGE);
-                                messageFormat.push(MessageFormatElement::NEWLINE);
-#ifdef DEBUG_MESSAGES
-                                messageFormat.push(MessageFormatElement::TAB);
-                                messageFormat.push(MessageFormatElement::TAB);
-                                messageFormat.push(MessageFormatElement::TAB);
-                                messageFormat.push(MessageFormatElement::TAB);
-                                messageFormat.push(MessageFormatElement::DEBUGINFO);
-                                messageFormat.push(MessageFormatElement::NEWLINE);
-#endif
-                                messageFormat.push(MessageFormatElement::NEWLINE);
-                                ConstructErrorMessagePeek(formattedErrorMessages, headerFormat, messageFormat, false);
-
-                                // construct ellipsis at the end
-                                messageFormat.push(MessageFormatElement::TAB);
-                                messageFormat.push(MessageFormatElement::TAB);
-                                messageFormat.push(MessageFormatElement::TAB);
-                                messageFormat.push(MessageFormatElement::ELLIPSIS);
-                                messageFormat.push(MessageFormatElement::NEWLINE);
-                                ConstructErrorMessageComponent(formattedErrorMessages, headerFormat, messageFormat, false);
-
-                                stdcerr->OutputErrorMessage(std::move(formattedErrorMessages));
+                            // log a message to the adapter about the exception
+                            const int& logCount = adapter->GetLogCount();
+                            _errorMessageProcessing->SetLogCount(logCount);
+                            ConstructAdapterErrorMessage(exception);
+                            adapter->OutputErrorMessage(_formattedErrorMessages);
+                            if (logCount + 1 != adapter->GetLogCount()) {
+                                adapter->SetLogCount(logCount + 1);
                             }
                         }
                     }
@@ -248,25 +185,44 @@ namespace UtilityBox {
             }
         }
 
-        void LoggingHub::LoggingHubData::ConstructErrorMessageComponent(std::queue<std::string>& formattedErrorMessages, std::queue<HeaderFormatElement>& headerFormat, std::queue<MessageFormatElement>& messageFormat, bool incrementLogCounter) {
-            ProcessMessageWithFormat(headerFormat, messageFormat, _currentMessageAddress, incrementLogCounter);
+        void LoggingHub::LoggingHubData::ConstructErrorMessageHeader(std::queue<HeaderFormatElement>& headerFormat) {
+            std::queue<MessageFormatElement> messageFormat;
+            ProcessMessageWithFormat(headerFormat, messageFormat, _currentMessageAddress);
             std::queue<std::string>& processedMessages = _errorMessageProcessing->GetFormattedMessages();
             while (!processedMessages.empty()) {
-                formattedErrorMessages.emplace(std::move(processedMessages.front()));
+                _formattedErrorMessages.emplace(std::move(processedMessages.front()));
                 processedMessages.pop();
             }
+
+            static_cast<LogMessageStorage*>(_currentMessageAddress)->_records.clear();
+            _errorMessageProcessing->ClearMessages();
 
             // clear formats
             while (!headerFormat.empty()) {
                 headerFormat.pop();
             }
+        }
+
+        void LoggingHub::LoggingHubData::ConstructErrorMessageBody(std::queue<MessageFormatElement>& messageFormat) {
+            std::queue<HeaderFormatElement> headerFormat;
+            ProcessMessageWithFormat(headerFormat, messageFormat, _currentMessageAddress);
+            std::queue<std::string>& processedMessages = _errorMessageProcessing->GetFormattedMessages();
+            while (!processedMessages.empty()) {
+                _formattedErrorMessages.emplace(std::move(processedMessages.front()));
+                processedMessages.pop();
+            }
+
+            static_cast<LogMessageStorage*>(_currentMessageAddress)->_records.clear();
+            _errorMessageProcessing->ClearMessages();
+
+            // clear formats
             while (!messageFormat.empty()) {
                 messageFormat.pop();
             }
         }
 
-        void LoggingHub::LoggingHubData::ConstructErrorMessagePeek(std::queue<std::string>& formattedErrorMessages, std::queue<HeaderFormatElement>& headerFormat, std::queue<MessageFormatElement>& messageFormat, bool incrementLogCounter) {
-            ProcessMessageWithFormat(headerFormat, messageFormat, _errorMessageAddress, false);
+        void LoggingHub::LoggingHubData::ConstructErrorMessagePeek(std::queue<HeaderFormatElement>& headerFormat, std::queue<MessageFormatElement>& messageFormat) {
+            ProcessMessageWithFormat(headerFormat, messageFormat, _errorMessageAddress);
             std::queue<std::string>& processedMessages = _errorMessageProcessing->GetFormattedMessages();
             for (int i = 0; i < 3; ++i) {
                 std::string& processedMessage = processedMessages.front();
@@ -274,9 +230,12 @@ namespace UtilityBox {
                     break;
                 }
 
-                formattedErrorMessages.emplace(std::move(processedMessage));
+                _formattedErrorMessages.emplace(std::move(processedMessage));
                 processedMessages.pop();
             }
+
+            static_cast<LogMessageStorage*>(_currentMessageAddress)->_records.clear();
+            _errorMessageProcessing->ClearMessages();
 
             // clear formats
             while (!headerFormat.empty()) {
@@ -285,132 +244,15 @@ namespace UtilityBox {
             while (!messageFormat.empty()) {
                 messageFormat.pop();
             }
-
-            _errorMessageProcessing->ClearMessages();
         }
 
-        void LoggingHub::LoggingHubData::ProcessMessageWithFormat(const std::queue<HeaderFormatElement>& headerFormat, const std::queue<MessageFormatElement>& messageFormat, void* messageAddress, bool incrementLogCounter) {
+        void LoggingHub::LoggingHubData::ProcessMessageWithFormat(const std::queue<HeaderFormatElement>& headerFormat, const std::queue<MessageFormatElement>& messageFormat, void* messageAddress) {
             _errorMessageProcessing->GetConfiguration().AddCustomHeaderFormatStructure(headerFormat);
             _errorMessageProcessing->GetConfiguration().AddCustomMessageFormatStructure(messageFormat);
-            _errorMessageProcessing->ProcessMessage(messageAddress, incrementLogCounter);
+            _errorMessageProcessing->ProcessMessage(messageAddress);
             _errorMessageProcessing->GetConfiguration().RevertHeaderFormat();
             _errorMessageProcessing->GetConfiguration().RevertMessageFormat();
         }
-//
-//        void LoggingHub::LoggingHubData::FormatHeader(std::queue<std::string>& messagePool, LogMessage* errorMessage) {
-//            auto* processedMessageStorage = new LogMessageStorage(std::move(*errorMessage->GetLogMessages()), errorMessage->GetMessageSeverity(), "LoggingHub error processing.");
-//            _currentMessageAddress = static_cast<void*>(processedMessageStorage);
-//
-//            std::queue<HeaderFormatElement> headerFormat;
-//            headerFormat.push(HeaderFormatElement::SEPARATOR);
-//            headerFormat.push(HeaderFormatElement::NEWLINE);
-//            headerFormat.push(HeaderFormatElement::TERMINATOR);
-//            headerFormat.push(HeaderFormatElement::LOGCOUNT);
-//            headerFormat.push(HeaderFormatElement::BAR);
-//            headerFormat.push(HeaderFormatElement::DATE);
-//            headerFormat.push(HeaderFormatElement::BAR);
-//            headerFormat.push(HeaderFormatElement::SEVERITY);
-//            headerFormat.push(HeaderFormatElement::NEWLINE);
-//            headerFormat.push(HeaderFormatElement::SEPARATOR);
-//            headerFormat.push(HeaderFormatElement::NEWLINE);
-//            headerFormat.push(HeaderFormatElement::TERMINATOR);
-//
-//            std::queue<MessageFormatElement> messageFormat;
-//            ProcessMessageWithFormat(headerFormat, messageFormat);
-//            for (auto& message : _errorMessageProcessing->GetFormattedMessages()) {
-//                messagePool.emplace(std::move(message));
-//            }
-//        }
-//
-//        void LoggingHub::LoggingHubData::FormatExceptionMessage(std::queue<std::string>& messagePool, LogMessage *errorMessage, const Exceptions::Exception& exception, const char* adapterName) {
-//            errorMessage->Supply("An exception occurred during message processing in custom adapter: %s.", adapterName);
-//            errorMessage->Supply("Exception message: %s\n", exception.what());
-//
-//            auto* processedMessageStorage = new LogMessageStorage(std::move(*errorMessage->GetLogMessages()), errorMessage->GetMessageSeverity(), "");
-//            _currentMessageAddress = static_cast<void*>(processedMessageStorage);
-//
-//            std::queue<HeaderFormatElement> headerFormat;
-//
-//            std::queue<MessageFormatElement> messageFormat;
-//            messageFormat.push(MessageFormatElement::TAB);
-//            messageFormat.push(MessageFormatElement::MESSAGE);
-//            messageFormat.push(MessageFormatElement::NEWLINE);
-//            messageFormat.push(MessageFormatElement::TERMINATOR);
-//
-//            ProcessMessageWithFormat(headerFormat, messageFormat);
-//            for (auto& message : _errorMessageProcessing->GetFormattedMessages()) {
-//                messagePool.emplace(std::move(message));
-//            }
-//        }
-//
-//        void LoggingHub::LoggingHubData::FormatMessagePeek(std::queue<std::string>& messagePool, LogMessage *errorMessage, void* errorMessageDataAddress) {
-//            errorMessage->Supply("Message:");
-//
-//            auto* processedMessageStorage = new LogMessageStorage(std::move(*errorMessage->GetLogMessages()), errorMessage->GetMessageSeverity(), "");
-//            _currentMessageAddress = static_cast<void*>(processedMessageStorage);
-//
-//            std::queue<HeaderFormatElement> headerFormat;
-//
-//            std::queue<MessageFormatElement> messageFormat;
-//            messageFormat.push(MessageFormatElement::TAB);
-//            messageFormat.push(MessageFormatElement::MESSAGE);
-//            messageFormat.push(MessageFormatElement::NEWLINE);
-//            messageFormat.push(MessageFormatElement::TERMINATOR);
-//
-//            ProcessMessageWithFormat(headerFormat, messageFormat);
-//            for (auto& message : _errorMessageProcessing->GetFormattedMessages()) {
-//                messagePool.emplace(std::move(message));
-//            }
-//
-//            while (!messageFormat.empty()) {
-//                messageFormat.pop();
-//            }
-//
-//            messageFormat.push(MessageFormatElement::TAB);
-//            messageFormat.push(MessageFormatElement::TAB);
-//            messageFormat.push(MessageFormatElement::TAB);
-//            messageFormat.push(MessageFormatElement::TIMESTAMP);
-//            messageFormat.push(MessageFormatElement::DASH);
-//            messageFormat.push(MessageFormatElement::MESSAGE);
-//            messageFormat.push(MessageFormatElement::NEWLINE);
-//            messageFormat.push(MessageFormatElement::TERMINATOR);
-//#ifdef DEBUG_MESSAGES
-//            messageFormat.push(MessageFormatElement::TAB);
-//            messageFormat.push(MessageFormatElement::TAB);
-//            messageFormat.push(MessageFormatElement::TAB);
-//            messageFormat.push(MessageFormatElement::TAB);
-//            messageFormat.push(MessageFormatElement::DEBUGINFO);
-//            messageFormat.push(MessageFormatElement::NEWLINE);
-//            messageFormat.push(MessageFormatElement::TERMINATOR);
-//#endif
-//            messageFormat.push(MessageFormatElement::NEWLINE);
-//            messageFormat.push(MessageFormatElement::TERMINATOR);
-//
-//            ProcessMessageWithFormat(headerFormat, messageFormat);
-//
-//            std::vector<std::string>& processedMessages = _errorMessageProcessing->GetFormattedMessages();
-//            for (int i = 0; i < 12; ++i) {
-//                if (processedMessages.at(i) == "\n") {
-//                    break;
-//                }
-//
-//                messagePool.emplace(std::move(processedMessages.at(i)));
-//            }
-//
-//            while (!messageFormat.empty()) {
-//                messageFormat.pop();
-//            }
-//
-//            messageFormat.push(MessageFormatElement::TAB);
-//            messageFormat.push(MessageFormatElement::TAB);
-//            messageFormat.push(MessageFormatElement::TAB);
-//            messageFormat.push(MessageFormatElement::ELLIPSIS);
-//            messageFormat.push(MessageFormatElement::NEWLINE);
-//            messageFormat.push(MessageFormatElement::TERMINATOR);
-//
-//            ProcessMessageWithFormat(headerFormat, messageFormat);
-//            messagePool.emplace(_errorMessageProcessing->GetFormattedMessages()[0]);
-//        }
 
         void LoggingHub::LoggingHubData::SwitchBuffers() {
             if (_printingBufferLocation == &(_printingBuffer1)) {
@@ -437,7 +279,7 @@ namespace UtilityBox {
         }
 
         const std::vector<LogMessage::LogRecord> &LoggingHub::LoggingHubData::GetLogRecords(void *messageAddress) {
-            if (messageAddress == _currentMessageAddress || messageAddress == _errorMessageAddress) {
+            if (VerifyDataPointer(messageAddress)) {
                 return static_cast<LogMessageStorage*>(messageAddress)->_records;
             }
 
@@ -445,7 +287,7 @@ namespace UtilityBox {
         }
 
         const LogMessageSeverity &LoggingHub::LoggingHubData::GetMessageSeverity(void *messageAddress) {
-            if (messageAddress == _currentMessageAddress || messageAddress == _errorMessageAddress) {
+            if (VerifyDataPointer(messageAddress)) {
                 return static_cast<LogMessageStorage*>(messageAddress)->_messageSeverity;
             }
 
@@ -453,7 +295,7 @@ namespace UtilityBox {
         }
 
         const std::string& LoggingHub::LoggingHubData::GetThroughLoggingSystem(void *messageAddress) {
-            if (messageAddress == _currentMessageAddress || messageAddress == _errorMessageAddress) {
+            if (VerifyDataPointer(messageAddress)) {
                 return static_cast<LogMessageStorage*>(messageAddress)->_loggedSystemName;
             }
 
@@ -488,7 +330,84 @@ namespace UtilityBox {
         }
 
         bool LoggingHub::LoggingHubData::VerifyDataPointer(void *messageAddress) {
-            return messageAddress == _currentMessageAddress;
+            return messageAddress == _currentMessageAddress || messageAddress == _errorMessageAddress;
+        }
+
+        void LoggingHub::LoggingHubData::ConstructStandardErrorMessage(const Exceptions::Exception& exception, const char* adapterName) {
+            // construct message
+            auto* errorMessage = new LogMessage(LogMessageSeverity::SEVERE);
+
+            // construct storage for message to use throughout processing
+            auto* processedMessageStorage = new LogMessageStorage(std::move(*errorMessage->GetLogMessages()), errorMessage->GetMessageSeverity(), "LoggingHub error processing.");
+            _currentMessageAddress = static_cast<void*>(processedMessageStorage);
+            std::queue<MessageFormatElement> messageFormat;
+
+            // construct header for stdcerr error message
+            std::queue<HeaderFormatElement> headerFormat = _errorMessageProcessing->GetConfiguration().GetDefaultHeaderFormat();
+            ConstructErrorMessageHeader(headerFormat);
+
+            errorMessage->Supply("An exception occurred during message processing in custom adapter: %s.", adapterName);
+            errorMessage->Supply("Exception message: %s\n", exception.what());
+            errorMessage->Supply("Message:");
+            processedMessageStorage->_records = std::move(*errorMessage->GetLogMessages());
+
+            // construct description for stdcerr error message
+            messageFormat.push(MessageFormatElement::TAB);
+            messageFormat.push(MessageFormatElement::MESSAGE);
+            messageFormat.push(MessageFormatElement::NEWLINE);
+            ConstructErrorMessageBody(messageFormat);
+
+            messageFormat.push(MessageFormatElement::TAB);
+            messageFormat.push(MessageFormatElement::TAB);
+            messageFormat.push(MessageFormatElement::TAB);
+            messageFormat.push(MessageFormatElement::TIMESTAMP);
+            messageFormat.push(MessageFormatElement::DASH);
+            messageFormat.push(MessageFormatElement::MESSAGE);
+            messageFormat.push(MessageFormatElement::NEWLINE);
+
+#ifdef DEBUG_MESSAGES
+            messageFormat.push(MessageFormatElement::TAB);
+            messageFormat.push(MessageFormatElement::TAB);
+            messageFormat.push(MessageFormatElement::TAB);
+            messageFormat.push(MessageFormatElement::TAB);
+            messageFormat.push(MessageFormatElement::DEBUGINFO);
+            messageFormat.push(MessageFormatElement::NEWLINE);
+#endif
+
+            messageFormat.push(MessageFormatElement::NEWLINE);
+            ConstructErrorMessagePeek(headerFormat, messageFormat);
+
+            // construct ellipsis at the end
+            messageFormat.push(MessageFormatElement::TAB);
+            messageFormat.push(MessageFormatElement::TAB);
+            messageFormat.push(MessageFormatElement::TAB);
+            messageFormat.push(MessageFormatElement::ELLIPSIS);
+            messageFormat.push(MessageFormatElement::NEWLINE);
+            ConstructErrorMessageBody(messageFormat);
+        }
+
+        void LoggingHub::LoggingHubData::ConstructAdapterErrorMessage(const Exceptions::Exception &exception) {
+            // construct message
+            auto* errorMessage = new LogMessage(LogMessageSeverity::SEVERE);
+
+            // construct storage for message to use throughout processing
+            auto* processedMessageStorage = new LogMessageStorage(std::move(*errorMessage->GetLogMessages()), errorMessage->GetMessageSeverity(), "LoggingHub error processing.");
+            _currentMessageAddress = static_cast<void*>(processedMessageStorage);
+            std::queue<MessageFormatElement> messageFormat;
+
+            // construct header for stdcerr error message
+            std::queue<HeaderFormatElement> headerFormat = _errorMessageProcessing->GetConfiguration().GetDefaultHeaderFormat();
+            ConstructErrorMessageHeader(headerFormat);
+
+            errorMessage->Supply("An exception occurred during message processing. See standard error output for details.");
+            processedMessageStorage->_records = std::move(*errorMessage->GetLogMessages());
+
+            // construct description for stdcerr error message
+            messageFormat.push(MessageFormatElement::TAB);
+            messageFormat.push(MessageFormatElement::MESSAGE);
+            messageFormat.push(MessageFormatElement::NEWLINE);
+            messageFormat.push(MessageFormatElement::NEWLINE);
+            ConstructErrorMessageBody(messageFormat);
         }
 
         LoggingHub& Logger::LoggingHub::GetInstance() {
