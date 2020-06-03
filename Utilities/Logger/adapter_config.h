@@ -11,7 +11,6 @@ namespace UtilityBox {
     namespace Logger {
         enum class HeaderFormatElement {
             NEWLINE,
-            TERMINATOR,
             LOGCOUNT,
             DATE,
             SEVERITY,
@@ -23,7 +22,6 @@ namespace UtilityBox {
 
         enum class MessageFormatElement {
             NEWLINE,
-            TERMINATOR,
             TIMESTAMP,
             MESSAGE,
 #ifdef DEBUG_MESSAGES

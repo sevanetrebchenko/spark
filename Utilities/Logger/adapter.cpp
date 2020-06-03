@@ -260,7 +260,7 @@ namespace UtilityBox {
 
         void Adapter::ProcessMessage(void *messageAddress) {
             // make sure pointer was passed to a legitimate object to begin with
-//            if (LoggingHub::GetInstance().VerifyDataPointer(messageAddress)) {
+            if (LoggingHub::GetInstance().VerifyDataPointer(messageAddress)) {
                 const LogMessageSeverity& messageSeverity = LoggingHub::GetInstance().GetMessageSeverity(messageAddress);
 
                 if (messageSeverity >= _config.GetMessageSeverityCutoff()) {
@@ -272,7 +272,7 @@ namespace UtilityBox {
                     // format messages
                     FormatMessages(messageAddress);
                 }
-//            }
+            }
         }
 
         void Adapter::FormatHeader(void* messageAddress) {
@@ -286,10 +286,7 @@ namespace UtilityBox {
                     // end message and place it into the formatted messages vector
                     case HeaderFormatElement::NEWLINE:
                         _format << std::endl;
-                        break;
-
-                    case HeaderFormatElement::TERMINATOR:
-                        _formattedMessages.emplace_back(_format.str());
+                        _formattedMessages.emplace(_format.str());
                         _format.str(std::string());
                         break;
 
@@ -346,10 +343,7 @@ namespace UtilityBox {
                         // end message and place it into the formatted messages vector
                         case MessageFormatElement::NEWLINE:
                             _format << std::endl;
-                            break;
-
-                        case MessageFormatElement::TERMINATOR:
-                            _formattedMessages.emplace_back(_format.str());
+                            _formattedMessages.emplace(_format.str());
                             _format.str(std::string());
                             break;
 
@@ -405,10 +399,16 @@ namespace UtilityBox {
 
         void Adapter::OutputErrorMessage(std::queue<std::string>&& processedErrorMessages) {
             while (!processedErrorMessages.empty()) {
-                _formattedMessages.emplace_back(processedErrorMessages.front());
+                _formattedMessages.emplace(processedErrorMessages.front());
                 processedErrorMessages.pop();
             }
             OutputMessage();
+        }
+
+        void Adapter::ClearMessages() {
+            while (!_formattedMessages.empty()) {
+                _formattedMessages.pop();
+            }
         }
     }
 }

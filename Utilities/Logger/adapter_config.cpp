@@ -52,7 +52,6 @@ namespace UtilityBox {
             //---------------------------------------------------------------------------------
             _defaultHeaderFormat.push(HeaderFormatElement::SEPARATOR);
             _defaultHeaderFormat.push(HeaderFormatElement::NEWLINE);
-            _defaultHeaderFormat.push(HeaderFormatElement::TERMINATOR);
 
             _defaultHeaderFormat.push(HeaderFormatElement::LOGCOUNT);
             _defaultHeaderFormat.push(HeaderFormatElement::BAR);
@@ -60,16 +59,13 @@ namespace UtilityBox {
             _defaultHeaderFormat.push(HeaderFormatElement::BAR);
             _defaultHeaderFormat.push(HeaderFormatElement::SEVERITY);
             _defaultHeaderFormat.push(HeaderFormatElement::NEWLINE);
-            _defaultHeaderFormat.push(HeaderFormatElement::TERMINATOR);
 
             _defaultHeaderFormat.push(HeaderFormatElement::TAB);
             _defaultHeaderFormat.push(HeaderFormatElement::SYSTEM);
             _defaultHeaderFormat.push(HeaderFormatElement::NEWLINE);
-            _defaultHeaderFormat.push(HeaderFormatElement::TERMINATOR);
 
             _defaultHeaderFormat.push(HeaderFormatElement::SEPARATOR);
             _defaultHeaderFormat.push(HeaderFormatElement::NEWLINE);
-            _defaultHeaderFormat.push(HeaderFormatElement::TERMINATOR);
         }
 
         void AdapterConfiguration::AdapterConfigurationData::ConstructDefaultMessageFormat() {
@@ -82,17 +78,14 @@ namespace UtilityBox {
             _defaultMessageFormat.push(MessageFormatElement::DASH);
             _defaultMessageFormat.push(MessageFormatElement::MESSAGE);
             _defaultMessageFormat.push(MessageFormatElement::NEWLINE);
-            _defaultMessageFormat.push(MessageFormatElement::TERMINATOR);
 
 #ifdef DEBUG_MESSAGES
             _defaultMessageFormat.push(MessageFormatElement::TAB);
             _defaultMessageFormat.push(MessageFormatElement::TAB);
             _defaultMessageFormat.push(MessageFormatElement::DEBUGINFO);
             _defaultMessageFormat.push(MessageFormatElement::NEWLINE);
-            _defaultMessageFormat.push(MessageFormatElement::TERMINATOR);
 #endif
             _defaultMessageFormat.push(MessageFormatElement::NEWLINE);
-            _defaultMessageFormat.push(MessageFormatElement::TERMINATOR);
         }
 
 

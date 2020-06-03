@@ -17,6 +17,7 @@ namespace UtilityBox {
 
                 virtual void ProcessMessage(void* messageAddress);
                 virtual void OutputMessage() = 0;
+                void ClearMessages();
                 void OutputErrorMessage(std::queue<std::string>&& processedErrorMessages);
 
                 AdapterConfiguration& GetConfiguration();
@@ -39,7 +40,7 @@ namespace UtilityBox {
                 AdapterConfiguration _config;
                 std::string _adapterName;
                 unsigned _logCount;
-                std::vector<std::string> _formattedMessages;
+                std::queue<std::string> _formattedMessages;
 
             private:
                 std::stringstream _format;

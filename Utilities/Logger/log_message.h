@@ -5,7 +5,7 @@
 #include <vector>
 #include "timestamp.h"
 
-#define DEBUG_MESSAGES
+//#define DEBUG_MESSAGES
 
 namespace UtilityBox {
     namespace Logger {
