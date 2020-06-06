@@ -37,7 +37,7 @@ namespace UtilityBox {
         LogMessage::LogMessageData::LogMessageData() : _processingBufferSize(64u) {
             // Start buffer with (baseline) 64 byte size.
             _processingBuffer = new (std::nothrow) char[_processingBufferSize];
-            ASSERT(ASSERT_LEVEL_FATAL, _processingBuffer != nullptr, "Operation new failed to allocate log message processing buffer - program is out of memory.");
+            ASSERT(_processingBuffer != nullptr, "Operation new failed to allocate log message processing buffer - program is out of memory.");
         }
 
         // Cleans up information related to message processing.
@@ -67,7 +67,7 @@ namespace UtilityBox {
             if (currentBufferSize != _processingBufferSize) {
                 delete [] _processingBuffer;
                 _processingBuffer = new(std::nothrow) char[_processingBufferSize];
-                ASSERT(ASSERT_LEVEL_FATAL, _processingBuffer != nullptr, "Operation new failed to re-allocate log message processing buffer - program is out of memory.");
+                ASSERT(_processingBuffer != nullptr, "Operation new failed to re-allocate log message processing buffer - program is out of memory.");
             }
 
             vsnprintf(_processingBuffer, _processingBufferSize, formatString, argList);

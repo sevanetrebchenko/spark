@@ -110,7 +110,7 @@ namespace UtilityBox {
         // Constructor. Allocates necessary buffers for processing messages.
         Adapter::AdapterData::AdapterData() : _calendarTime(std::time(nullptr)), _calendarBufferSize(64u) {
             _calendarBuffer = new(std::nothrow) char[_calendarBufferSize];
-            ASSERT(ASSERT_LEVEL_FATAL, _calendarBuffer != nullptr, "Operation new failed to allocate adapter calendar processing buffer - program is out of memory.");
+            ASSERT(_calendarBuffer != nullptr, "Operation new failed to allocate adapter calendar processing buffer - program is out of memory.");
         }
 
         // Attemps to reallocate the calendar buffer until the buffer can adequately fit the desired calendar information, given by the formatString.
@@ -121,7 +121,7 @@ namespace UtilityBox {
                 _calendarBufferSize *= 2;
                 delete[] _calendarBuffer;
                 _calendarBuffer = new (std::nothrow) char[_calendarBufferSize];
-                ASSERT(ASSERT_LEVEL_FATAL, _calendarBuffer != nullptr, "Operation new failed to re-allocate adapter calendar processing buffer - program is out of memory.");
+                ASSERT(_calendarBuffer != nullptr, "Operation new failed to re-allocate adapter calendar processing buffer - program is out of memory.");
             }
         }
 

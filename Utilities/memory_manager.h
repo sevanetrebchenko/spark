@@ -2,14 +2,13 @@
 #ifndef DATASTRUCTURES_MEMORY_MANAGER_H
 #define DATASTRUCTURES_MEMORY_MANAGER_H
 
+#include "global_defines.h"
 #include <malloc.h>
 #include <string>
 #include <array>
 #include <iostream>
 #include "assert_dev.h"
 #include "Logger/logger.h"
-
-#define _NODISCARD_ [[nodiscard]]
 
 namespace UtilityBox {
     namespace MemoryManager {

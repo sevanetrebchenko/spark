@@ -1,6 +1,8 @@
 #include <iostream>
 #include "Utilities/Logger/logger.h"
 #include "Utilities/Logger/adapter.h"
+#include "Utilities/assert_dev.h"
+
 using namespace UtilityBox::Logger;
 
 class myAdapter : public Adapter {
@@ -50,6 +52,8 @@ int main() {
     newMessge->Supply("This is a different message to test multiple message format. %s", "Additional string parameters.");
     loggingSystem->Log(newMessge);
     delete loggingSystem;
+
+    ASSERT(1 == 2, "this is a format string with variadic arguments. %i", 5);
 
     //LogMessage<int> *v = new LogMessage<int>(DEBUG, "lmao");
 
