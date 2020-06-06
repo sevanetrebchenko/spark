@@ -1,31 +1,61 @@
+
 #ifndef DATASTRUCTURES_TIMESTAMP_H
 #define DATASTRUCTURES_TIMESTAMP_H
 
-#include <memory>
-#include <chrono>
-#include <ostream>
-
-#define _NODISCARD_ [[nodiscard]]
+#include "../global_defines.h" // _NODISCARD_
+#include <memory>              // std::unique_ptr
+#include <chrono>              // std::chrono
+#include <ostream>             // std::ostream
 
 namespace UtilityBox {
     namespace Timing {
         class TimeStamp {
             public:
+                /**
+                 * Constructor for a timestamp. Uses std::chrono::high_resolution_clock::now() (time when constructor was
+                 * called) as the time record.
+                 */
                 TimeStamp();
-                explicit TimeStamp(const std::chrono::time_point<std::chrono::high_resolution_clock> &timestamp);
-                TimeStamp(const TimeStamp &other);
+
+                /**
+                 * Timestamp move constructor.
+                 * @param other - Timestamp to move data from.
+                 */
                 TimeStamp(TimeStamp&& other) noexcept;
+
+                /**
+                 * Timestamp destructor.
+                 */
                 ~TimeStamp();
-                _NODISCARD_ bool operator<(const TimeStamp &other) const;
-                _NODISCARD_ bool operator==(const TimeStamp &other) const;
-                _NODISCARD_ unsigned ConvertToMillis() const;
+
+                /**
+                 * Get only the millisecond portion of this timestamp.
+                 * @return Millisecond portion of this timestamp.
+                 */
                 _NODISCARD_ unsigned GetMillis() const;
+
+                /**
+                 * Get only the second portion of this timestamp.
+                 * @return Second portion of this timestamp.
+                */
                 _NODISCARD_ unsigned GetSeconds() const;
+
+                /**
+                 * Get only the minute portion of this timestamp.
+                 * @return Minute portion of this timestamp.
+                */
                 _NODISCARD_ unsigned GetMinutes() const;
 
-                friend std::ostream &operator<<(std::ostream &os, const TimeStamp &stamp);
+                /**
+                 * Print this timestamp to the provided stream.
+                 * @param os    - Stream to print to.
+                 * @param stamp - Timestamp object to print.
+                 * @return Printed-to stream.
+                 */
+                friend std::ostream& operator<<(std::ostream& os, const TimeStamp& stamp);
 
             private:
+                // Storage for Timestamp data, back-end functionality, and helper functions.
                 struct TimeStampData;
                 std::unique_ptr<TimeStampData> _data;
         };

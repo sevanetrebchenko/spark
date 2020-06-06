@@ -1,165 +1,143 @@
-#include "adapter_config.h"
+
+#include "adapter_config.h" // AdapterConfiguration
 
 namespace UtilityBox {
     namespace Logger {
-
-        class AdapterConfiguration::AdapterConfigurationData {
-            public:
-                AdapterConfigurationData();
-                ~AdapterConfigurationData();
-
-                std::queue<HeaderFormatElement> GetDefaultHeaderFormat();
-                std::queue<MessageFormatElement> GetDefaultMessageFormat();
-
-            private:
-                void ConstructDefaultHeaderFormat();
-                void ConstructDefaultMessageFormat();
-
-                std::queue<HeaderFormatElement> _defaultHeaderFormat;
-                std::queue<MessageFormatElement> _defaultMessageFormat;
-        };
-
-        AdapterConfiguration::AdapterConfigurationData::AdapterConfigurationData() {
+        // Constructor. Establishes default formats for headers and messages.
+        AdapterConfiguration::AdapterConfiguration() {
             ConstructDefaultHeaderFormat();
             ConstructDefaultMessageFormat();
         }
 
-        AdapterConfiguration::AdapterConfigurationData::~AdapterConfigurationData() {
-            // clear normal format
-            while (!_defaultHeaderFormat.empty()) {
-                _defaultHeaderFormat.pop();
-            }
-
-            // clear error format
-            while (!_defaultMessageFormat.empty()) {
-                _defaultMessageFormat.pop();
-            }
-        }
-
-        std::queue<HeaderFormatElement> AdapterConfiguration::AdapterConfigurationData::GetDefaultHeaderFormat() {
-            return _defaultHeaderFormat;
-        }
-
-        std::queue<MessageFormatElement> AdapterConfiguration::AdapterConfigurationData::GetDefaultMessageFormat() {
-            return _defaultMessageFormat;
-        }
-
-        void AdapterConfiguration::AdapterConfigurationData::ConstructDefaultHeaderFormat() {
-            // default header format:
-            //---------------------------------------------------------------------------------
-            // [0000 0000] | [ DAY_OF_WEEK 00, MONTH 0000] | [ SEVERITY ]
-            //      Logged through system: SYSTEM_NAME.
-            //---------------------------------------------------------------------------------
-            _defaultHeaderFormat.push(HeaderFormatElement::SEPARATOR);
-            _defaultHeaderFormat.push(HeaderFormatElement::NEWLINE);
-
-            _defaultHeaderFormat.push(HeaderFormatElement::LOGCOUNT);
-            _defaultHeaderFormat.push(HeaderFormatElement::BAR);
-            _defaultHeaderFormat.push(HeaderFormatElement::DATE);
-            _defaultHeaderFormat.push(HeaderFormatElement::BAR);
-            _defaultHeaderFormat.push(HeaderFormatElement::SEVERITY);
-            _defaultHeaderFormat.push(HeaderFormatElement::NEWLINE);
-
-            _defaultHeaderFormat.push(HeaderFormatElement::TAB);
-            _defaultHeaderFormat.push(HeaderFormatElement::SYSTEM);
-            _defaultHeaderFormat.push(HeaderFormatElement::NEWLINE);
-
-            _defaultHeaderFormat.push(HeaderFormatElement::SEPARATOR);
-            _defaultHeaderFormat.push(HeaderFormatElement::NEWLINE);
-        }
-
-        void AdapterConfiguration::AdapterConfigurationData::ConstructDefaultMessageFormat() {
-            // default message format:
-            //      [000m 00s 0000ms] - Message goes here. If it spans multiple lines,
-            //                          additional lines are aligned.
-            //          : supplied from (FILE, FUNCTION:LINE_NUMBER)
-            _defaultMessageFormat.push(MessageFormatElement::TAB);
-            _defaultMessageFormat.push(MessageFormatElement::TIMESTAMP);
-            _defaultMessageFormat.push(MessageFormatElement::DASH);
-            _defaultMessageFormat.push(MessageFormatElement::MESSAGE);
-            _defaultMessageFormat.push(MessageFormatElement::NEWLINE);
-
-#ifdef DEBUG_MESSAGES
-            _defaultMessageFormat.push(MessageFormatElement::TAB);
-            _defaultMessageFormat.push(MessageFormatElement::TAB);
-            _defaultMessageFormat.push(MessageFormatElement::DEBUGINFO);
-            _defaultMessageFormat.push(MessageFormatElement::NEWLINE);
-#endif
-            _defaultMessageFormat.push(MessageFormatElement::NEWLINE);
-        }
-
-
-
-        // Adapter configuration functions
-        AdapterConfiguration::AdapterConfiguration() : _data(std::make_unique<AdapterConfigurationData>()) {
-            _headerFormat.push(std::move(_data->GetDefaultHeaderFormat()));
-            _messageFormat.push(std::move(_data->GetDefaultMessageFormat()));
-        }
-
+        // Destructor. Cleans all header and message formats.
         AdapterConfiguration::~AdapterConfiguration() {
-            _data.reset();
-        }
+            while (!_headerFormats.empty()) {
+                _headerFormats.pop();
+            }
 
-        void AdapterConfiguration::AddCustomHeaderFormatStructure(const std::queue<HeaderFormatElement> &newFormat) {
-            _headerFormat.push(newFormat);
-        }
-
-        void AdapterConfiguration::AddCustomMessageFormatStructure(const std::queue<MessageFormatElement> &newFormat) {
-            _messageFormat.push(newFormat);
-        }
-
-        void AdapterConfiguration::RevertHeaderFormat() {
-            if (_headerFormat.size() != 1) {
-                _headerFormat.pop();
+            while (!_messageFormats.empty()) {
+                _messageFormats.pop();
             }
         }
 
-        void AdapterConfiguration::RevertMessageFormat() {
-            if (_messageFormat.size() != 1) {
-                _messageFormat.pop();
+        // Globally add a new header format.
+        void AdapterConfiguration::PushHeaderFormat(const std::queue<HeaderFormatElement>& newFormat) {
+            _headerFormats.push(newFormat);
+        }
+
+        // Globally add a new message format.
+        void AdapterConfiguration::PushMessageFormat(const std::queue<MessageFormatElement>& newFormat) {
+            _messageFormats.push(newFormat);
+        }
+
+        // Globally remove header format. Ensures at least one format remains (default).
+        void AdapterConfiguration::PopHeaderFormat() {
+            // Remove top-most format if it is not the only format.
+            if (_headerFormats.size() > 1) {
+                _headerFormats.pop();
             }
         }
 
+        // Globally remove message format. Ensures at least one format remains (default).
+        void AdapterConfiguration::PopMessageFormat() {
+            // Remove top-most format if it is not the only format.
+            if (_messageFormats.size() > 1) {
+                _messageFormats.pop();
+            }
+        }
+
+        // Gets a copy of the top-most header format - free to modify.
         std::queue<HeaderFormatElement> AdapterConfiguration::GetHeaderFormat() {
-            return _headerFormat.top();
+            return _headerFormats.top();
         }
 
+        // Gets a copy of the top-most message format.
         std::queue<MessageFormatElement> AdapterConfiguration::GetMessageFormat() {
-            return _messageFormat.top();
+            return _messageFormats.top();
         }
 
+        // Get the maximum number of characters a log line can have.
         const int &AdapterConfiguration::GetMessageWrapLimit() const {
             return _messageWrapLimit;
         }
 
-        void AdapterConfiguration::SetMessageWrapLimit(const int &newLimit) {
+        // Update the maximum number of characters a log line can have. Leaves old/already logged messages unchanged.
+        void AdapterConfiguration::SetMessageWrapLimit(const int& newLimit) {
             _messageWrapLimit = newLimit;
         }
 
+        // Get the minimum severity a log message must have to be logged through the adapter.
         const LogMessageSeverity &AdapterConfiguration::GetMessageSeverityCutoff() const {
             return _severityCutoff;
         }
 
-        void AdapterConfiguration::SetMessageSeverityCutoff(const LogMessageSeverity &newCutoff) {
+        // Set the minimum severity a log message must have to be logged through the adapter.
+        void AdapterConfiguration::SetMessageSeverityCutoff(const LogMessageSeverity& newCutoff) {
             _severityCutoff = newCutoff;
         }
 
+        // Get the current calendar format string used in formatting calendar information for log messages.
         const std::string &AdapterConfiguration::GetCalendarFormatString() const {
             return _calendarFormat;
         }
 
-        void AdapterConfiguration::SetCalendarFormatString(const std::string &newFormat) {
+        // Update the current calendar format string to use a new format in formatting calendar information in log messages.
+        void AdapterConfiguration::SetCalendarFormatString(const std::string& newFormat) {
             if (_calendarFormat != newFormat) {
                 _calendarFormat = newFormat;
             }
         }
 
-        std::queue<HeaderFormatElement> AdapterConfiguration::GetDefaultHeaderFormat() {
-            return _data->GetDefaultHeaderFormat();
+        // Construct default global header format. If no custom formats are provided, this one is used.
+        void AdapterConfiguration::ConstructDefaultHeaderFormat() {
+            std::queue<HeaderFormatElement> defaultHeaderFormat;
+
+            // Formatting for section: ---------------------------------------------------------------------------------
+            defaultHeaderFormat.push(HeaderFormatElement::SEPARATOR);
+            defaultHeaderFormat.push(HeaderFormatElement::NEWLINE);
+
+            // Formatting for section: [0000 0000] | [ DAY_OF_WEEK 00, MONTH 0000] | [ SEVERITY ].
+            defaultHeaderFormat.push(HeaderFormatElement::LOGCOUNT);
+            defaultHeaderFormat.push(HeaderFormatElement::BAR);
+            defaultHeaderFormat.push(HeaderFormatElement::DATE);
+            defaultHeaderFormat.push(HeaderFormatElement::BAR);
+            defaultHeaderFormat.push(HeaderFormatElement::SEVERITY);
+            defaultHeaderFormat.push(HeaderFormatElement::NEWLINE);
+
+            // Formatting for section: Logged through system: SYSTEM_NAME.
+            defaultHeaderFormat.push(HeaderFormatElement::TAB);
+            defaultHeaderFormat.push(HeaderFormatElement::SYSTEM);
+            defaultHeaderFormat.push(HeaderFormatElement::NEWLINE);
+
+            // Formatting for section: ---------------------------------------------------------------------------------
+            defaultHeaderFormat.push(HeaderFormatElement::SEPARATOR);
+            defaultHeaderFormat.push(HeaderFormatElement::NEWLINE);
+
+            _headerFormats.emplace(std::move(defaultHeaderFormat));
         }
 
-        std::queue<MessageFormatElement> AdapterConfiguration::GetDefaultMessageFormat() {
-            return _data->GetDefaultMessageFormat();
+        // Construct default global message format. If no custom formats are provided, this one is used.
+        void AdapterConfiguration::ConstructDefaultMessageFormat() {
+            std::queue<MessageFormatElement> defaultMessageFormat;
+
+            // Formatting for section: [000m 00s 0000ms] - Message goes here. If it spans multiple lines,
+            //                                             additional lines are aligned.
+            defaultMessageFormat.push(MessageFormatElement::TAB);
+            defaultMessageFormat.push(MessageFormatElement::TIMESTAMP);
+            defaultMessageFormat.push(MessageFormatElement::DASH);
+            defaultMessageFormat.push(MessageFormatElement::MESSAGE);
+            defaultMessageFormat.push(MessageFormatElement::NEWLINE);
+
+            // Formatting for section:  : supplied from (FILE, FUNCTION:LINE_NUMBER)
+        #ifdef DEBUG_MESSAGES
+            defaultMessageFormat.push(MessageFormatElement::TAB);
+            defaultMessageFormat.push(MessageFormatElement::TAB);
+            defaultMessageFormat.push(MessageFormatElement::DEBUGINFO);
+            defaultMessageFormat.push(MessageFormatElement::NEWLINE);
+        #endif
+            defaultMessageFormat.push(MessageFormatElement::NEWLINE);
+
+            _messageFormats.emplace(std::move(defaultMessageFormat));
         }
     }
 }

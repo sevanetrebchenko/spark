@@ -19,8 +19,6 @@ void myAdapter::ProcessMessage(void *messageAddress) {
     const LogMessageSeverity& messageSeverity = LoggingHub::GetInstance().GetMessageSeverity(messageAddress);
 
     if (messageSeverity >= _config.GetMessageSeverityCutoff()) {
-        //++_logCount;
-
         // format header
         ConstructMessageHeader(messageAddress);
 
@@ -34,14 +32,12 @@ void myAdapter::OutputMessage() {
         std::cout << _formattedMessages.front();
         _formattedMessages.pop();
     }
-
-    std::cout << std::endl;
 }
 
 int main() {
     UtilityBox::Logger::LoggingHub::Initialize();
 
-    LoggingHub::GetInstance().AttachCustomAdapter(new myAdapter());
+//    LoggingHub::GetInstance().AttachCustomAdapter(new myAdapter());
 
     auto* loggingSystem = new LoggingSystem("Testing in main().");
     auto* logMessage = new LogMessage(LogMessageSeverity::DEBUG);
