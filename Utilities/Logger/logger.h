@@ -29,11 +29,6 @@ namespace UtilityBox {
                 static void Initialize();
 
                 /**
-                 * Direct call to shutdown the LoggingHub instance and flush all remaining messages.
-                 */
-                static void Reset();
-
-                /**
                  * Attach a custom adapter to process and receive messages through the LoggingHub.
                  * @param adapter - Pointer to custom adapter.
                  */
@@ -96,6 +91,11 @@ namespace UtilityBox {
                  * Destructor for the LoggingHub.
                  */
                 ~LoggingHub();
+
+                /**
+                 * Direct call to shutdown the LoggingHub instance and flush all remaining messages.
+                 */
+                static void Reset();
 
                 /**
                  * Send a message through to the LoggingHub. Function only available to logging systems.

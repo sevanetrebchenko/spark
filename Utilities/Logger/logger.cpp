@@ -7,6 +7,7 @@
 #include <atomic>           // std::atomic
 #include <ostream>          // std::cout, std::cerr
 #include <algorithm>        // std::find
+#include <cstdlib>          // atexit
 
 namespace UtilityBox {
     namespace Logger {
@@ -764,13 +765,12 @@ namespace UtilityBox {
 
         // Direct call to initialize the necessary data for the LoggingHub to function properly.
         void LoggingHub::Initialize() {
-            GetInstance();
-        }
+            // Register destructor to be called on exit.
+            int registrationValue = atexit(Reset);
+            ASSERT(registrationValue == 0, "Registration of LogginHub Reset/Destructor function failed with code: %i", registrationValue);
 
-        // Direct call to shutdown the LoggingHub instance and flush all remaining messages.
-        void LoggingHub::Reset() {
-            _loggingHub->_data->TerminateWorkerThread();
-            _loggingHub->_data.reset();
+            // Construct instance.
+            GetInstance();
         }
 
         // Attach a custom adapter to process and receive messages through the LoggingHub.
@@ -818,6 +818,12 @@ namespace UtilityBox {
             Reset();
             delete _loggingHub;
             _loggingHub = nullptr;
+        }
+
+        // Direct call to shutdown the LoggingHub instance and flush all remaining messages.
+        void LoggingHub::Reset() {
+            _loggingHub->_data->TerminateWorkerThread();
+            _loggingHub->_data.reset();
         }
 
         // Send a message through to the LoggingHub. Function only available to logging systems.

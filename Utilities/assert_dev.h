@@ -2,8 +2,9 @@
 #ifndef DATASTRUCTURES_ASSERT_DEV_H
 #define DATASTRUCTURES_ASSERT_DEV_H
 
-#include <iostream> // std::cerr
-#include <cstdio>   // fprintf
+#include <iostream>        // std::cerr
+#include <cstdio>          // fprintf
+#include "Logger/logger.h" // LoggingHub
 
 // Function used when more parameters are passed with the message (printf-style assert).
 #define ASSERT_VARIADIC(function, file, line, check, formatString, ...)                                                                        \
@@ -14,7 +15,7 @@
             fprintf(stderr, formatString, __VA_ARGS__);                                                                                        \
             std::cerr << std::endl;                                                                                                            \
             std::cerr << "Aborting program execution." << std::endl;                                                                           \
-            abort();                                                                                                                           \
+            exit(0);                                                                                                                           \
         }                                                                                                                                      \
     }                                                                                                                                          \
     while (false)                                                                                                                              \
@@ -27,7 +28,7 @@
             std::cerr << "Assertion message: " << formatString;                                                                                \
             std::cerr << std::endl;                                                                                                            \
             std::cerr << "Aborting program execution." << std::endl;                                                                           \
-            abort();                                                                                                                           \
+            exit(0);                                                                                                                           \
         }                                                                                                                                      \
     }                                                                                                                                          \
     while (false)                                                                                                                              \

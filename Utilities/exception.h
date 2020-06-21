@@ -1,8 +1,7 @@
 #ifndef DATASTRUCTURES_EXCEPTION_H
 #define DATASTRUCTURES_EXCEPTION_H
 
-#define _NODISCARD_ [[nodiscard]]
-
+#include "global_defines.h"
 #include <exception>
 #include <string>
 #include <memory>
@@ -12,18 +11,12 @@ namespace UtilityBox {
     namespace Exceptions {
         class Exception : public std::exception {
             public:
-                explicit Exception(const char* formatString, ...);
-
-                Exception(Exception const &exception) noexcept;
-
-                ~Exception() noexcept override;
+                explicit Exception(const char* formatString);
+                Exception(const Exception& exception) noexcept;
                 _NODISCARD_ const char* what() const noexcept override;
 
             private:
-                void ProcessMessage(const char* formatString, std::va_list argList);
-
-                struct ExceptionData;
-                std::unique_ptr<ExceptionData> _data;
+                const char* _message;
         };
     }
 }

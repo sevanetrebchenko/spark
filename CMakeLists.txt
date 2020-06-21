@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "-pthread")
 set(SOURCE_FILES main.cpp
         Tree/binary_tree.cpp
-        Utilities/memory_manager.cpp
+        Utilities/Memory/memory_manager.cpp
         Utilities/Logger/logger.cpp
         Utilities/Logger/timestamp.cpp
         Utilities/exception.cpp
