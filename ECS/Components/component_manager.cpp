@@ -1,4 +1,5 @@
 
+#include <type_traits>
 #include "component_manager.h"
 
 namespace ECS {

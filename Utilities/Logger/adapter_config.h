@@ -86,7 +86,7 @@ namespace UtilityBox {
                  * Get the maximum number of characters a log line can have.
                  * @return Maximum number of characters a log line can have.
                  */
-                const int& GetMessageWrapLimit() const;
+                _NODISCARD_ const int& GetMessageWrapLimit() const;
 
                 /**
                  * Update the maximum number of characters a log line can have. Leaves old/already logged messages
@@ -99,7 +99,7 @@ namespace UtilityBox {
                  * Get the minimum severity a log message must have to be logged through the adapter.
                  * @return Log message minimum severity.
                  */
-                const LogMessageSeverity& GetMessageSeverityCutoff() const;
+                _NODISCARD_ const LogMessageSeverity& GetMessageSeverityCutoff() const;
 
                 /**
                  * Set the minimum severity a log message must have to be logged through the adapter.
@@ -111,7 +111,7 @@ namespace UtilityBox {
                  * Get the current calendar format string used in formatting calendar information for log messages.
                  * @return Current calendar format string.
                  */
-                const std::string& GetCalendarFormatString() const;
+                _NODISCARD_ const std::string& GetCalendarFormatString() const;
 
                 /**
                  * Update the current calendar format string to use a new format in formatting calendar information

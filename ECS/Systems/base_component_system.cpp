@@ -3,21 +3,23 @@
 //
 
 #include "base_component_system.h"
-namespace ECS {
-    namespace Components {
-        template<class... ComponentType>
-        ComponentSystem<ComponentType...>::ComponentSystem() {
+#include "../Components/base_component.h"
 
-            // Defer initialization to second stage.
-        }
+namespace ECS::Components {
+    template <class... ComponentType>
+    ComponentSystem<ComponentType...>::ComponentSystem() {
+        static_assert((std::is_base_of<ECS::Components::BaseComponent, ComponentType>::value && ...), "Invalid component type provided to ComponentSystem.");
 
-        template<class... ComponentType>
-        void ComponentSystem<ComponentType...>::Initialize() {
-        }
+        // Defer initialization to second stage.
+    }
 
-        template<class... ComponentType>
-        ComponentSystem<ComponentType...>::~ComponentSystem() {
-            _filteredEntities.clear();
-        }
+    template <class... ComponentType>
+    void ComponentSystem<ComponentType...>::Initialize() {
+
+    }
+
+    template <class... ComponentType>
+    ComponentSystem<ComponentType...>::~ComponentSystem() {
+        _filteredEntities.clear();
     }
 }

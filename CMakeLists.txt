@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(DataStructures)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-pthread")
 set(SOURCE_FILES main.cpp
         Utilities/Memory/segmented_pool_allocator.cpp

@@ -4,13 +4,11 @@
 
 #include "../ecs_typedefs.h"
 
-namespace ECS {
-    namespace Entities {
-        struct Entity {
-            EntityID ID;
-            const char* name;
-        };
-    }
+namespace ECS::Entities {
+    struct Entity {
+        EntityID ID;
+        const char* name;
+    };
 }
 
 

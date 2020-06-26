@@ -7,28 +7,26 @@
 #include <vector>
 #include "../../Utilities/Memory/segmented_pool_allocator.h"
 
-namespace ECS {
-    namespace Components {
-        template <class ...ComponentType>
-        class ComponentSystem {
-            public:
-                ComponentSystem();
-                ~ComponentSystem();
+namespace ECS::Components {
+    template <class ...ComponentType>
+    class ComponentSystem {
+        public:
+            ComponentSystem();
+            ~ComponentSystem();
 
-                virtual void Initialize();
-                virtual void Update(float dt) = 0;
+            virtual void Initialize();
+            virtual void Update(float dt) = 0;
 
-                void OnEntityComponentAdd();
-                void OnEntityComponentRemove();
+            void OnEntityComponentAdd();
+            void OnEntityComponentRemove();
 
-            protected:
-                using ComponentTuple = std::tuple<std::add_pointer<ComponentType>...>; // Tuple of component pointers.
-                std::vector<ComponentTuple*> _filteredEntities;
+        protected:
+            using ComponentTuple = std::tuple<std::add_pointer<ComponentType>...>; // Tuple of component pointers.
+            std::vector<ComponentTuple*> _filteredEntities;
 
-            private:
+        private:
 
-        };
-    }
+    };
 }
 
 
