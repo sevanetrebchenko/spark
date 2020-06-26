@@ -1,11 +1,11 @@
 
 #include <cstring>
-#include "memory_manager.h"
+#include "segmented_pool_allocator.h"
 #include "../assert_dev.h"
 
 namespace UtilityBox {
     namespace Memory {
-        class PoolAllocator::PoolAllocatorData {
+        class SegmentedPoolAllocator::AllocatorData {
             public:
                 struct PageHeader {
                     PageHeader();
@@ -17,9 +17,9 @@ namespace UtilityBox {
                     GenericObject *_next;
                 };
 
-                explicit PoolAllocatorData(int blockSize);
+                explicit AllocatorData(int blockSize);
                 void Initialize();
-                ~PoolAllocatorData();
+                ~AllocatorData();
 
                 _NODISCARD_ void* RetrieveBlock();
                 void ReturnBlock(void* blockAddress);
@@ -48,17 +48,17 @@ namespace UtilityBox {
         //--------------------------------------------------------------------------------------------------------------
         // PAGE HEADER
         //--------------------------------------------------------------------------------------------------------------
-        PoolAllocator::PoolAllocatorData::PageHeader::PageHeader() : _numInUse(0), _next(nullptr) {
+        SegmentedPoolAllocator::AllocatorData::PageHeader::PageHeader() : _numInUse(0), _next(nullptr) {
             // Nothing to do here.
         }
 
         //--------------------------------------------------------------------------------------------------------------
         // POOL ALLOCATOR DATA
         //--------------------------------------------------------------------------------------------------------------
-        PoolAllocator::PoolAllocatorData::PoolAllocatorData(int blockSize) : _freeList(nullptr),
-                                                                             _pageList(nullptr),
-                                                                             _numPages(0),
-                                                                             _blockDataSize(blockSize) {
+        SegmentedPoolAllocator::AllocatorData::AllocatorData(int blockSize) : _freeList(nullptr),
+                                                                              _pageList(nullptr),
+                                                                              _numPages(0),
+                                                                              _blockDataSize(blockSize) {
             // If size of data is larger than pointer, only use the size of the data.
             // Pointer (used for the free list) will be overwritten when used.
             if (blockSize >= sizeof(void*)) {
@@ -72,26 +72,21 @@ namespace UtilityBox {
             // Defer initialization to second stage.
         }
 
-        void PoolAllocator::PoolAllocatorData::Initialize() {
+        void SegmentedPoolAllocator::AllocatorData::Initialize() {
             ConstructPage();
         }
 
-        PoolAllocator::PoolAllocatorData::~PoolAllocatorData() {
+        SegmentedPoolAllocator::AllocatorData::~AllocatorData() {
 
         }
 
-        void PoolAllocator::PoolAllocatorData::ConstructPage() {
+        void SegmentedPoolAllocator::AllocatorData::ConstructPage() {
             //                                                        |     SPACE FOR DATA     |
             // ___________________     _________________________________________________________________________
             // |                 |     |              |               |             |          |               |
             // |   PAGE HEADER   |  +  |    HEADER*   |    PADDING    |    NEXT*    |   ....   |    PADDING    |  x blocks per page
             // |_________________|     |______________|_______________|_____________|__________|_______________|
             //
-
-            // ___________________
-            // |                 |
-            // |   PAGE HEADER   |
-            // |_________________|
 
             unsigned pageSize = sizeof(PageHeader) + (_totalBlockSize * _blocksPerPage);
 
@@ -132,7 +127,7 @@ namespace UtilityBox {
             ++_numPages;
         }
 
-        void PoolAllocator::PoolAllocatorData::ConstructBlock(void* blockAddress, void* pageHeader) const {
+        void SegmentedPoolAllocator::AllocatorData::ConstructBlock(void* blockAddress, void* pageHeader) const {
             // Set block header.
             static_cast<GenericObject*>(blockAddress)->_next = static_cast<GenericObject*>(pageHeader);
             unsigned offset = sizeof(void*);
@@ -150,7 +145,7 @@ namespace UtilityBox {
             offset += _numPaddingBytes;
         }
 
-        void PoolAllocator::PoolAllocatorData::ConstructFreeList(void *dataBase) {
+        void SegmentedPoolAllocator::AllocatorData::ConstructFreeList(void *dataBase) {
             // Construct free list.
             // Setup first block.
             auto* previousBlock = reinterpret_cast<GenericObject*>(static_cast<char*>(dataBase) + _numPaddingBytes + sizeof(void*));
@@ -166,7 +161,7 @@ namespace UtilityBox {
             previousBlock->_next = nullptr;
         }
 
-        void PoolAllocator::PoolAllocatorData::FreeEmptyPages() {
+        void SegmentedPoolAllocator::AllocatorData::FreeEmptyPages() {
             PageHeader* pageList = _pageList;
             PageHeader* previousPage = nullptr;
             while (pageList) {
@@ -183,7 +178,7 @@ namespace UtilityBox {
             }
         }
 
-        void* PoolAllocator::PoolAllocatorData::RetrieveBlock() {
+        void* SegmentedPoolAllocator::AllocatorData::RetrieveBlock() {
             // Construct new page for blocks if there are no more remaining.
             if (!_freeList) {
                 ConstructPage();
@@ -198,7 +193,7 @@ namespace UtilityBox {
             return blockAddress;
         }
 
-        void PoolAllocator::PoolAllocatorData::ReturnBlock(void *blockAddress) {
+        void SegmentedPoolAllocator::AllocatorData::ReturnBlock(void *blockAddress) {
             // Check padding bytes to ensure memory was not corrupted by data underflow/overflow.
             if (!ValidatePaddingBytes(blockAddress)) {
                 // todo
@@ -219,7 +214,7 @@ namespace UtilityBox {
             _freeList->_next = previousFreeList;
         }
 
-        bool PoolAllocator::PoolAllocatorData::ValidatePaddingBytes(void *blockAddress) const {
+        bool SegmentedPoolAllocator::AllocatorData::ValidatePaddingBytes(void *blockAddress) const {
             // Check padding bytes before data.
             char* preBlockPaddingBytes = static_cast<char*>(blockAddress) - _numPaddingBytes;
             for (int i = 0; i < _numPaddingBytes; ++i) {
@@ -242,22 +237,22 @@ namespace UtilityBox {
         //--------------------------------------------------------------------------------------------------------------
         // POOL ALLOCATOR
         //--------------------------------------------------------------------------------------------------------------
-        PoolAllocator::PoolAllocator(int blockSize) : _blockSize(blockSize), _data(nullptr) {
+        SegmentedPoolAllocator::SegmentedPoolAllocator(int blockSize) : _blockSize(blockSize), _data(nullptr) {
             // Defer initialization until second stage.
         }
 
-        void PoolAllocator::Initialize() {
+        void SegmentedPoolAllocator::Initialize() {
             if (!_data) {
-                _data = new PoolAllocatorData(_blockSize);
+                _data = new AllocatorData(_blockSize);
             }
             _data->Initialize();
         }
 
-        void* PoolAllocator::RetrieveBlock() {
+        void* SegmentedPoolAllocator::RetrieveBlock() {
             return _data->RetrieveBlock();
         }
 
-        void PoolAllocator::ReturnBlock(void *blockAddress) {
+        void SegmentedPoolAllocator::ReturnBlock(void *blockAddress) {
             _data->ReturnBlock(blockAddress);
         }
     }

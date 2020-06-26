@@ -2,7 +2,9 @@
 #include "Utilities/Logger/logger.h"
 #include "Utilities/Logger/adapter.h"
 #include "Utilities/assert_dev.h"
-#include "Utilities/Memory/memory_manager.h"
+#include "Utilities/Memory/segmented_pool_allocator.h"
+#include "ECS/Components/component_manager.h"
+#include "ECS/Components/base_component.h"
 
 using namespace UtilityBox::Logger;
 
@@ -45,9 +47,11 @@ struct Data {
 };
 
 int main() {
+    ECS::ComponentManager<ECS::Components::BaseComponent>* a;
+
     UtilityBox::Logger::LoggingHub::Initialize();
 
-    UtilityBox::Memory::PoolAllocator* myPoolAllocator = new UtilityBox::Memory::PoolAllocator(sizeof(Data));
+    UtilityBox::Memory::SegmentedPoolAllocator* myPoolAllocator = new UtilityBox::Memory::SegmentedPoolAllocator(sizeof(Data));
     myPoolAllocator->Initialize();
     Data* block = new(myPoolAllocator->RetrieveBlock()) Data();
     block->a = 9;

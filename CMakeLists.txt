@@ -4,8 +4,7 @@ project(DataStructures)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "-pthread")
 set(SOURCE_FILES main.cpp
-        Tree/binary_tree.cpp
-        Utilities/Memory/memory_manager.cpp
+        Utilities/Memory/segmented_pool_allocator.cpp
         Utilities/Logger/logger.cpp
         Utilities/Logger/timestamp.cpp
         Utilities/exception.cpp
@@ -13,6 +12,11 @@ set(SOURCE_FILES main.cpp
         Utilities/Logger/logging_system.cpp
         Utilities/Logger/adapter.cpp
         Utilities/Logger/adapter_config.cpp
+        ECS/Components/component_manager.cpp
+        ECS/Components/base_component.cpp
+        ECS/Entities/entity.cpp
+        ECS/Entities/entity_manager.cpp
+        ECS/Systems/base_component_system.cpp
         )
 
 add_executable(DataStructures ${SOURCE_FILES})
