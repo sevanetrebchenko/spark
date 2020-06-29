@@ -1,12 +1,13 @@
 
 #include "contiguous_pool_allocator.h" // ContiguousPoolAllocator
 #include "../assert_dev.h"             // Asserts
-#include "memory_formatter.h"
-#include <cstdlib>
+#include "memory_formatter.h"          // MemoryFormatter
+#include <cstdlib>                     // memset
 
 namespace UtilityBox::Memory {
     class ContiguousPoolAllocator::AllocatorData {
         public:
+            // Subscript operator return codes.
             enum class SubscriptOpResult {
                 INVALID_INDEX,
                 VALID_ACCESS,
@@ -51,6 +52,12 @@ namespace UtilityBox::Memory {
              */
             _NODISCARD_ void* RetrieveBlock();
 
+            /**
+             * Subscript operator.
+             * @param index - Does index bound checking and returns the object in the array at the given index.
+             * @return On success: Pointer to the location at the provided index.
+             *         On failure: nullptr.
+             */
             _NODISCARD_ void* operator[](unsigned index);
 
             /**
@@ -59,7 +66,14 @@ namespace UtilityBox::Memory {
              */
             void ReturnBlock(void* blockAddress);
 
-            SubscriptOpResult GetBlockStatus(unsigned index);
+            /**
+             * Verify that the passed index points to a valid object inside the contiguous memory array. Performs bounds
+             * checks.
+             * @param index - Index of the object in the memory array.
+             * @return INVALID_INDEX - Object at requested index is outside the bounds of the array.
+             *         VALID_ACCESS  - Object at requested index was either just marked as allocated or allocated prior.
+             */
+            SubscriptOpResult CheckSubscriptIndex(unsigned index);
 
         private:
             /**
@@ -162,7 +176,8 @@ namespace UtilityBox::Memory {
         _freeList->_next = previousFreeList;
     }
 
-    ContiguousPoolAllocator::AllocatorData::SubscriptOpResult ContiguousPoolAllocator::AllocatorData::GetBlockStatus(unsigned index) {
+    // Verify that the passed index points to a valid object inside the contiguous memory array. Performs bounds checks.
+    ContiguousPoolAllocator::AllocatorData::SubscriptOpResult ContiguousPoolAllocator::AllocatorData::CheckSubscriptIndex(unsigned index) {
         // Check to make sure block is within the range of the allocated pool.
         if (index >= _totalNumBlocks) {
             return SubscriptOpResult::INVALID_INDEX; // todo more severe error?
@@ -173,26 +188,33 @@ namespace UtilityBox::Memory {
         // Check if the block is on the free list.
         GenericObject* freeList = _freeList;
         GenericObject* freeListPrevious = nullptr;
+
         while (freeList != nullptr) {
+
             // Block is on the free list.
             if (reinterpret_cast<void*>(freeList) == blockAddress) {
+
                 // Remove block from the free list to return it.
+                // Middle of the free list.
                 if (freeListPrevious) {
                     freeListPrevious->_next = freeList->_next;
                     freeList->_next = nullptr;
                 }
-                // First block.
+                // First block on the free list.
                 else {
                     GenericObject* block = _freeList;
                     _freeList = _freeList->_next;
                     block->_next = nullptr;
                 }
 
+                // Update header and block memory signature to reflect a successful allocated block.
                 ++_pageHeader->_numInUse;
                 _formatter.SetBlockDataSignature(blockAddress, _formatter.ALLOCATED);
 
                 return ContiguousPoolAllocator::AllocatorData::SubscriptOpResult::VALID_ACCESS;
             }
+
+            // Continue searching.
             freeListPrevious = freeList;
             freeList = freeList->_next;
         }
@@ -302,6 +324,7 @@ namespace UtilityBox::Memory {
         }
     }
 
+    // Destructor.
     ContiguousPoolAllocator::~ContiguousPoolAllocator() {
         delete _data;
     }
@@ -311,8 +334,12 @@ namespace UtilityBox::Memory {
         return _data->RetrieveBlock();
     }
 
+    // Subscript operator.
     void* ContiguousPoolAllocator::operator[](unsigned index) const {
-        AllocatorData::SubscriptOpResult subscriptResult = _data->GetBlockStatus(index);
+        // Verify index.
+        AllocatorData::SubscriptOpResult subscriptResult = _data->CheckSubscriptIndex(index);
+
+        // Retrieve data.
         switch (subscriptResult) {
             case AllocatorData::SubscriptOpResult::INVALID_INDEX:
                 return nullptr;

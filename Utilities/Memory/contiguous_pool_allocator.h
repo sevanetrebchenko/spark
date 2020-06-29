@@ -2,7 +2,6 @@
 #ifndef DATASTRUCTURES_CONTIGUOUS_POOL_ALLOCATOR_H
 #define DATASTRUCTURES_CONTIGUOUS_POOL_ALLOCATOR_H
 
-#include <utility>             // pair
 #include "../global_defines.h" // _NODISCARD_
 
 namespace UtilityBox::Memory {
@@ -59,7 +58,7 @@ namespace UtilityBox::Memory {
             bool _reallocateOnFull; // True:  reallocates page if more than capacity blocks are requested (invalidates any pointers pointing into the allocator).
                                     // False: returns nullptr when more than capacity blocks are requested (leaves page untouched).
 
-            // Storage for SegmentedPoolAllocator data, back-end functionality, and helper functions.
+            // Storage for ContiguousPoolAllocator data, back-end functionality, and helper functions.
             class AllocatorData;
             AllocatorData* _data = nullptr;
     };
