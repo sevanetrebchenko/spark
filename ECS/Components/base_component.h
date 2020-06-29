@@ -6,6 +6,7 @@ namespace ECS::Components {
     struct BaseComponent {
         BaseComponent();
         virtual ~BaseComponent();
+
         bool _enabled;
     };
 }

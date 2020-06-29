@@ -3,7 +3,6 @@
 #define DATASTRUCTURES_ENTITY_MANAGER_H
 
 #include <unordered_map>
-#include <list>
 #include "entity.h"
 #include "../Components/base_component.h"
 #include "../ecs_typedefs.h"

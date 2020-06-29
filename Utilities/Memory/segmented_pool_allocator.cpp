@@ -1,6 +1,7 @@
 
 #include "segmented_pool_allocator.h" // SegmentedPoolAllocator
 #include "../assert_dev.h"            // Asserts
+#include "memory_formatter.h"         // MemoryFormatter
 
 namespace UtilityBox::Memory {
     class SegmentedPoolAllocator::AllocatorData {
@@ -53,12 +54,6 @@ namespace UtilityBox::Memory {
             void ConstructPage();
 
             /**
-             * Set debug memory signatures for a block.
-             * @param blockAddress - Block to set memory signature.
-             */
-            void SetBlockMemorySignatures(void* blockAddress) const;
-
-            /**
              * Link the page header to a block within the page.
              * @param blockAddress - Block to set the header of.
              * @param pageHeader   - Page header.
@@ -72,31 +67,19 @@ namespace UtilityBox::Memory {
             void ConstructPageFreeList(void* dataBase);
 
             /**
-             * Validate padding bytes on either side of the user data block to ensure no data corruption happened.
-             * @param blockAddress - Pointer (provided to RetrieveBlock()) of block to check the padding bytes of.
-             * @return On success: true (bytes are intact - no data corruption).
-             *         On failure: false (bytes are modified - data corruption most likely occurred).
-             */
-            bool ValidatePaddingBytes(void* blockAddress) const;
-
-            /**
              * Returns the memory held by empty/unused pages back to the OS.
              */
             void FreeEmptyPages();
 
-
-            // Memory signatures.
-            const unsigned char UNALLOCATED = 0xCC;
-            const unsigned char ALLOCATED = 0xAA;
-            const unsigned char PADDING = 0xFF;
-
             GenericObject* _freeList; // List from which blocks are pulled from to give back to the user upon request.
             PageHeader* _pageList;    // Linked list of pages.
+
+            unsigned _blockDataSize;                                           // Size of only the user data block.
+            MemoryFormatter _formatter { _blockDataSize, true }; // Memory formatter functions.
 
             const unsigned _blocksPerPage = 10;  // Number of blocks per page.
             const unsigned _numPaddingBytes = 4; // Number of padding bytes on either side of the user data block.
             unsigned _numPages;                  // Current number of pages in use.
-            unsigned _blockDataSize;             // Size of only the user data block.
             unsigned _totalBlockSize;            // Size of an entire block (header, padding, and user data included).
     };
 
@@ -108,15 +91,8 @@ namespace UtilityBox::Memory {
                                                                           _pageList(nullptr),
                                                                           _numPages(0),
                                                                           _blockDataSize(blockSize) {
-        // If size of data is larger than pointer, only use the size of the data.
-        // Pointer (used for the free list) will be overwritten when used.
-        if (blockSize >= sizeof(void*)) {
-            _totalBlockSize = sizeof(void*) + (_numPaddingBytes * 2) + blockSize;
-        }
-        // A block needs to at least be able to hold a pointer (if the data size is smaller than than of a pointer).
-        else {
-            _totalBlockSize = 2 * sizeof(void*) + (_numPaddingBytes * 2);
-        }
+        // Header pointer + padding + user block + padding
+        _totalBlockSize = sizeof(void*) + _formatter.CalculateMemorySignatureBlockSize() + (_formatter._numPaddingBytes * 2);
 
         // Defer initialization to second stage.
     }
@@ -128,7 +104,17 @@ namespace UtilityBox::Memory {
 
     // Cleans up all pages and returns all memory manager memory back to the OS.
     SegmentedPoolAllocator::AllocatorData::~AllocatorData() {
-        // Todo
+        PageHeader* currentHeader;
+
+        // Free all pages.
+        while (_pageList != nullptr) {
+            currentHeader = _pageList;
+            _pageList = _pageList->_next;
+            free(currentHeader);
+        }
+
+        _pageList = nullptr;
+        _freeList = nullptr;
     }
 
     // Retrieve a free block of memory. Construct additional data stores should there not be any more memory available
@@ -149,19 +135,19 @@ namespace UtilityBox::Memory {
         // Update free list.
         _freeList = _freeList->_next;
 
-        memset(blockAddress, ALLOCATED, _blockDataSize);
+        _formatter.SetBlockDataSignature(blockAddress, _formatter.ALLOCATED);
         return blockAddress;
     }
 
     // Return a block back to the memory manager.
     void SegmentedPoolAllocator::AllocatorData::ReturnBlock(void *blockAddress) {
         // Check padding bytes to ensure memory was not corrupted by data underflow/overflow.
-        if (!ValidatePaddingBytes(blockAddress)) {
+        if (!_formatter.ValidatePaddingBytes(blockAddress)) {
             // todo
         }
 
         // Clear block data
-        memset(blockAddress, UNALLOCATED, _blockDataSize);
+        _formatter.SetBlockDataSignature(blockAddress, _formatter.UNALLOCATED);
 
         // Offset the pointer to gain access to the header
         auto* blockHeader = reinterpret_cast<PageHeader*>(reinterpret_cast<GenericObject*>(static_cast<char*>(blockAddress) - sizeof(void*) - _numPaddingBytes)->_next);
@@ -218,29 +204,12 @@ namespace UtilityBox::Memory {
 
         // Final block memory signatures and link header.
         for (int i = 0; i < _blocksPerPage; ++i) {
-            SetBlockMemorySignatures(static_cast<char *>(dataBase) + (_totalBlockSize * i));
+            _formatter.SetBlockMemorySignatures(static_cast<char *>(dataBase) + (_totalBlockSize * i));
             SetBlockHeader(static_cast<char *>(dataBase) + (_totalBlockSize * i), currentPageHeader);
         }
 
         ConstructPageFreeList(dataBase);
         ++_numPages;
-    }
-
-    // Set debug memory signatures for a block.
-    void SegmentedPoolAllocator::AllocatorData::SetBlockMemorySignatures(void* blockAddress) const {
-        unsigned offset = sizeof(void*);
-
-        // Set padding memory signature.
-        memset(static_cast<char*>(blockAddress) + offset, PADDING, _numPaddingBytes);
-        offset += _numPaddingBytes;
-
-        // Set unallocated memory signature.
-        memset(static_cast<char*>(blockAddress) + offset, UNALLOCATED, _blockDataSize);
-        offset += _blockDataSize;
-
-        // Set padding memory signature.
-        memset(static_cast<char*>(blockAddress) + offset, PADDING, _numPaddingBytes);
-        offset += _numPaddingBytes;
     }
 
     // Link the page header to a block within the page.
@@ -264,27 +233,6 @@ namespace UtilityBox::Memory {
         }
 
         previousBlock->_next = nullptr;
-    }
-
-    // Validate padding bytes on either side of the user data block to ensure no data corruption happened.
-    bool SegmentedPoolAllocator::AllocatorData::ValidatePaddingBytes(void *blockAddress) const {
-        // Check padding bytes before data.
-        char* preBlockPaddingBytes = static_cast<char*>(blockAddress) - _numPaddingBytes;
-        for (int i = 0; i < _numPaddingBytes; ++i) {
-            if (preBlockPaddingBytes[i] != PADDING) {
-                return false;
-            }
-        }
-
-        // Check padding bytes after data.
-        char* postBlockPaddingBytes = static_cast<char*>(blockAddress) + _blockDataSize;
-        for (int i = 0; i < _numPaddingBytes; ++i) {
-            if (postBlockPaddingBytes[i] != PADDING) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     // Returns the memory held by empty/unused pages back to the OS.
@@ -324,6 +272,10 @@ namespace UtilityBox::Memory {
         }
     }
 
+    SegmentedPoolAllocator::~SegmentedPoolAllocator() {
+        delete _data;
+    }
+
     // Retrieve a free block of memory. Construct additional data stores should there not be any more memory
     void* SegmentedPoolAllocator::RetrieveBlock() {
         return _data->RetrieveBlock();
@@ -333,4 +285,6 @@ namespace UtilityBox::Memory {
     void SegmentedPoolAllocator::ReturnBlock(void *blockAddress) {
         _data->ReturnBlock(blockAddress);
     }
+
+
 }

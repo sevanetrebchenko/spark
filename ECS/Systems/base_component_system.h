@@ -7,6 +7,7 @@
 #include <vector>
 #include "../../Utilities/Memory/segmented_pool_allocator.h"
 
+
 namespace ECS::Components {
     template <class ...ComponentType>
     class ComponentSystem {
