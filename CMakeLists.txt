@@ -9,12 +9,13 @@ set(SOURCE_FILES main.cpp
         Utilities/Memory/memory_formatter.cpp
         Utilities/Logger/logger.cpp
         Utilities/Logger/timestamp.cpp
-        Utilities/exception.cpp
         Utilities/Logger/log_message.cpp
         Utilities/Logger/logging_system.cpp
         Utilities/Logger/adapter.cpp
         Utilities/Logger/adapter_config.cpp
-        ECS/Components/component_manager.cpp
+        #Utilities/DataStructures/array.cpp
+        Utilities/exception.cpp
+        #ECS/Components/component_manager.cpp
         ECS/Components/component_manager_collection.cpp
         ECS/Components/base_component.cpp
         ECS/Entities/entity.cpp

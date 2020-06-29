@@ -4,10 +4,10 @@
 
 namespace ECS::Components {
     struct BaseComponent {
-        BaseComponent();
-        virtual ~BaseComponent();
+        BaseComponent() = default;
+        virtual ~BaseComponent() = default;
 
-        bool _enabled;
+        bool _enabled = true;
     };
 }
 

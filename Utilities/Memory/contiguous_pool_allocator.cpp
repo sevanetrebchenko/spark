@@ -2,10 +2,16 @@
 #include "contiguous_pool_allocator.h" // ContiguousPoolAllocator
 #include "../assert_dev.h"             // Asserts
 #include "memory_formatter.h"
+#include <cstdlib>
 
 namespace UtilityBox::Memory {
     class ContiguousPoolAllocator::AllocatorData {
         public:
+            enum class SubscriptOpResult {
+                INVALID_INDEX,
+                VALID_ACCESS,
+            };
+
             // Holds data about the blocks in one specific page. Creates a linked list with pages.
             struct PageHeader {
                 unsigned _numInUse = 0;      // Number of blocks that are in use in this page.
@@ -26,7 +32,7 @@ namespace UtilityBox::Memory {
              * @param reallocateOnFull - True:  reallocates page if more than capacity blocks are requested (invalidates any pointers).
              *                           False: returns nullptr when more than capacity blocks are requested (leaves page untouched).
              */
-            explicit AllocatorData(int blockSize, int numBlocks, bool reallocateOnFull);
+            explicit AllocatorData(unsigned blockSize, unsigned numBlocks, bool reallocateOnFull);
 
             /**
              * Two-stage initialization. Allocates a fixed-size page of memory and sets up block lists to use.
@@ -45,11 +51,15 @@ namespace UtilityBox::Memory {
              */
             _NODISCARD_ void* RetrieveBlock();
 
+            _NODISCARD_ void* operator[](unsigned index);
+
             /**
              * Return a block back to the memory manager.
              * @param blockAddress - Address of the block (given out by RetrieveBlock()) to return.
              */
             void ReturnBlock(void* blockAddress);
+
+            SubscriptOpResult GetBlockStatus(unsigned index);
 
         private:
             /**
@@ -71,7 +81,7 @@ namespace UtilityBox::Memory {
             unsigned _blockDataSize;                                            // Size of only the user data block.
             MemoryFormatter _formatter { _blockDataSize, false }; // Memory formatter functions.
 
-            int _totalNumBlocks;      // Total number of blocks the page can hold.
+            unsigned _totalNumBlocks;      // Total number of blocks the page can hold.
             bool _reallocateOnFull;   // Flag to reallocate the page with a larger size if there are no more blocks.
             unsigned _totalBlockSize; // Size of an entire block (header, padding, and user data included).
     };
@@ -80,11 +90,11 @@ namespace UtilityBox::Memory {
     // POOL ALLOCATOR DATA
     //------------------------------------------------------------------------------------------------------------------
     // Constructor sets up the bare necessities for the memory manager, but does not initialize data.
-    ContiguousPoolAllocator::AllocatorData::AllocatorData(int blockSize, int numBlocks, bool reallocateOnFull) : _freeList(nullptr),
-                                                                                                                 _pageHeader(nullptr),
-                                                                                                                 _blockDataSize(blockSize),
-                                                                                                                 _totalNumBlocks(numBlocks),
-                                                                                                                 _reallocateOnFull(reallocateOnFull) {
+    ContiguousPoolAllocator::AllocatorData::AllocatorData(unsigned blockSize, unsigned numBlocks, bool reallocateOnFull) : _freeList(nullptr),
+                                                                                                                           _pageHeader(nullptr),
+                                                                                                                           _blockDataSize(blockSize),
+                                                                                                                           _totalNumBlocks(numBlocks),
+                                                                                                                           _reallocateOnFull(reallocateOnFull) {
         _totalBlockSize = _formatter.CalculateMemorySignatureBlockSize() + (_formatter._numPaddingBytes * 2);
 
         // Defer initialization to second stage.
@@ -97,7 +107,7 @@ namespace UtilityBox::Memory {
 
     // Cleans up all pages and returns all memory manager memory back to the OS.
     ContiguousPoolAllocator::AllocatorData::~AllocatorData() {
-        delete _pageHeader;
+        free(_pageHeader);
         _pageHeader = nullptr;
         _freeList = nullptr;
     }
@@ -129,6 +139,10 @@ namespace UtilityBox::Memory {
         return blockAddress;
     }
 
+    void *ContiguousPoolAllocator::AllocatorData::operator[](unsigned int index) {
+        return reinterpret_cast<char*>(_pageHeader) + sizeof(PageHeader) + _formatter._numPaddingBytes + (index * _totalBlockSize);
+    }
+
     // Return a block back to the memory manager.
     void ContiguousPoolAllocator::AllocatorData::ReturnBlock(void *blockAddress) {
         // Check padding bytes to ensure memory was not corrupted by data underflow/overflow.
@@ -146,6 +160,45 @@ namespace UtilityBox::Memory {
         GenericObject* previousFreeList = _freeList;
         _freeList = static_cast<GenericObject*>(blockAddress);
         _freeList->_next = previousFreeList;
+    }
+
+    ContiguousPoolAllocator::AllocatorData::SubscriptOpResult ContiguousPoolAllocator::AllocatorData::GetBlockStatus(unsigned index) {
+        // Check to make sure block is within the range of the allocated pool.
+        if (index >= _totalNumBlocks) {
+            return SubscriptOpResult::INVALID_INDEX; // todo more severe error?
+        }
+
+        void* blockAddress = operator[](index);
+
+        // Check if the block is on the free list.
+        GenericObject* freeList = _freeList;
+        GenericObject* freeListPrevious = nullptr;
+        while (freeList != nullptr) {
+            // Block is on the free list.
+            if (reinterpret_cast<void*>(freeList) == blockAddress) {
+                // Remove block from the free list to return it.
+                if (freeListPrevious) {
+                    freeListPrevious->_next = freeList->_next;
+                    freeList->_next = nullptr;
+                }
+                // First block.
+                else {
+                    GenericObject* block = _freeList;
+                    _freeList = _freeList->_next;
+                    block->_next = nullptr;
+                }
+
+                ++_pageHeader->_numInUse;
+                _formatter.SetBlockDataSignature(blockAddress, _formatter.ALLOCATED);
+
+                return ContiguousPoolAllocator::AllocatorData::SubscriptOpResult::VALID_ACCESS;
+            }
+            freeListPrevious = freeList;
+            freeList = freeList->_next;
+        }
+
+        // Block is not on the free list and not out of the bounds of the allocated pool, assume points to a valid, already allocated, object.
+        return ContiguousPoolAllocator::AllocatorData::SubscriptOpResult::VALID_ACCESS;
     }
 
     // Construct either an additional page (if a page already exists) or a fresh new page (if a page doesn't already exist).
@@ -227,10 +280,10 @@ namespace UtilityBox::Memory {
     //------------------------------------------------------------------------------------------------------------------
     // Create a fixed-size block memory manager. Provides basic memory debugging information, along with checks for
     // memory corruption. Sets up the bare necessities for the memory manager, but does not initialize data.
-    ContiguousPoolAllocator::ContiguousPoolAllocator(int blockSize, int numBlocks, bool reallocateOnFull) : _blockSize(blockSize),
-                                                                                                            _numBlocks(numBlocks),
-                                                                                                            _reallocateOnFull(reallocateOnFull),
-                                                                                                            _data(nullptr) {
+    ContiguousPoolAllocator::ContiguousPoolAllocator(unsigned blockSize, unsigned numBlocks, bool reallocateOnFull) : _blockSize(blockSize),
+                                                                                                                      _numBlocks(numBlocks),
+                                                                                                                      _reallocateOnFull(reallocateOnFull),
+                                                                                                                      _data(nullptr) {
         // Defer initialization until second stage.
     }
 
@@ -238,6 +291,11 @@ namespace UtilityBox::Memory {
     void ContiguousPoolAllocator::Initialize() {
         // Construct data if it hasn't been already.
         if (!_data) {
+            // Register destructor to be called on exit.
+            // TODO register destructor
+//            int registrationValue = atexit();
+//            ASSERT(registrationValue == 0, "Registration of // function failed with code: %i", registrationValue);
+
             _data = new AllocatorData(_blockSize, _numBlocks, _reallocateOnFull);
             // todo: try catch?
             _data->Initialize();
@@ -251,6 +309,16 @@ namespace UtilityBox::Memory {
     // Retrieve a free block of memory. Construct additional data stores should there not be any more memory
     void* ContiguousPoolAllocator::RetrieveBlock() {
         return _data->RetrieveBlock();
+    }
+
+    void* ContiguousPoolAllocator::operator[](unsigned index) const {
+        AllocatorData::SubscriptOpResult subscriptResult = _data->GetBlockStatus(index);
+        switch (subscriptResult) {
+            case AllocatorData::SubscriptOpResult::INVALID_INDEX:
+                return nullptr;
+            case AllocatorData::SubscriptOpResult::VALID_ACCESS:
+                return (*_data)[index];
+        }
     }
 
     // Return a block back to the memory manager.

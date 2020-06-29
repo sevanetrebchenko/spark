@@ -4,6 +4,7 @@
 #include "Utilities/assert_dev.h"
 #include "Utilities/Memory/segmented_pool_allocator.h"
 #include "Utilities/Memory/contiguous_pool_allocator.h"
+#include "Utilities/DataStructures/array.h"
 #include "ECS/Components/component_manager.h"
 #include "ECS/Components/base_component.h"
 
@@ -41,14 +42,23 @@ void myAdapter::OutputMessage() {
 }
 
 class Data : public ECS::Components::BaseComponent {
-    int a;
-    int b;
-    float c;
-    char h[10];
+    public:
+        int a;
+        int b;
+        float c;
+        char h[16];
 };
 
 int main() {
     UtilityBox::Logger::LoggingHub::Initialize();
+
+    std::array<Data, 5> array;
+
+    auto* a = new UtilityBox::DataStructures::Array(sizeof(Data), 5);
+    a->Initialize();
+    auto* b = a->operator[]<Data>(0);
+    b->b = 60;
+
 
 //    auto* a = new UtilityBox::Memory::ContiguousPoolAllocator(2, 2, false);
 //    a->Initialize();
@@ -58,10 +68,10 @@ int main() {
 //    a->ReturnBlock(b);
 //    a->ReturnBlock(c);
 
-    auto* a = new UtilityBox::Memory::SegmentedPoolAllocator(2);
-    a->Initialize();
-    void* b = a->RetrieveBlock();
-    a->ReturnBlock(b);
+//    auto* a = new UtilityBox::Memory::SegmentedPoolAllocator(2);
+//    a->Initialize();
+//    void* b = a->RetrieveBlock();
+//    a->ReturnBlock(b);
 
 
 //    auto* a = new ECS::Components::ComponentManager<Data>();

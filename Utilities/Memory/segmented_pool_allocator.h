@@ -14,7 +14,7 @@ namespace UtilityBox::Memory {
                  * Note: Initialize() must be called in order for the memory manager to work properly.
                  * @param blockSize - Size of block to manage.
                  */
-                explicit SegmentedPoolAllocator(int blockSize);
+                explicit SegmentedPoolAllocator(unsigned blockSize);
 
                 /**
                  * Two-stage initialization. Allocates a fixed-size page of memory and sets up block lists to use.
@@ -42,7 +42,7 @@ namespace UtilityBox::Memory {
                 void ReturnBlock(void* blockAddress);
 
             private:
-                int _blockSize; // Block size for the memory manager.
+                unsigned _blockSize; // Block size for the memory manager.
 
                 // Storage for SegmentedPoolAllocator data, back-end functionality, and helper functions.
                 class AllocatorData;

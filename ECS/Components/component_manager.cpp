@@ -1,6 +1,7 @@
 
 #ifndef DATASTRUCTURES_COMPONENT_MANAGER_CPP
 #define DATASTRUCTURES_COMPONENT_MANAGER_CPP
+
 #include <type_traits>
 #include "component_manager.h"
 

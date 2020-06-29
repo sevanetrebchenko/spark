@@ -21,6 +21,7 @@ namespace ECS::Components {
         public:
             ComponentManagerCollection();
         private:
+
             std::unordered_map<ECS::ComponentTypeID, ComponentManagerInterface*> _componentManagers;
     };
 }
