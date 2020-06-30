@@ -2,7 +2,7 @@
 #ifndef DATASTRUCTURES_ARRAY_H
 #define DATASTRUCTURES_ARRAY_H
 
-#include "../Memory/contiguous_pool_allocator.h"
+#include "../../Memory/contiguous_pool_allocator.h"
 
 namespace UtilityBox::DataStructures {
     class Array {
@@ -21,5 +21,7 @@ namespace UtilityBox::DataStructures {
     };
 }
 
-#include "array.cpp"
 #endif //DATASTRUCTURES_ARRAY_H
+
+#include "array.tpp"
+

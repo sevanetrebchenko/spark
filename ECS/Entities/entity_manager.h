@@ -42,3 +42,5 @@ namespace ECS::Entities {
 }
 
 #endif //DATASTRUCTURES_ENTITY_MANAGER_H
+
+#include "entity_manager.tpp"

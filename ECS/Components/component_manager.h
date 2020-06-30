@@ -29,5 +29,6 @@ namespace ECS::Components {
     };
 }
 
-#include "component_manager.cpp"
 #endif //DATASTRUCTURES_COMPONENT_MANAGER_H
+
+#include "component_manager.tpp"

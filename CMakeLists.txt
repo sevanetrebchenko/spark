@@ -13,14 +13,13 @@ set(SOURCE_FILES main.cpp
         Utilities/Logger/logging_system.cpp
         Utilities/Logger/adapter.cpp
         Utilities/Logger/adapter_config.cpp
-        #Utilities/DataStructures/array.cpp
+        Utilities/DataStructures/Array/array.cpp
         Utilities/exception.cpp
-        #ECS/Components/component_manager.cpp
-        ECS/Components/component_manager_collection.cpp
+        # ECS/Components/component_manager.cpp
         ECS/Components/base_component.cpp
         ECS/Entities/entity.cpp
         ECS/Entities/entity_manager.cpp
-        ECS/Systems/base_component_system.cpp
+        ECS/Systems/base_component_system.tpp
         )
 
 add_executable(DataStructures ${SOURCE_FILES})

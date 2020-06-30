@@ -7,7 +7,6 @@
 #include <vector>
 #include "../../Utilities/Memory/segmented_pool_allocator.h"
 
-
 namespace ECS::Components {
     template <class ...ComponentType>
     class ComponentSystem {
@@ -30,7 +29,6 @@ namespace ECS::Components {
     };
 }
 
-
-
-
 #endif //DATASTRUCTURES_BASE_COMPONENT_SYSTEM_H
+
+#include "base_component_system.tpp"
