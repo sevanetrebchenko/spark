@@ -26,13 +26,13 @@ namespace ECS::Components {
             std::vector<ComponentTuple> _filteredEntities;
 
         private:
-            void FilterEntity(ECS::EntityID ID);
+            std::pair<bool, ComponentTuple> FilterEntity(ECS::EntityID ID);
 
             template <unsigned INDEX, class ComponentType, class ...AdditionalComponentArgs>
-            bool ProcessEntityComponent(ComponentTypeID, BaseComponent* component, ComponentTuple& componentTuple);
+            bool ProcessEntityComponent(ComponentTypeID componentTypeID, BaseComponent* component, ComponentTuple& componentTuple);
 
             template <unsigned INDEX>
-            bool ProcessEntityComponent(ComponentTypeID, BaseComponent* component, ComponentTuple& componentTuple);
+            bool ProcessEntityComponent(ComponentTypeID componentTypeID, BaseComponent* component, ComponentTuple& componentTuple);
 
             std::unordered_map<EntityID, unsigned> _entityIDToContainerIndex; // Mapping from entity ID to index in filtered entities vector.
             std::unordered_map<unsigned, EntityID> _containerIndexToEntityID; // Mapping from index in filtered entities vector to entity ID.
