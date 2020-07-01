@@ -12,12 +12,15 @@ namespace ECS::Components {
         componentManagerBlock->Initialize();
 
         // Set index in collection map.
-        _componentManagers[ComponentType::ID] = reinterpret_cast<ComponentManagerInterface*>(componentManagerBlock);
+        _componentManagerMap[ComponentType::ID] = reinterpret_cast<ComponentManagerInterface*>(componentManagerBlock);
     }
 
     template<class... ComponentTypes>
     inline void ComponentManagerCollection<ComponentTypes...>::Initialize() {
+        // Initialize array storage.
         _componentManagerStorage.Initialize();
+
+        // Initialize systems.
         unsigned index = 0;
         PARAMETER_PACK_EXPAND(CreateComponentSystem, ComponentTypes, index);
     }
@@ -25,8 +28,8 @@ namespace ECS::Components {
     template<class... ComponentTypes>
     template<class ComponentType>
     inline ComponentManager<ComponentType>* ComponentManagerCollection<ComponentTypes...>::GetComponentManager() {
-        std::unordered_map<ECS::ComponentTypeID, ComponentManagerInterface*>::iterator it = _componentManagers.find(ComponentType::ID);
-        if (it != _componentManagers.end()) {
+        std::unordered_map<ECS::ComponentTypeID, ComponentManagerInterface*>::iterator it = _componentManagerMap.find(ComponentType::ID);
+        if (it != _componentManagerMap.end()) {
             return dynamic_cast<ComponentManager<ComponentType>*>(it->second);
         }
         else {

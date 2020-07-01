@@ -3,6 +3,7 @@
 #define DATASTRUCTURES_ENTITY_MANAGER_H
 
 #include <unordered_map>
+#include <vector>
 #include "entity.h"
 #include "../Components/base_component.h"
 #include "../ecs_typedefs.h"
@@ -10,11 +11,22 @@
 namespace ECS::Entities {
     class EntityManager {
         public:
+            enum class CallbackType {
+                ENTITY_CREATE,
+                ENTITY_DELETE,
+                COMPONENT_ADD,
+                COMPONENT_REMOVE
+            };
+
             EntityManager();
             ~EntityManager();
 
             void CreateEntity(const char* name);
             void DestroyEntity(EntityID);
+
+            EntityID GetEntityID();
+
+            void RegisterCallback(void (*callbackFunction)(EntityID), CallbackType);
 
             const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& GetComponents(EntityID ID);
 
@@ -38,6 +50,10 @@ namespace ECS::Entities {
             typedef std::unordered_map<EntityID, _entityComponentList> _entityList;
 
             _entityList _entities;
+            std::vector<void (*)(EntityID)> _entityCreateCallbackFunctions;
+            std::vector<void (*)(EntityID)> _entityDestroyCallbackFunctions;
+            std::vector<void (*)(EntityID)> _componentAddCallbackFunctions;
+            std::vector<void (*)(EntityID)> _componentRemoveCallbackFunctions;
     };
 }
 

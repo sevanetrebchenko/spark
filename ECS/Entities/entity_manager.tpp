@@ -39,6 +39,11 @@ namespace ECS::Entities {
         }
 
 //            _entities.at(ID).insert(ComponentType::ID, // get component here);
+
+        // Call all callback functions to notify systems.
+        for (auto &componentAddCallbackFunction : _componentAddCallbackFunctions) {
+            (*componentAddCallbackFunction)(ID);
+        }
     }
 
     template<class ComponentType>
@@ -52,7 +57,13 @@ namespace ECS::Entities {
             return; //todo
         }
 
+        // Component found - delete.
 //            _entities.at(ID).insert(ComponentType::ID, // get component here);
+
+        // Call all callback functions to notify systems.
+        for (auto &componentRemoveCallbackFunction : _componentRemoveCallbackFunctions) {
+            (*componentRemoveCallbackFunction)(ID);
+        }
     }
 }
 

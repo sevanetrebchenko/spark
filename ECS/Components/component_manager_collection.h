@@ -3,8 +3,6 @@
 #define DATASTRUCTURES_COMPONENT_MANAGER_COLLECTION_H
 
 #include <unordered_map>
-#include <typeindex>
-#include "../../Utilities/Memory/segmented_pool_allocator.h"
 #include "component_manager.h"
 #include "../ecs_typedefs.h"
 #include "base_component.h"
@@ -27,7 +25,7 @@ namespace ECS::Components {
             void CreateComponentSystem(unsigned& index);
 
             UtilityBox::DataStructures::Array _componentManagerStorage { sizeof(ComponentManager<BaseComponent>), sizeof...(ComponentTypes) };
-            std::unordered_map<ECS::ComponentTypeID, ComponentManagerInterface*> _componentManagers;
+            std::unordered_map<ECS::ComponentTypeID, ComponentManagerInterface*> _componentManagerMap;
     };
 }
 
