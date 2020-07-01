@@ -8,7 +8,7 @@ namespace ECS::Components {
     template<class ComponentType>
     inline ComponentManager<ComponentType>::ComponentManager() {
         // Make sure all component managers only manage valid types.
-        static_assert(std::is_base_of<ECS::Components::BaseComponent, ComponentType>::value, "Invalid template parameter provided to base ComponentManager - component type must derive from ECS::Components::BaseComponent.");
+        static_assert(std::is_base_of<BaseComponent, ComponentType>::value, "Invalid template parameter provided to base ComponentManager - component type must derive from ECS::Components::BaseComponent.");
         // Defer initialization to second stage.
     }
 

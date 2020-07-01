@@ -2,15 +2,13 @@
 #ifndef BASE_COMPONENT_SYSTEM_TPP
 #define BASE_COMPONENT_SYSTEM_TPP
 
-#define INVALID_INDEX _filteredEntities.size()
-
 #include "../Components/base_component.h"
-#include "ECS/Entities/entity_manager.h"
+#include "../Entities/entity_manager.h"
 
 namespace ECS::Components {
     template <class... ComponentTypes>
     inline ComponentSystem<ComponentTypes...>::ComponentSystem() {
-        static_assert((std::is_base_of<ECS::Components::BaseComponent, ComponentTypes>::value && ...), "Invalid template parameter provided to base ComponentSystem - component types must derive from ECS::Components::BaseComponent.");
+        static_assert((std::is_base_of<BaseComponent, ComponentTypes>::value && ...), "Invalid template parameter provided to base ComponentSystem - component types must derive from ECS::Components::BaseComponent.");
 
         // Register callback functions.
         // TODO;
@@ -29,12 +27,12 @@ namespace ECS::Components {
     }
 
     template<class... ComponentTypes>
-    inline void ComponentSystem<ComponentTypes...>::OnEntityCreate(ECS::EntityID ID) {
+    inline void ComponentSystem<ComponentTypes...>::OnEntityCreate(EntityID ID) {
         FilterEntity(ID);
     }
 
     template<class... ComponentTypes>
-    inline void ComponentSystem<ComponentTypes...>::OnEntityDestroy(ECS::EntityID ID) {
+    inline void ComponentSystem<ComponentTypes...>::OnEntityDestroy(EntityID ID) {
         // Find the location of the component tuple in the filtered entities array that belongs to the entity.
         auto entityToDeleteIterator = _entityIDToContainerIndex.find(ID); // <EntityID, index>
 
@@ -42,6 +40,10 @@ namespace ECS::Components {
         if (entityToDeleteIterator != _entityIDToContainerIndex.end()) {
             unsigned toDeleteIndex = entityToDeleteIterator->second; // Index of the component tuple to delete.
             unsigned lastEntityIndex = _filteredEntities.size() - 1; // Index of the last component tuple.
+
+            // Clear index and ID from respective maps.
+            _containerIndexToEntityID.erase(toDeleteIndex);
+            _entityIDToContainerIndex.erase(ID);
 
             // Get the ID of the component tuple at the last index for later use.
             auto lastEntityIterator = _containerIndexToEntityID.find(lastEntityIndex); // <index, EntityID>
@@ -61,7 +63,7 @@ namespace ECS::Components {
     }
 
     template<class... ComponentTypes>
-    inline void ComponentSystem<ComponentTypes...>::OnEntityComponentAdd(ECS::EntityID ID) {
+    inline void ComponentSystem<ComponentTypes...>::OnEntityComponentAdd(EntityID ID) {
         // Perform entity filtering if the entity with the given ID is not already part of the system.
         if (_entityIDToContainerIndex.find(ID) == _entityIDToContainerIndex.end()) {
             FilterEntity(ID);
@@ -69,15 +71,15 @@ namespace ECS::Components {
     }
 
     template<class... ComponentTypes>
-    inline void ComponentSystem<ComponentTypes...>::OnEntityComponentRemove(ECS::EntityID ID) {
+    inline void ComponentSystem<ComponentTypes...>::OnEntityComponentRemove(EntityID ID) {
         FilterEntity(ID);
     }
 
     template<class... ComponentTypes>
-    void ComponentSystem<ComponentTypes...>::FilterEntity(ECS::EntityID ID) {
+    inline void ComponentSystem<ComponentTypes...>::FilterEntity(EntityID ID) {
         ComponentTuple componentTuple;
         unsigned numMatchingComponents = 0;
-        ECS::Entities::EntityManager entityManager = ECS::Entities::EntityManager(); // TODO get from one location
+        Entities::EntityManager entityManager = Entities::EntityManager(); // TODO get from one location
 
         for (const std::pair<ComponentTypeID, Components::BaseComponent*>& entityComponentPair : entityManager.GetComponents(ID)) {
             // Attempt to see if this component is present in the system's component list.
@@ -103,7 +105,7 @@ namespace ECS::Components {
 
     template<class... ComponentTypes>
     template<unsigned int INDEX, class ComponentType, class... AdditionalComponentArgs>
-    bool ComponentSystem<ComponentTypes...>::ProcessEntityComponent(ECS::ComponentTypeID ID, ECS::Components::BaseComponent *component, ComponentSystem::ComponentTuple &componentTuple) {
+    inline bool ComponentSystem<ComponentTypes...>::ProcessEntityComponent(ComponentTypeID ID, BaseComponent *component, ComponentTuple &componentTuple) {
         // ID's match, we found a component in the entity that is included in the ComponentTuple that the system manages.
         if (ComponentType::ID == ID) {
             // We know the component exists, dynamic cast should always succeed.
@@ -120,7 +122,8 @@ namespace ECS::Components {
 
     template<class... ComponentTypes>
     template<unsigned int INDEX>
-    bool ComponentSystem<ComponentTypes...>::ProcessEntityComponent(ECS::ComponentTypeID ID, ECS::Components::BaseComponent *component, ComponentSystem::ComponentTuple &componentTuple) {
+    inline bool ComponentSystem<ComponentTypes...>::ProcessEntityComponent(ComponentTypeID ID, BaseComponent *component, ComponentTuple &componentTuple) {
+        (void) ID, component, componentTuple, INDEX;
         // There are no more components that the system manages to go through, 'component' is not managed by this system.
         return false;
     }

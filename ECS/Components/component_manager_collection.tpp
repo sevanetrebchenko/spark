@@ -2,6 +2,8 @@
 #ifndef COMPONENT_MANAGER_COLLECTION_TPP
 #define COMPONENT_MANAGER_COLLECTION_TPP
 
+#define PARAMETER_PACK_EXPAND(function, args, ...) ((void)function<args>(__VA_ARGS__), ...);
+
 namespace ECS::Components {
     template<class... ComponentTypes>
     template<class ComponentType>
@@ -28,7 +30,7 @@ namespace ECS::Components {
     template<class... ComponentTypes>
     template<class ComponentType>
     inline ComponentManager<ComponentType>* ComponentManagerCollection<ComponentTypes...>::GetComponentManager() {
-        std::unordered_map<ECS::ComponentTypeID, ComponentManagerInterface*>::iterator it = _componentManagerMap.find(ComponentType::ID);
+        std::unordered_map<ComponentTypeID, ComponentManagerInterface*>::iterator it = _componentManagerMap.find(ComponentType::ID);
         if (it != _componentManagerMap.end()) {
             return dynamic_cast<ComponentManager<ComponentType>*>(it->second);
         }

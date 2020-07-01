@@ -6,7 +6,7 @@ namespace ECS::Entities {
     template<class ComponentType>
     inline ComponentType* EntityManager::GetComponent(EntityID ID) {
         // Ensure given component type is valid.
-        static_assert(std::is_base_of<ECS::Components::BaseComponent, ComponentType>::value, "Invalid component type provided to EntityManager.");
+        static_assert(std::is_base_of<Components::BaseComponent, ComponentType>::value, "Invalid component type provided to EntityManager.");
 
         // Ensure the entity with the given ID exists in the world.
         _entityList::const_iterator iterID = _entities.find(ID);
@@ -30,7 +30,7 @@ namespace ECS::Entities {
     template<class ComponentType>
     inline void EntityManager::AddComponent(EntityID ID) {
         // Ensure given component type is valid.
-        static_assert(std::is_base_of<ECS::Components::BaseComponent, ComponentType>::value, "Invalid component type provided to EntityManager.");
+        static_assert(std::is_base_of<Components::BaseComponent, ComponentType>::value, "Invalid component type provided to EntityManager.");
 
         // Ensure the entity with the given ID exists in the world.
         _entityList::const_iterator iterID = _entities.find(ID);
@@ -49,7 +49,7 @@ namespace ECS::Entities {
     template<class ComponentType>
     inline void EntityManager::DeleteComponent(EntityID ID) {
         // Ensure given component type is valid.
-        static_assert(std::is_base_of<ECS::Components::BaseComponent, ComponentType>::value, "Invalid component type provided to EntityManager.");
+        static_assert(std::is_base_of<Components::BaseComponent, ComponentType>::value, "Invalid component type provided to EntityManager.");
 
         // Ensure the entity with the given ID exists in the world.
         _entityList::const_iterator iterID = _entities.find(ID);

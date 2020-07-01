@@ -23,12 +23,11 @@ namespace ECS::Components {
 
         protected:
             using ComponentTuple = std::tuple<std::add_pointer<ComponentTypes>...>; // Tuple of component pointers.
-            std::vector<ComponentTuple*> _filteredEntities;
+            std::vector<ComponentTuple> _filteredEntities;
 
         private:
             void FilterEntity(ECS::EntityID ID);
 
-            // Recursively look through component types.
             template <unsigned INDEX, class ComponentType, class ...AdditionalComponentArgs>
             bool ProcessEntityComponent(ComponentTypeID, BaseComponent* component, ComponentTuple& componentTuple);
 

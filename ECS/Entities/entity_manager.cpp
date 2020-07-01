@@ -13,7 +13,7 @@ namespace ECS::Entities {
         return _entities.at(ID);
     }
 
-    void EntityManager::RegisterCallback(void (*callbackFunction)(ECS::EntityID), EntityManager::CallbackType callbackFunctionType) {
+    void EntityManager::RegisterCallback(void (*callbackFunction)(EntityID), CallbackType callbackFunctionType) {
         switch (callbackFunctionType) {
             case CallbackType::ENTITY_CREATE:
                 _entityCreateCallbackFunctions.emplace_back(callbackFunction);

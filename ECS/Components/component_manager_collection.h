@@ -8,7 +8,6 @@
 #include "base_component.h"
 #include "../../Utilities/DataStructures/Array/array.h"
 
-#define PARAMETER_PACK_EXPAND(function, args, ...) ((void)function<args>(__VA_ARGS__), ...);
 
 namespace ECS::Components {
     template <class ...ComponentTypes>
@@ -25,7 +24,7 @@ namespace ECS::Components {
             void CreateComponentSystem(unsigned& index);
 
             UtilityBox::DataStructures::Array _componentManagerStorage { sizeof(ComponentManager<BaseComponent>), sizeof...(ComponentTypes) };
-            std::unordered_map<ECS::ComponentTypeID, ComponentManagerInterface*> _componentManagerMap;
+            std::unordered_map<ComponentTypeID, ComponentManagerInterface*> _componentManagerMap;
     };
 }
 
