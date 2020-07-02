@@ -74,6 +74,9 @@ unsigned Data::ID = std::hash<std::string>{}("Data");
 int main() {
     UtilityBox::Logger::LoggingHub::Initialize();
 
+    throw std::out_of_range("invalid range");
+
+
     ECS::Components::ComponentManagerCollection<Data>* managerCollection = new ECS::Components::ComponentManagerCollection<Data>();
     managerCollection->Initialize();
     auto* dataManager = managerCollection->GetComponentManager<Data>();

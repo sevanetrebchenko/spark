@@ -11,10 +11,11 @@ namespace ECS::Components {
     class ComponentSystem {
         public:
             ComponentSystem();
-            ~ComponentSystem();
+            ~ComponentSystem() = default;
 
             virtual void Initialize();
             virtual void Update(float dt) = 0;
+            virtual void Shutdown();
 
             void OnEntityCreate(EntityID ID);
             void OnEntityDestroy(EntityID ID);
@@ -25,8 +26,20 @@ namespace ECS::Components {
             using ComponentTuple = std::tuple<std::add_pointer<ComponentTypes>...>; // Tuple of component pointers.
             std::vector<ComponentTuple> _filteredEntities;
 
+            template <typename ComponentType>
+            ComponentType* GetComponent(unsigned index);
+
+            template <typename ComponentType>
+            ComponentType* GetComponent(ComponentTuple& componentTuple);
+
         private:
             std::pair<bool, ComponentTuple> FilterEntity(ECS::EntityID ID);
+
+            template <class DesiredComponentType, unsigned INDEX, class ComponentType, class ...AdditionalComponentArgs>
+            DesiredComponentType* GetComponentHelper(const ComponentTuple& componentTuple);
+
+            template <class DesiredComponentType, unsigned INDEX>
+            DesiredComponentType* GetComponentHelper(const ComponentTuple& componentTuple);
 
             template <unsigned INDEX, class ComponentType, class ...AdditionalComponentArgs>
             bool ProcessEntityComponent(ComponentTypeID componentTypeID, BaseComponent* component, ComponentTuple& componentTuple);

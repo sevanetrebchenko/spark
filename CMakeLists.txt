@@ -14,7 +14,6 @@ set(SOURCE_FILES main.cpp
         Utilities/Logger/adapter.cpp
         Utilities/Logger/adapter_config.cpp
         Utilities/DataStructures/Array/array.cpp
-        Utilities/exception.cpp
         # ECS/Components/component_manager.cpp
         ECS/Components/base_component.cpp
         ECS/Entities/entity.cpp

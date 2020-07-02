@@ -18,11 +18,11 @@ namespace ECS::Components {
 
     template <class... ComponentTypes>
     inline void ComponentSystem<ComponentTypes...>::Initialize() {
-        // Noithing to do here.
+        // Nothing to do here.
     }
 
     template <class... ComponentTypes>
-    inline ComponentSystem<ComponentTypes...>::~ComponentSystem() {
+    inline void ComponentSystem<ComponentTypes...>::Shutdown() {
         _filteredEntities.clear();
         _entityIDToContainerIndex.clear();
         _containerIndexToEntityID.clear();
@@ -94,6 +94,22 @@ namespace ECS::Components {
         }
     }
 
+    template <class... ComponentTypes>
+    template <class ComponentType>
+    inline ComponentType* ComponentSystem<ComponentTypes...>::GetComponent(unsigned index) {
+        if (index >= _filteredEntities.size()) {
+            throw std::out_of_range("Invalid index provided to GetComponent.");
+        }
+
+        return GetComponentHelper<ComponentType, 0, ComponentTypes...>(_filteredEntities[index]);
+    }
+
+    template <class... ComponentTypes>
+    template <class ComponentType>
+    inline ComponentType* ComponentSystem<ComponentTypes...>::GetComponent(ComponentTuple& componentTuple) {
+        return GetComponentHelper<ComponentType, 0, ComponentTypes...>(componentTuple);
+    }
+
     template<class... ComponentTypes>
     inline std::pair<bool, typename ComponentSystem<ComponentTypes...>::ComponentTuple> ComponentSystem<ComponentTypes...>::FilterEntity(EntityID ID) {
         ComponentTuple componentTuple;
@@ -118,13 +134,30 @@ namespace ECS::Components {
     }
 
     template<class... ComponentTypes>
+    template<class DesiredComponentType, unsigned INDEX, class ComponentType, class ...AdditionalComponentArgs>
+    inline DesiredComponentType* ComponentSystem<ComponentTypes...>::GetComponentHelper(const ComponentTuple& componentTuple) {
+        if (ComponentType::ID == DesiredComponentType::ID) {
+            return std::get<INDEX>(componentTuple);
+        }
+        else {
+            return GetComponentHelper<INDEX + 1, AdditionalComponentArgs...>(componentTuple);
+        }
+    }
+
+    template<class... ComponentTypes>
+    template<class DesiredComponentType, unsigned INDEX>
+    inline DesiredComponentType* ComponentSystem<ComponentTypes...>::GetComponentHelper(const ComponentTuple& componentTuple) {
+        return nullptr;
+    }
+
+    template<class... ComponentTypes>
     template<unsigned int INDEX, class ComponentType, class... AdditionalComponentArgs>
     inline bool ComponentSystem<ComponentTypes...>::ProcessEntityComponent(ComponentTypeID componentTypeID, BaseComponent *component, ComponentTuple &componentTuple) {
         // ID's match, we found a component in the entity that is included in the ComponentTuple that the system manages.
         if (ComponentType::ID == componentTypeID) {
             // We know the component exists, dynamic cast should always succeed.
             ComponentType* derivedComponentType = dynamic_cast<ComponentType>(component);
-            ASSERT(derivedComponentType != nullptr, "System failed to get matching component.");
+            ASSERT(derivedComponentType != nullptr, "System failed to get matching component."); // Should never happen.
 
             std::get<INDEX>(componentTuple) = derivedComponentType;
             return true;

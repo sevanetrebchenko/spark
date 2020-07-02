@@ -1,7 +1,6 @@
 
 #include "logger.h"         // Logger functions
 #include "../assert_dev.h"  // Asserts
-#include "../exception.h"   // Exceptions
 #include <mutex>            // std::mutex
 #include <thread>           // std::thread
 #include <atomic>           // std::atomic
