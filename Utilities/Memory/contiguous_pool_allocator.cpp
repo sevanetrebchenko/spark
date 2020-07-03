@@ -346,6 +346,8 @@ namespace UtilityBox::Memory {
             case AllocatorData::SubscriptOpResult::VALID_ACCESS:
                 return (*_data)[index];
         }
+
+        return nullptr;
     }
 
     // Return a block back to the memory manager.

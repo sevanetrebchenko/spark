@@ -13,4 +13,8 @@ namespace UtilityBox::Logger {
         LoggingHub::GetInstance().SendMessage(message, _name);
         delete message;
     }
+
+    void LoggingSystem::Log(DBG_LOG_MESSAGE &message) {
+        LoggingHub::GetInstance().SendMessage(&message, _name);
+    }
 }

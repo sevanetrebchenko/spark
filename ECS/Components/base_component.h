@@ -4,7 +4,7 @@
 
 namespace ECS::Components {
     struct BaseComponent {
-        BaseComponent();
+        BaseComponent() = default;
         virtual ~BaseComponent() = default;
 
         bool _enabled = true;

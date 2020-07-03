@@ -1,6 +1,7 @@
 
 #include "logger.h"         // Logger functions
 #include "../assert_dev.h"  // Asserts
+#include <stdexcept>        // std::invalid_argument
 #include <mutex>            // std::mutex
 #include <thread>           // std::thread
 #include <atomic>           // std::atomic
@@ -230,7 +231,7 @@ namespace UtilityBox::Logger {
              * @param exception   - Caught exception.
              * @param adapterName - Name of the custom adapter that failed to process the message safely.
              */
-            void ConstructStandardErrorMessage(const Exceptions::Exception& exception, const char* adapterName);
+            void ConstructStandardErrorMessage(const std::invalid_argument& exception, const char* adapterName);
 
             /**
              * Constructs the components of a message that is sent to the custom adapter in the occurrence of an
@@ -238,7 +239,7 @@ namespace UtilityBox::Logger {
              * @param exception   - Caught exception.
              * @param adapterName - Name of the custom adapter that failed to process the message safely.
              */
-            void ConstructAdapterErrorMessage(const Exceptions::Exception& exception, const char* adapterName);
+            void ConstructAdapterErrorMessage(const std::invalid_argument& exception, const char* adapterName);
 
             /**
              * Process the underlying message (provided by messageAddress) following the desired header and message formats.
@@ -426,7 +427,7 @@ namespace UtilityBox::Logger {
         }
 
         // Invalid pointer provided, throw exception.
-        throw Exceptions::Exception("Invalid pointer provided to GetLogRecords.");
+        throw std::invalid_argument("Invalid pointer provided to GetLogRecords.");
     }
 
     // Given a message pointer, safely get the message severity of the underlying message.
@@ -436,7 +437,7 @@ namespace UtilityBox::Logger {
         }
 
         // Invalid pointer provided, throw exception.
-        throw Exceptions::Exception("Invalid pointer provided to GetMessageSeverity.");
+        throw std::invalid_argument("Invalid pointer provided to GetMessageSeverity.");
     }
 
     // Given a message pointer, safely get the name of the logging system that logged the message.
@@ -446,7 +447,7 @@ namespace UtilityBox::Logger {
         }
 
         // Invalid pointer provided, throw exception.
-        throw Exceptions::Exception("Invalid pointer provided to GetThroughLoggingSystem.");
+        throw std::invalid_argument("Invalid pointer provided to GetThroughLoggingSystem.");
     }
 
     // Get the initialization timestamp of the LoggingHub.
@@ -483,7 +484,7 @@ namespace UtilityBox::Logger {
                         adapter->OutputMessage();
                     }
                     // If the adapter failed to process safely and an exception was thrown from verifying the message pointer, it is caught here.
-                    catch (const Exceptions::Exception& exception) {
+                    catch (const std::invalid_argument& exception) {
 
                         // Log a direct message to standard error about the exception.
                         _errorMessageProcessing->SetLogCount(_cerr->GetLogCount()); // Maintain previous log count.
@@ -517,7 +518,7 @@ namespace UtilityBox::Logger {
 
     // Constructs the components of a message that is sent to the Standard Error adapter in the occurrence of an exception during message
     // processing by custom adapters.
-    void LoggingHub::LoggingHubData::ConstructStandardErrorMessage(const Exceptions::Exception& exception, const char* adapterName) {
+    void LoggingHub::LoggingHubData::ConstructStandardErrorMessage(const std::invalid_argument& exception, const char* adapterName) {
         auto* errorMessage = new LogMessage(LogMessageSeverity::SEVERE);
 
         // Construct storage for message to use throughout processing.
@@ -627,7 +628,7 @@ namespace UtilityBox::Logger {
     }
 
     // Constructs the components of a message that is sent to the custom adapter in the occurrence of an exception during message processing.
-    void LoggingHub::LoggingHubData::ConstructAdapterErrorMessage(const Exceptions::Exception& exception, const char* adapterName) {
+    void LoggingHub::LoggingHubData::ConstructAdapterErrorMessage(const std::invalid_argument& exception, const char* adapterName) {
         auto* errorMessage = new LogMessage(LogMessageSeverity::SEVERE);
 
         // Construct storage for message to use throughout processing.

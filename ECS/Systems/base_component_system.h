@@ -8,14 +8,14 @@
 
 namespace ECS::Components {
     template <class ...ComponentTypes>
-    class ComponentSystem {
+    class BaseComponentSystem {
         public:
-            ComponentSystem();
-            ~ComponentSystem() = default;
+            explicit BaseComponentSystem(std::string&& systemName);
+            ~BaseComponentSystem() = default;
 
-            virtual void Initialize();
+            virtual void Initialize() = 0;
             virtual void Update(float dt) = 0;
-            virtual void Shutdown();
+            virtual void Shutdown() = 0;
 
             void OnEntityCreate(EntityID ID);
             void OnEntityDestroy(EntityID ID);
@@ -23,14 +23,17 @@ namespace ECS::Components {
             void OnEntityComponentRemove(EntityID ID);
 
         protected:
-            using ComponentTuple = std::tuple<std::add_pointer<ComponentTypes>...>; // Tuple of component pointers.
-            std::vector<ComponentTuple> _filteredEntities;
+            using ComponentTuple = std::tuple<ComponentTypes*...>; // Tuple of component pointers.
 
             template <typename ComponentType>
             ComponentType* GetComponent(unsigned index);
 
             template <typename ComponentType>
-            ComponentType* GetComponent(ComponentTuple& componentTuple);
+            ComponentType* GetComponent(const ComponentTuple& componentTuple);
+
+            std::string _systemName;
+            UtilityBox::Logger::LoggingSystem _loggingSystem { std::move(std::string(_systemName)) };
+            std::vector<ComponentTuple> _filteredEntities;
 
         private:
             std::pair<bool, ComponentTuple> FilterEntity(ECS::EntityID ID);
@@ -46,6 +49,7 @@ namespace ECS::Components {
 
             template <unsigned INDEX>
             bool ProcessEntityComponent(ComponentTypeID componentTypeID, BaseComponent* component, ComponentTuple& componentTuple);
+
 
             std::unordered_map<EntityID, unsigned> _entityIDToContainerIndex; // Mapping from entity ID to index in filtered entities vector.
             std::unordered_map<unsigned, EntityID> _containerIndexToEntityID; // Mapping from index in filtered entities vector to entity ID.

@@ -25,6 +25,8 @@ namespace UtilityBox::Logger {
              */
             void Log(LogMessage* message);
 
+            void Log(LogMessage& message);
+
         private:
             std::string _name; // Logging system's name.
     };

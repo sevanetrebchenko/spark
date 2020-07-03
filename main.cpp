@@ -45,42 +45,67 @@ void myAdapter::OutputMessage() {
 
 class Data : public ECS::Components::BaseComponent {
     public:
-        static unsigned ID;
-
+        static constexpr unsigned ID = 0;
         int a;
         int b;
         float c;
         char h[16];
 };
 
-unsigned Data::ID = std::hash<std::string>{}("Data");
-//
-//class Data2 : public ECS::Components::BaseComponent {
-//    public:
-//        int a;
-//        int b;
-//        float c;
-//        char h[16];
-//};
-//
-//class Data3 : public ECS::Components::BaseComponent {
-//    public:
-//        int a;
-//        int b;
-//        float c;
-//        char h[16];
-//};
+
+class Data2 : public ECS::Components::BaseComponent {
+    public:
+        static constexpr unsigned ID = 1;
+        int a;
+        int b;
+        float c;
+        char h[16];
+};
+
+class Data3 : public ECS::Components::BaseComponent {
+    public:
+        static constexpr unsigned ID = 2;
+        int a;
+        int b;
+        float c;
+        char h[16];
+};
+
+class mySystem : ECS::Components::BaseComponentSystem<Data, Data2, Data3> {
+    public:
+        explicit mySystem(std::string&& name);
+
+        void Initialize() override;
+        void Update(float dt) override;
+        void Shutdown() override;
+    private:
+};
+
+mySystem::mySystem(std::string &&name) : ECS::Components::BaseComponentSystem<Data, Data2, Data3>(std::move(name)) {
+}
+
+void mySystem::Update(float dt) {
+}
+
+void mySystem::Initialize() {
+    ComponentTuple a;
+    Data2* ad = new Data2();
+    std::get<1>(a) = ad;
+    auto* data2ptr = GetComponent<Data2>(a);
+    LogMessage message = LogMessage();
+    message.Supply("Logging from mySystem.");
+    this->_loggingSystem.Log(message);
+}
+
+void mySystem::Shutdown() {
+}
+
 
 int main() {
     UtilityBox::Logger::LoggingHub::Initialize();
 
-    throw std::out_of_range("invalid range");
-
-
-    ECS::Components::ComponentManagerCollection<Data>* managerCollection = new ECS::Components::ComponentManagerCollection<Data>();
-    managerCollection->Initialize();
-    auto* dataManager = managerCollection->GetComponentManager<Data>();
-    auto* dataBlock = dataManager->CreateComponent();
+    auto* mysystem = new mySystem("name");
+    mysystem->Initialize();
 
     return 0;
 }
