@@ -46,6 +46,9 @@ void myAdapter::OutputMessage() {
 class Data : public ECS::Components::BaseComponent {
     public:
         static constexpr unsigned ID = 0;
+        static constexpr const char* ToString() {
+            return "Data";
+        }
         int a;
         int b;
         float c;
@@ -56,6 +59,9 @@ class Data : public ECS::Components::BaseComponent {
 class Data2 : public ECS::Components::BaseComponent {
     public:
         static constexpr unsigned ID = 1;
+        static constexpr const char* ToString() {
+            return "Data2";
+        }
         int a;
         int b;
         float c;
@@ -65,13 +71,16 @@ class Data2 : public ECS::Components::BaseComponent {
 class Data3 : public ECS::Components::BaseComponent {
     public:
         static constexpr unsigned ID = 2;
+        static constexpr const char* ToString() {
+            return "Data3";
+        }
         int a;
         int b;
         float c;
         char h[16];
 };
 
-class mySystem : ECS::Components::BaseComponentSystem<Data, Data2, Data3> {
+class mySystem : ECS::Systems::BaseComponentSystem<Data, Data2, Data3> {
     public:
         explicit mySystem(std::string&& name);
 
@@ -81,17 +90,18 @@ class mySystem : ECS::Components::BaseComponentSystem<Data, Data2, Data3> {
     private:
 };
 
-mySystem::mySystem(std::string &&name) : ECS::Components::BaseComponentSystem<Data, Data2, Data3>(std::move(name)) {
+mySystem::mySystem(std::string &&name) : ECS::Systems::BaseComponentSystem<Data, Data2, Data3>(std::move(name)) {
 }
 
 void mySystem::Update(float dt) {
 }
 
 void mySystem::Initialize() {
+    BaseSystem::Initialize();
     ComponentTuple a;
     Data2* ad = new Data2();
     std::get<1>(a) = ad;
-    auto* data2ptr = GetComponent<Data2>(a);
+    auto* data2ptr = GetComponent<Data3>(a);
     LogMessage message = LogMessage();
     message.Supply("Logging from mySystem.");
     this->_loggingSystem.Log(message);
@@ -100,12 +110,11 @@ void mySystem::Initialize() {
 void mySystem::Shutdown() {
 }
 
-
 int main() {
     UtilityBox::Logger::LoggingHub::Initialize();
 
-    auto* mysystem = new mySystem("name");
-    mysystem->Initialize();
+//    auto* mysystem = new mySystem("name");
+//    mysystem->Initialize();
 
     return 0;
 }

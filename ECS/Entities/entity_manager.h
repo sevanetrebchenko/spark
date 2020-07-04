@@ -39,7 +39,6 @@ namespace ECS::Entities {
             template <class ComponentType>
             void DeleteComponent(EntityID ID);
 
-
             // Entity manager should not be copied.
             EntityManager(EntityManager const &other) = delete;
             EntityManager(EntityManager &&other) = delete;

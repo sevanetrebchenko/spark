@@ -6,23 +6,26 @@
 #include <vector>
 #include "../../Utilities/Memory/segmented_pool_allocator.h"
 
-namespace ECS::Components {
+namespace ECS::Systems {
+    class BaseComponentSystemInterface {
+        public:
+            virtual void Initialize() = 0;
+            virtual void Update(float dt) = 0;
+            virtual void Shutdown() = 0;
+    };
+
     template <class ...ComponentTypes>
-    class BaseComponentSystem {
+    class BaseComponentSystem : public BaseComponentSystemInterface {
         public:
             explicit BaseComponentSystem(std::string&& systemName);
             ~BaseComponentSystem() = default;
 
-            virtual void Initialize() = 0;
-            virtual void Update(float dt) = 0;
-            virtual void Shutdown() = 0;
-
-            void OnEntityCreate(EntityID ID);
-            void OnEntityDestroy(EntityID ID);
-            void OnEntityComponentAdd(EntityID ID);
-            void OnEntityComponentRemove(EntityID ID);
+            void Initialize() override;
+            void Update(float dt) override;
+            void Shutdown() override;
 
         protected:
+            using BaseSystem = BaseComponentSystem<ComponentTypes...>;
             using ComponentTuple = std::tuple<ComponentTypes*...>; // Tuple of component pointers.
 
             template <typename ComponentType>
@@ -36,24 +39,8 @@ namespace ECS::Components {
             std::vector<ComponentTuple> _filteredEntities;
 
         private:
-            std::pair<bool, ComponentTuple> FilterEntity(ECS::EntityID ID);
-
-            template <class DesiredComponentType, unsigned INDEX, class ComponentType, class ...AdditionalComponentArgs>
-            DesiredComponentType* GetComponentHelper(const ComponentTuple& componentTuple);
-
-            template <class DesiredComponentType, unsigned INDEX>
-            DesiredComponentType* GetComponentHelper(const ComponentTuple& componentTuple);
-
-            template <unsigned INDEX, class ComponentType, class ...AdditionalComponentArgs>
-            bool ProcessEntityComponent(ComponentTypeID componentTypeID, BaseComponent* component, ComponentTuple& componentTuple);
-
-            template <unsigned INDEX>
-            bool ProcessEntityComponent(ComponentTypeID componentTypeID, BaseComponent* component, ComponentTuple& componentTuple);
-
-
-            std::unordered_map<EntityID, unsigned> _entityIDToContainerIndex; // Mapping from entity ID to index in filtered entities vector.
-            std::unordered_map<unsigned, EntityID> _containerIndexToEntityID; // Mapping from index in filtered entities vector to entity ID.
-
+            class BaseComponentSystemData;
+            BaseComponentSystemData* _data = nullptr;
     };
 }
 
