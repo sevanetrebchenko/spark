@@ -4,7 +4,7 @@
 
 #include "../ECS/Components/component_manager_collection.h"
 #include "../ECS/Entities/entity_manager.h"
-//#include "../ECS/Systems/base_component_system.h"
+#include "../ECS/Systems/base_component_system_interface.h"
 
 #define ALL_COMPONENTS
 
@@ -28,7 +28,7 @@ namespace ENGINE_NAME {
 
             ECS::Components::ComponentManagerCollection<ALL_COMPONENTS> _componentManagerCollection {};
             ECS::Entities::EntityManager _entityManager {};
-            //std::vector<ECS::Systems::BaseComponentSystemInterface*> _systems;
+            std::vector<ECS::Systems::BaseComponentSystemInterface*> _systems;
     };
 }
 

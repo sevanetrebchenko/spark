@@ -5,15 +5,9 @@
 #include <tuple>
 #include <vector>
 #include "../../Utilities/Memory/segmented_pool_allocator.h"
+#include "base_component_system_interface.h"
 
 namespace ECS::Systems {
-    class BaseComponentSystemInterface {
-        public:
-            virtual void Initialize() = 0;
-            virtual void Update(float dt) = 0;
-            virtual void Shutdown() = 0;
-    };
-
     template <class ...ComponentTypes>
     class BaseComponentSystem : public BaseComponentSystemInterface {
         public:
