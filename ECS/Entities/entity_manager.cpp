@@ -7,27 +7,17 @@ namespace ECS::Entities {
     }
 
     void EntityManager::CreateEntity(const char *name) {
+        // Generate unique ID.
     }
 
     const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& EntityManager::GetComponents(EntityID ID) {
-        return _entities.at(ID);
-    }
-
-    void EntityManager::RegisterCallback(void (*callbackFunction)(EntityID), CallbackType callbackFunctionType) {
-        switch (callbackFunctionType) {
-            case CallbackType::ENTITY_CREATE:
-                _entityCreateCallbackFunctions.emplace_back(callbackFunction);
-                break;
-            case CallbackType::ENTITY_DELETE:
-                _entityDestroyCallbackFunctions.emplace_back(callbackFunction);
-                break;
-            case CallbackType::COMPONENT_ADD:
-                _componentAddCallbackFunctions.emplace_back(callbackFunction);
-                break;
-            case CallbackType::COMPONENT_REMOVE:
-                _componentRemoveCallbackFunctions.emplace_back(callbackFunction);
-                break;
+        if (_entities.find(ID) == _entities.end()) {
+            UtilityBox::Logger::LogMessage errorMessage {};
+            errorMessage.Supply("Entity ID provided to EntityManager's GetComponents is invalid - no entity exists at ID: %i.", ID);
+            throw std::out_of_range("Entity ID provided to EntityManager's GetComponents is invalid - no entity exists at the provided ID.");
         }
+
+        return _entities.at(ID);
     }
 }
 

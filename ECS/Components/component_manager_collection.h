@@ -10,10 +10,11 @@
 
 
 namespace ECS::Components {
+
     template <class ...ComponentTypes>
     class ComponentManagerCollection {
         public:
-            ComponentManagerCollection() = default;
+            ComponentManagerCollection();
             void Initialize();
 
             template <class ComponentType>
@@ -28,6 +29,7 @@ namespace ECS::Components {
     };
 }
 
+#include "component_manager_collection.tpp" // Template function includes.
+
 #endif //DATASTRUCTURES_COMPONENT_MANAGER_COLLECTION_H
 
-#include "component_manager_collection.tpp"

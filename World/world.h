@@ -11,18 +11,29 @@
 namespace ENGINE_NAME {
     class World {
         public:
-            static World& GetInstance();
+            static World& GetInstance() {
+                if (!_world) {
+                    _world = new World();
+                }
+
+                return *_world;
+            };
 
             void Initialize();
             void Update();
             void Shutdown();
 
-            ECS::Components::ComponentManagerCollection<ALL_COMPONENTS>* GetComponentManagerCollection();
-            ECS::Entities::EntityManager* GetEntityManager();
+            ECS::Components::ComponentManagerCollection<ALL_COMPONENTS>* GetComponentManagerCollection() {
+                return &_componentManagerCollection;
+            };
+
+            ECS::Entities::EntityManager* GetEntityManager() {
+                return &_entityManager;
+            }
 
         private:
-            World();
-            ~World();
+            World() = default;
+            ~World() = default;
 
             static World* _world;
 

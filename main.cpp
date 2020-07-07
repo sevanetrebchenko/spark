@@ -9,6 +9,8 @@
 #include "ECS/Components/base_component.h"
 #include "ECS/Components/component_manager_collection.h"
 #include "ECS/Systems/base_component_system.h"
+#include "World/world.h"
+#include "Utilities/Tools/compile_time_hash.h"
 
 using namespace UtilityBox::Logger;
 
@@ -45,10 +47,9 @@ void myAdapter::OutputMessage() {
 
 class Data : public ECS::Components::BaseComponent {
     public:
-        static constexpr unsigned ID = 0;
-        static constexpr const char* ToString() {
-            return "Data";
-        }
+        static constexpr unsigned ID = STRINGHASH("Data");
+        static constexpr const char* Name = "Data";
+
         int a;
         int b;
         float c;
@@ -58,10 +59,8 @@ class Data : public ECS::Components::BaseComponent {
 
 class Data2 : public ECS::Components::BaseComponent {
     public:
-        static constexpr unsigned ID = 1;
-        static constexpr const char* ToString() {
-            return "Data2";
-        }
+        static constexpr std::uint32_t ID = STRINGHASH("Data2");
+        static constexpr const char* Name = "Data2";
         int a;
         int b;
         float c;
@@ -70,10 +69,9 @@ class Data2 : public ECS::Components::BaseComponent {
 
 class Data3 : public ECS::Components::BaseComponent {
     public:
-        static constexpr unsigned ID = 2;
-        static constexpr const char* ToString() {
-            return "Data3";
-        }
+        static constexpr unsigned ID = STRINGHASH("Data3");
+        static constexpr const char* Name = "Data3";
+
         int a;
         int b;
         float c;
@@ -113,8 +111,10 @@ void mySystem::Shutdown() {
 int main() {
     UtilityBox::Logger::LoggingHub::Initialize();
 
-//    auto* mysystem = new mySystem("name");
-//    mysystem->Initialize();
+    auto* mysystem = new mySystem("name");
+    mysystem->Initialize();
+
+    ENGINE_NAME::World::GetInstance().GetEntityManager()->CreateEntity("entity1");
 
     return 0;
 }

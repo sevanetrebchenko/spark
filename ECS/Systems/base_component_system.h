@@ -74,6 +74,7 @@ namespace ECS::Systems {
     };
 }
 
+#include "base_component_system.tpp" // Template function includes.
+
 #endif //DATASTRUCTURES_BASE_COMPONENT_SYSTEM_H
 
-#include "base_component_system.tpp" // Template function includes.

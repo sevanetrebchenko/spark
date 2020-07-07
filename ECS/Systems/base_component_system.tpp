@@ -137,19 +137,22 @@ namespace ECS::Systems {
     // Construct the helper function class for the Base System.
     template<class... ComponentTypes>
     inline BaseComponentSystem<ComponentTypes...>::BaseComponentSystemData::BaseComponentSystemData(::UtilityBox::Logger::LoggingSystem& loggingSystem, std::vector<ComponentTuple>& filteredEntities) : _loggingSystemReference(loggingSystem),
-                                                                                                                                                                                                  _filteredEntitiesReference(filteredEntities)
-                                                                                                                                                                                                  {
+                                                                                                                                                                                                         _filteredEntitiesReference(filteredEntities)
+                                                                                                                                                                                                         {
         // Register callback functions.
-        Entities::EntityManager* entityManager = ENGINE_NAME::World::GetInstance().GetEntityManager();
+        Entities::EntityManager *entityManager = ENGINE_NAME::World::GetInstance().GetEntityManager();
 
         // Register callback for when entities get created.
-        entityManager->RegisterCallback(&BaseComponentSystemData::OnEntityCreate, Entities::EntityManager::CallbackType::ENTITY_CREATE);
+        entityManager->RegisterCallback<BaseComponentSystemData, void, EntityID>(Entities::EntityManager::CallbackType::ENTITY_CREATE, this, &BaseComponentSystemData::OnEntityCreate);
+
         // Register callback for when entities get deleted.
-        entityManager->RegisterCallback(&BaseComponentSystemData::OnEntityDestroy, Entities::EntityManager::CallbackType::ENTITY_DELETE);
+        entityManager->RegisterCallback<BaseComponentSystemData, void, EntityID>(Entities::EntityManager::CallbackType::ENTITY_DELETE, this, &BaseComponentSystemData::OnEntityDestroy);
+
         // Register callback for when a component is attached to an entity.
-        entityManager->RegisterCallback(&BaseComponentSystemData::OnEntityComponentAdd, Entities::EntityManager::CallbackType::COMPONENT_ADD);
+        entityManager->RegisterCallback<BaseComponentSystemData, void, EntityID>(Entities::EntityManager::CallbackType::COMPONENT_ADD, this, &BaseComponentSystemData::OnEntityComponentAdd);
+
         // Register callback for when a component is removed from an entity.
-        entityManager->RegisterCallback(&BaseComponentSystemData::OnEntityComponentRemove, Entities::EntityManager::CallbackType::COMPONENT_REMOVE);
+        entityManager->RegisterCallback<BaseComponentSystemData, void, EntityID>(Entities::EntityManager::CallbackType::COMPONENT_REMOVE, this, &BaseComponentSystemData::OnEntityComponentRemove);
     }
 
     // Clears helper index data used for maintaining component tuples.
@@ -340,8 +343,7 @@ namespace ECS::Systems {
     template<class... ComponentTypes>
     template<unsigned int INDEX, class ComponentType, class... AdditionalComponentArgs>
     inline bool BaseComponentSystem<ComponentTypes...>::BaseComponentSystemData::ProcessEntityComponent(ComponentTypeID componentTypeID, Components::BaseComponent *component, BaseComponentSystem::ComponentTuple &componentTuple, UtilityBox::Logger::LogMessage& message) {
-        const char* componentName = ComponentType::ToString();
-        message.Supply("Attempting to pair component: '%s' from entity component list into component tuple.", componentName);
+        message.Supply("Attempting to pair component: '%s' from entity component list into component tuple.", ComponentType::Name);
 
         // ID's match, we found a component in the entity that is included in the ComponentTuple that the system manages.
         if (ComponentType::ID == componentTypeID) {
@@ -350,7 +352,7 @@ namespace ECS::Systems {
             ASSERT(derivedComponentType != nullptr, "System failed to get matching component."); // Should never happen.
 
             std::get<INDEX>(componentTuple) = derivedComponentType;
-            message.Supply("Pairing success - entity component '%s' added to component tuple.", componentName);
+            message.Supply("Pairing success - entity component '%s' added to component tuple.", ComponentType::Name);
 
             return true;
         }

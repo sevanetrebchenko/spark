@@ -6,6 +6,12 @@
 
 namespace ECS::Components {
     template<class... ComponentTypes>
+    ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollection() {
+        static_assert((std::is_base_of_v<Components::BaseComponent, ComponentTypes> && ...), "Invalid template parameter provided to base BaseComponentSystem - component types must derive from ECS::Components::BaseComponent.");
+
+    }
+
+    template<class... ComponentTypes>
     template<class ComponentType>
     inline void ComponentManagerCollection<ComponentTypes...>::CreateComponentSystem(unsigned& index) {
         // Construct component manager of given type in-place.
@@ -30,7 +36,9 @@ namespace ECS::Components {
     template<class... ComponentTypes>
     template<class ComponentType>
     inline ComponentManager<ComponentType>* ComponentManagerCollection<ComponentTypes...>::GetComponentManager() {
-        std::unordered_map<ComponentTypeID, ComponentManagerInterface*>::iterator it = _componentManagerMap.find(ComponentType::ID);
+        static_assert((std::is_same_v<ComponentType, ComponentTypes> || ...), "Invalid template parameter provided to GetComponentManager - there is no component manager for the given component type.");
+
+        auto it = _componentManagerMap.find(ComponentType::ID);
         if (it != _componentManagerMap.end()) {
             return dynamic_cast<ComponentManager<ComponentType>*>(it->second);
         }
@@ -38,6 +46,8 @@ namespace ECS::Components {
             return nullptr;
         }
     }
+
+
 }
 
 #endif // COMPONENT_MANAGER_COLLECTION_TPP
