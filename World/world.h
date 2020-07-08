@@ -5,8 +5,7 @@
 #include "../ECS/Components/component_manager_collection.h"
 #include "../ECS/Entities/entity_manager.h"
 #include "../ECS/Systems/base_component_system_interface.h"
-
-#define ALL_COMPONENTS
+#include "all_components.h"
 
 namespace ENGINE_NAME {
     class World {

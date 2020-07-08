@@ -13,7 +13,7 @@ namespace ECS::Components {
             virtual ~ComponentManagerInterface() = default;
     };
 
-    template<class ComponentType>
+    template <class ComponentType>
     class ComponentManager : public ComponentManagerInterface {
         public:
             ComponentManager();

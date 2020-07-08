@@ -8,7 +8,6 @@
 #include "base_component.h"
 #include "../../Utilities/DataStructures/Array/array.h"
 
-
 namespace ECS::Components {
 
     template <class ...ComponentTypes>

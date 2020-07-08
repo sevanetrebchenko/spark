@@ -4,6 +4,8 @@
 
 namespace ECS::Components {
     struct BaseComponent {
+        static constexpr unsigned ID = 4;
+        static constexpr const char* Name = "Base";
         BaseComponent() = default;
         virtual ~BaseComponent() = default;
 

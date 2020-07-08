@@ -11,7 +11,7 @@ namespace UtilityBox::Logger {
              * Construct a LoggingSystem instance with a desired name.
              * @param name - Name for this LoggingSystem.
              */
-            explicit LoggingSystem(std::string&& name = "Not provided");
+            explicit LoggingSystem(std::string name = "Not provided");
 
             /**
              * Destructor.
@@ -23,9 +23,9 @@ namespace UtilityBox::Logger {
              * automatically cleaned up.
              * @param message - Message to log.
              */
-            void Log(LogMessage* message);
+            void Log(LogMessage* message) const;
 
-            void Log(LogMessage& message);
+            void Log(LogMessage& message) const;
 
         private:
             std::string _name; // Logging system's name.
