@@ -3,8 +3,9 @@
 #define BASE_COMPONENT_SYSTEM_TPP
 
 #include "../Components/base_component.h" // BaseComponent
-#include "../Entities/entity_manager.h"   // EntityManager
+#include "../Entities/include/entity_manager.h"   // EntityManager
 #include "../../World/world.h"            // World
+#include "../Entities/include/entity_callback_type.h"
 
 namespace ECS::Systems {
     //------------------------------------------------------------------------------------------------------------------
@@ -147,19 +148,19 @@ namespace ECS::Systems {
 
         // Register callback for when entities get created.
         message.Supply("Registering 'OnEntityCreate' callback function.");
-        entityManager->RegisterCallback<BaseComponentSystemData, void, EntityID>(Entities::EntityManager::CallbackType::ENTITY_CREATE, this, &BaseComponentSystemData::OnEntityCreate);
+        entityManager->RegisterCallback<BaseComponentSystemData, void, EntityID>(Entities::CallbackType::ENTITY_CREATE, this, &BaseComponentSystemData::OnEntityCreate);
 
         // Register callback for when entities get deleted.
         message.Supply("Registering 'OnEntityDestroy' callback function.");
-        entityManager->RegisterCallback<BaseComponentSystemData, void, EntityID>(Entities::EntityManager::CallbackType::ENTITY_DELETE, this, &BaseComponentSystemData::OnEntityDestroy);
+        entityManager->RegisterCallback<BaseComponentSystemData, void, EntityID>(Entities::CallbackType::ENTITY_DELETE, this, &BaseComponentSystemData::OnEntityDestroy);
 
         // Register callback for when a component is attached to an entity.
         message.Supply("Registering 'OnEntityComponentAdd' callback function.");
-        entityManager->RegisterCallback<BaseComponentSystemData, void, EntityID>(Entities::EntityManager::CallbackType::COMPONENT_ADD, this, &BaseComponentSystemData::OnEntityComponentAdd);
+        entityManager->RegisterCallback<BaseComponentSystemData, void, EntityID>(Entities::CallbackType::COMPONENT_ADD, this, &BaseComponentSystemData::OnEntityComponentAdd);
 
         // Register callback for when a component is removed from an entity.
         message.Supply("Registering 'OnEntityComponentRemove' callback function.");
-        entityManager->RegisterCallback<BaseComponentSystemData, void, EntityID>(Entities::EntityManager::CallbackType::COMPONENT_REMOVE, this, &BaseComponentSystemData::OnEntityComponentRemove);
+        entityManager->RegisterCallback<BaseComponentSystemData, void, EntityID>(Entities::CallbackType::COMPONENT_REMOVE, this, &BaseComponentSystemData::OnEntityComponentRemove);
 
         _loggingSystemReference.Log(message);
     }

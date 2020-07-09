@@ -2,7 +2,7 @@
 #ifndef DATASTRUCTURES_WORLD_H
 #define DATASTRUCTURES_WORLD_H
 
-#include "../ECS/Entities/entity_manager.h"
+#include "../ECS/Entities/include/entity_manager.h"
 #include "../ECS/Systems/base_component_system_interface.h"
 #include <vector>
 

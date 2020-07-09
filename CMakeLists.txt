@@ -16,7 +16,8 @@ set(SOURCE_FILES main.cpp
         Utilities/DataStructures/Array/array.cpp
         # ECS/Components/component_manager.cpp
         ECS/Components/base_component.cpp
-        ECS/Entities/entity_manager.cpp
+        ECS/Entities/src/entity_manager.cpp
+        ECS/Entities/src/entity_manager_data.cpp
         World/world.cpp
         )
 

@@ -3,22 +3,13 @@
 #define DATASTRUCTURES_ENTITY_MANAGER_H
 
 #include <unordered_map>                             // std::unordered_map
-#include "../ecs_typedefs.h"                         // EntityID
-#include "../../Utilities/Logger/logging_system.h"   // LoggingSystem
-#include "../../Utilities/Tools/compile_time_hash.h" // STRINGHASH
-#include "../Components/base_component.h"            // Components
+#include "../../ecs_typedefs.h"                         // EntityID
+#include "../../Components/base_component.h"            // Components
+#include "../src/entity_manager_data.h"
 
 namespace ECS::Entities {
     class EntityManager {
         public:
-            // Entity manager manages component system callback functions of 4 different types.
-            enum class CallbackType {
-                ENTITY_CREATE,
-                ENTITY_DELETE,
-                COMPONENT_ADD,
-                COMPONENT_REMOVE
-            };
-
             /**
              * Constructor.
              */
@@ -134,12 +125,11 @@ namespace ECS::Entities {
 
         private:
             // Storage for EntityManager data, back-end functionality, and helper functions.
-            class EntityManagerData;
             EntityManagerData* _data = nullptr;
     };
 }
 
-#include "entity_manager.tpp" // Template function includes.
+#include "../src/entity_manager.tpp" // Template function includes.
 
 #endif //DATASTRUCTURES_ENTITY_MANAGER_H
 

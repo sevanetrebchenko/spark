@@ -111,10 +111,10 @@ void mySystem::Shutdown() {
 int main() {
     UtilityBox::Logger::LoggingHub::Initialize();
 
-    auto* mysystem = new mySystem("name");
-    mysystem->Initialize();
+//    auto* mysystem = new mySystem("name");
+//    mysystem->Initialize();
 
-//    ENGINE_NAME::World::GetInstance().GetEntityManager()->CreateEntity("entity1");
+    ENGINE_NAME::World::GetInstance().GetEntityManager()->CreateEntity("entity1");
 
     return 0;
 }

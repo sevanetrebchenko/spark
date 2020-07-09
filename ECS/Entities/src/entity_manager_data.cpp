@@ -1,11 +1,9 @@
 
-#include "entity_manager.tpp"
-#include "entity_manager.h"
+#include "entity_manager_data.h"
 
 namespace ECS::Entities {
-
     // Constructor.
-    EntityManager::EntityManagerData::EntityManagerData() {
+    EntityManagerData::EntityManagerData() {
         UtilityBox::Logger::LogMessage message {};
         // Constructor for Entity Manager Data is called from EntityManager::Initialize.
         message.Supply("Entering function Initialize: creating Entity Manager back-end functionality and helper functions.");
@@ -13,7 +11,7 @@ namespace ECS::Entities {
     }
 
     // Cleans up any resources associated with the Entity Manager helper class.
-    EntityManager::EntityManagerData::~EntityManagerData() {
+    EntityManagerData::~EntityManagerData() {
         UtilityBox::Logger::LogMessage message {};
         message.Supply("Entering destructor for Entity Manager back end.");
 
@@ -39,7 +37,7 @@ namespace ECS::Entities {
 
     // Create an entity. Throws error if the provided entity name matches any of the the build-in component type names
     // or any pre-existing entity names. Automatically notifies all fully registered component systems that a new entity has been created.
-    void EntityManager::EntityManagerData::CreateEntity(std::string name) {
+    void EntityManagerData::CreateEntity(std::string name) {
         UtilityBox::Logger::LogMessage message {};
         message.Supply("Entering function CreateEntity with entity name: '%s.'", name.c_str());
 
@@ -91,7 +89,7 @@ namespace ECS::Entities {
 
     // Destroy an entity from the Entity Manager with the provided entity ID, given that it exists. Automatically notifies
     // all fully registered component systems that an entity has been deleted.
-    void EntityManager::EntityManagerData::DestroyEntity(EntityID ID) {
+    void EntityManagerData::DestroyEntity(EntityID ID) {
         UtilityBox::Logger::LogMessage message {};
         message.Supply("Entering function DestroyEntity with entity ID: %i.", ID);
 
@@ -120,7 +118,7 @@ namespace ECS::Entities {
 
     // Destroy an entity from the Entity Manager with the provided entity name, given that it exists. Automatically notifies
     // all fully registered component systems that an entity has been deleted.
-    void EntityManager::EntityManagerData::DestroyEntity(std::string name) {
+    void EntityManagerData::DestroyEntity(std::string name) {
         UtilityBox::Logger::LogMessage message {};
         message.Supply("Entering function DestroyEntity with entity name: '%s.'", name.c_str());
 
@@ -136,7 +134,7 @@ namespace ECS::Entities {
 
     // Retrieve the list of components that are attached to an entity with the provided ID, given that such an entity
     // exists in the Entity Manager.
-    const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& EntityManager::EntityManagerData::GetComponents(EntityID ID) const {
+    const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& EntityManagerData::GetComponents(EntityID ID) const {
         UtilityBox::Logger::LogMessage message {};
         message.Supply("Entering function GetComponents with entity ID: %i.", ID);
 
@@ -159,7 +157,7 @@ namespace ECS::Entities {
 
     // Retrieve the list of components that are attached to an entity with the provided name, given that such an entity
     // exists in the Entity Manager.
-    const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& EntityManager::EntityManagerData::GetComponents(std::string name) const {
+    const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& EntityManagerData::GetComponents(std::string name) const {
         UtilityBox::Logger::LogMessage message {};
         message.Supply("Entering function GetComponents with entity name: '%s.'", name.c_str());
 
@@ -174,7 +172,7 @@ namespace ECS::Entities {
     }
 
     // Convert a given string to lowercase.
-    void EntityManager::EntityManagerData::ConvertToLowercase(std::string& string) const {
+    void EntityManagerData::ConvertToLowercase(std::string& string) const {
         // Character by character traversal + conversion.
         for (char& character : string) {
             character = static_cast<char>(tolower(character));
@@ -182,7 +180,7 @@ namespace ECS::Entities {
     }
 
     // Convert an instance of an EntityManager::CallbackType object to a string to use in debug messages.
-    const char* EntityManager::EntityManagerData::CallbackTypeToString(EntityManager::CallbackType callbackType) {
+    const char* EntityManagerData::CallbackTypeToString(CallbackType callbackType) {
         switch (callbackType) {
             case CallbackType::ENTITY_CREATE:
                 return "OnEntityCreate";
@@ -196,52 +194,4 @@ namespace ECS::Entities {
                 return "Unknown type";
         }
     }
-
-
-
-    // Two stage initialization: initializes resources associated with the Entity Manager, including support for logging
-    // and initializing entity component storage.
-    void EntityManager::Initialize() {
-        if (!_data) {
-            _data = new EntityManagerData();
-        }
-    }
-
-    // Cleans up any resources associated with the Entity Manager.
-    EntityManager::~EntityManager() {
-        delete _data;
-    }
-
-
-    // Create an entity. Throws error if the provided entity name matches any of the the build-in component type names
-    // or any pre-existing entity names. Automatically notifies all fully registered component systems that a new entity has been created.
-    void EntityManager::CreateEntity(std::string name) {
-        _data->CreateEntity(std::move(name));
-    }
-
-    // Destroy an entity from the Entity Manager with the provided entity ID, given that it exists. Automatically notifies
-    // all fully registered component systems that an entity has been deleted.
-    void EntityManager::DestroyEntity(EntityID ID) {
-        _data->DestroyEntity(ID);
-    }
-
-    // Destroy an entity from the Entity Manager with the provided entity name, given that it exists. Automatically notifies
-    // all fully registered component systems that an entity has been deleted.
-    void EntityManager::DestroyEntity(std::string name) {
-        _data->DestroyEntity(std::move(name));
-    }
-
-    // Retrieve the list of components that are attached to an entity with the provided ID, given that such an entity
-    // exists in the Entity Manager.
-    const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& EntityManager::GetComponents(EntityID ID) const {
-        return _data->GetComponents(ID);
-    }
-
-    // Retrieve the list of components that are attached to an entity with the provided name, given that such an entity
-    // exists in the Entity Manager.
-    const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& EntityManager::GetComponents(std::string name) const {
-        return _data->GetComponents(std::move(name));
-    }
-
-
 }
