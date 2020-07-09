@@ -3,8 +3,8 @@
 #define ENTITY_MANAGER_TPP
 
 #include "../../World/all_components.h" // ALL_COMPONENTS
-#include "../../World/world.h"          // GetComponentManagerCollection
 #include <functional>                   // std::function
+#include "../../World/world.h"          // GetComponentManagerCollection
 
 namespace ECS::Entities {
     //------------------------------------------------------------------------------------------------------------------
@@ -180,7 +180,7 @@ namespace ECS::Entities {
     // Cleans up any resources associated with the Entity Manager helper class.
     EntityManager::EntityManagerData::~EntityManagerData() {
         UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entered destructor for Entity Manager back-end.");
+        message.Supply("Entering destructor for Entity Manager back end.");
 
         // Clear entity components.
         message.Supply("Clearing entity component lists.");
@@ -611,7 +611,7 @@ namespace ECS::Entities {
     inline void EntityManager::AddComponent(std::string name) {
         // Ensure given component type is valid.
         static_assert(std::is_base_of<Components::BaseComponent, ComponentType>::value, "In function AddComponent: Invalid component type provided.");
-        _data->AddComponent<ComponentType>(STRINGHASH(name.c_str()));
+        _data->AddComponent<ComponentType>(std::move(name));
     }
 
     // Remove a component from an entity at the provided ID, given that the entity exists in the Entity Manager. It is
@@ -631,7 +631,7 @@ namespace ECS::Entities {
     inline void EntityManager::DeleteComponent(std::string name) {
         // Ensure given component type is valid.
         static_assert(std::is_base_of<Components::BaseComponent, ComponentType>::value, "In function DeleteComponent: Invalid component type provided.");
-        _data->DeleteComponent<ComponentType>(STRINGHASH(name.c_str()));
+        _data->DeleteComponent<ComponentType>(std::move(name));
     }
 }
 

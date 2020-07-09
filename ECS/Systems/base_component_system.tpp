@@ -66,11 +66,12 @@ namespace ECS::Systems {
              * @tparam ComponentType           - Current component tuple element (during component tuple traversal).
              * @tparam AdditionalComponentArgs - Remaining component tuple elements (during component tuple traversal).
              * @param  componentTuple          - Tuple to get the desired component of.
+             * @param  message                 - Log message object to fill during processing.
              * @return On success: Pointer to the desired component type of the component tuple.
              *         On failure: nullptr
              */
             template <class DesiredComponentType, unsigned INDEX, class ComponentType, class ...AdditionalComponentArgs>
-            DesiredComponentType* GetComponentHelper(const ComponentTuple& componentTuple);
+            DesiredComponentType* GetComponentHelper(const ComponentTuple& componentTuple, UtilityBox::Logger::LogMessage& message);
 
         private:
             /**
@@ -139,27 +140,41 @@ namespace ECS::Systems {
     inline BaseComponentSystem<ComponentTypes...>::BaseComponentSystemData::BaseComponentSystemData(::UtilityBox::Logger::LoggingSystem& loggingSystem, std::vector<ComponentTuple>& filteredEntities) : _loggingSystemReference(loggingSystem),
                                                                                                                                                                                                          _filteredEntitiesReference(filteredEntities)
                                                                                                                                                                                                          {
+        UtilityBox::Logger::LogMessage message {};
+        message.Supply("Entering function Initialize: creating Base Component System back-end functionality and helper functions.");
         // Register callback functions.
         Entities::EntityManager *entityManager = ENGINE_NAME::World::GetInstance().GetEntityManager();
 
         // Register callback for when entities get created.
+        message.Supply("Registering 'OnEntityCreate' callback function.");
         entityManager->RegisterCallback<BaseComponentSystemData, void, EntityID>(Entities::EntityManager::CallbackType::ENTITY_CREATE, this, &BaseComponentSystemData::OnEntityCreate);
 
         // Register callback for when entities get deleted.
+        message.Supply("Registering 'OnEntityDestroy' callback function.");
         entityManager->RegisterCallback<BaseComponentSystemData, void, EntityID>(Entities::EntityManager::CallbackType::ENTITY_DELETE, this, &BaseComponentSystemData::OnEntityDestroy);
 
         // Register callback for when a component is attached to an entity.
+        message.Supply("Registering 'OnEntityComponentAdd' callback function.");
         entityManager->RegisterCallback<BaseComponentSystemData, void, EntityID>(Entities::EntityManager::CallbackType::COMPONENT_ADD, this, &BaseComponentSystemData::OnEntityComponentAdd);
 
         // Register callback for when a component is removed from an entity.
+        message.Supply("Registering 'OnEntityComponentRemove' callback function.");
         entityManager->RegisterCallback<BaseComponentSystemData, void, EntityID>(Entities::EntityManager::CallbackType::COMPONENT_REMOVE, this, &BaseComponentSystemData::OnEntityComponentRemove);
+
+        _loggingSystemReference.Log(message);
     }
 
     // Clears helper index data used for maintaining component tuples.
     template<class... ComponentTypes>
     inline BaseComponentSystem<ComponentTypes...>::BaseComponentSystemData::~BaseComponentSystemData() {
+        UtilityBox::Logger::LogMessage message {};
+        message.Supply("Entered destructor for Base Component System back-end.");
+
+        message.Supply("Clearing maps.");
         _containerIndexToEntityID.clear();
         _entityIDToContainerIndex.clear();
+
+        _loggingSystemReference.Log(message);
     }
 
     // Function gets called whenever an entity is created. Filters the components on the entity at creation time and
@@ -171,6 +186,7 @@ namespace ECS::Systems {
         message.Supply("Entered function OnEntityCreate with entity ID: %i.", ID);
 
         // Verify if the desired entity's components pass the filter. Construct and add the component tuple on success.
+        message.Supply("Verifying entity to make sure entity has the necessary components to be managed by this component system.");
         VerifyEntity(ID, message);
 
         _loggingSystemReference.Log(message);
@@ -181,13 +197,22 @@ namespace ECS::Systems {
     template<class... ComponentTypes>
     inline void BaseComponentSystem<ComponentTypes...>::BaseComponentSystemData::OnEntityDestroy(EntityID ID) {
         UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entered function OnEntityDestroy with entity ID: %i.", ID);
+        message.Supply("Entering function OnEntityDestroy with entity ID: %i.", ID);
 
+        message.Supply("Attempting to find entity with provided ID in this system's list of managed component tuples.");
         auto entityToDeleteIterator = _entityIDToContainerIndex.find(ID); // EntityID, index
 
         // Remove the component tuple associated with the entity if it exists in and is managed by this system.
         if (entityToDeleteIterator != _entityIDToContainerIndex.end()) {
+            message.Supply("Removing entity with the provided ID from this system's list of managed component tuples.");
             RemoveEntity(entityToDeleteIterator, message);
+        }
+        else {
+            message.Supply("Entity location was not found in the system component list - no entity exists at ID: %i. Warning message issued.", ID);
+
+            UtilityBox::Logger::LogMessage warningMessage { UtilityBox::Logger::LogMessageSeverity::WARNING };
+            message.Supply("Entity at given entity ID to destroy is invalid - no entity exists at ID: %i.", ID);
+            _loggingSystemReference.Log(message);
         }
 
         _loggingSystemReference.Log(message);
@@ -200,14 +225,15 @@ namespace ECS::Systems {
     template<class... ComponentTypes>
     inline void BaseComponentSystem<ComponentTypes...>::BaseComponentSystemData::OnEntityComponentAdd(EntityID ID) {
         UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entered function OnEntityComponentAdd with entity ID: %i.", ID);
+        message.Supply("Entering function OnEntityComponentAdd with entity ID: %i.", ID);
 
         // Perform entity filtering if the entity with the given ID is not already part of the system.
         if (_entityIDToContainerIndex.find(ID) == _entityIDToContainerIndex.end()) {
+            message.Supply("Entity with provided ID was found within the system. Proceeding to component filtering.");
             VerifyEntity(ID, message);
         }
         else {
-            message.Supply("Entity already has the required components and is being tracked by this system.");
+            message.Supply("Entity already has the required components and is being tracked by this system. No further action necessary.");
         }
 
         _loggingSystemReference.Log(message);
@@ -220,14 +246,13 @@ namespace ECS::Systems {
     template<class... ComponentTypes>
     inline void BaseComponentSystem<ComponentTypes...>::BaseComponentSystemData::OnEntityComponentRemove(EntityID ID) {
         UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entered function OnEntityComponentRemove with entity ID: %i.", ID);
+        message.Supply("Entering function OnEntityComponentRemove with entity ID: %i.", ID);
 
         const auto& entityToDeleteIterator = _entityIDToContainerIndex.find(ID); // EntityID, index
 
         // Ensure component tuple with provided ID exists in the managed component tuples of the system.
         if (entityToDeleteIterator != _entityIDToContainerIndex.end()) {
-            message.Supply("Entity component tuple found within this system.");
-
+            message.Supply("Entity component tuple found within this system. Proceeding to entity filtering to check if entity has the components to be managed by this system.");
             std::pair<bool, ComponentTuple> filterResult = FilterEntity(ID, message);
 
             // If the entity passes filtering, make no changes to the system component tuple list.
@@ -236,23 +261,29 @@ namespace ECS::Systems {
             }
             // If the entity fails filtering, remove it from the system.
             else {
+                message.Supply("Removed component was a component managed by this system. Entity is no longer valid to be managed by this system - removing entity with the provided ID from this system's list of managed component tuples.");
                 RemoveEntity(entityToDeleteIterator, message);
             }
-
-            _loggingSystemReference.Log(message);
         }
+        else {
+            message.Supply("Entity is not being tracked by the system. No further action necessary.");
+        }
+
+        _loggingSystemReference.Log(message);
     }
 
     // Recursive kick-off function for traversing a component tuple in search of a particular desired component type.
     template<class... ComponentTypes>
     template<class DesiredComponentType, unsigned INDEX, class ComponentType, class ...AdditionalComponentArgs>
-    inline DesiredComponentType* BaseComponentSystem<ComponentTypes...>::BaseComponentSystemData::GetComponentHelper(const BaseComponentSystem::ComponentTuple& componentTuple) {
+    inline DesiredComponentType* BaseComponentSystem<ComponentTypes...>::BaseComponentSystemData::GetComponentHelper(const BaseComponentSystem::ComponentTuple& componentTuple, UtilityBox::Logger::LogMessage &message) {
         // Recursion should always find component as the desired component is guaranteed to be managed by this system and
         // component tuples that don't have the component attached (or a nullptr) are automatically not managed by this system.
         if constexpr (DesiredComponentType::ID == ComponentType::ID) {
+            message.Supply("Found desired component type: '%s' at tuple index: %i.", ComponentType::Name, INDEX);
             return std::get<INDEX>(componentTuple);
         }
         else {
+            message.Supply("Component type: '%s' at tuple index: %i does not match desired component type: '%s'.", ComponentType::Name, INDEX, DesiredComponentType::Name);
             return GetComponentHelper<DesiredComponentType, INDEX + 1, AdditionalComponentArgs...>(componentTuple);
         }
     }
@@ -260,19 +291,22 @@ namespace ECS::Systems {
     // Filters the message at the provided ID and emplaces it into the component system tuple store if it passes.
     template<class... ComponentTypes>
     inline void BaseComponentSystem<ComponentTypes...>::BaseComponentSystemData::VerifyEntity(EntityID ID, UtilityBox::Logger::LogMessage& message) {
+        message.Supply("Entering function VerifyEntity with entity ID: %i.", ID);
+
         // Attempt to filter entity by components.
+        message.Supply("Proceeding to entity filtering to check if entity has the components to be managed by this system.");
         std::pair<bool, ComponentTuple> filterResult = FilterEntity(ID, message);
 
         // Entity passed component filtering.
         if (filterResult.first) {
+            unsigned filteredEntityIndex = _filteredEntitiesReference.size() - 1;
+            message.Supply("Entity passed component filtering. Component tuple of required components will be added to base component system's filtered component list at position: %i.", filteredEntityIndex);
             _filteredEntitiesReference.emplace_back(std::move(filterResult.second));
 
             // Set up mapping for further ease-of-access.
-            unsigned filteredEntityIndex = _filteredEntitiesReference.size() - 1;
+            message.Supply("Setting up indices in Base Component System maps for future access.");
             _entityIDToContainerIndex.emplace(ID, filteredEntityIndex);
             _containerIndexToEntityID.emplace(filteredEntityIndex, ID);
-
-            message.Supply("Emplacing component tuple at position: %i.", filteredEntityIndex);
         }
         // Entity failed component filtering.
         else {
@@ -285,6 +319,7 @@ namespace ECS::Systems {
     // its fields filled in.
     template<class... ComponentTypes>
     inline std::pair<bool, typename BaseComponentSystem<ComponentTypes...>::ComponentTuple> BaseComponentSystem<ComponentTypes...>::BaseComponentSystemData::FilterEntity(EntityID ID, UtilityBox::Logger::LogMessage& message) {
+        message.Supply("Entering function FilterEntity with entity ID: %s.", ID);
         ComponentTuple componentTuple;
         unsigned numMatchingComponents = 0;
         Entities::EntityManager* entityManager = ENGINE_NAME::World::GetInstance().GetEntityManager();
@@ -311,6 +346,8 @@ namespace ECS::Systems {
     // Helper function to remove a component tuple at a given position and reconfigure maps to reflect the change.
     template<class... ComponentTypes>
     inline void BaseComponentSystem<ComponentTypes...>::BaseComponentSystemData::RemoveEntity(const std::unordered_map<EntityID, unsigned>::const_iterator& entityToDeleteIterator, UtilityBox::Logger::LogMessage& message) {
+        message.Supply("Entering function VerifyEntity with entity ID: %i.", entityToDeleteIterator->first);
+
         unsigned toDeleteIndex = entityToDeleteIterator->second; // Index of the component tuple to delete.
         unsigned lastEntityIndex = _filteredEntitiesReference.size() - 1; // Index of the last component tuple.
 
@@ -388,12 +425,12 @@ namespace ECS::Systems {
     // Initialize the logging system and any supplemental back-end functionality.
     template<class... ComponentTypes>
     inline void BaseComponentSystem<ComponentTypes...>::Initialize() {
-        // Constructor for BaseComponentSystemData automatically registers component callback functions.
-        _data = new BaseComponentSystemData(_loggingSystem, _filteredEntities);
-
         UtilityBox::Logger::LogMessage message {};
         message.Supply("Initializing Base System.");
         _loggingSystem.Log(message);
+
+        // Constructor for BaseComponentSystemData automatically registers component callback functions.
+        _data = new BaseComponentSystemData(_loggingSystem, _filteredEntities);
     }
 
     // Update.
@@ -409,13 +446,15 @@ namespace ECS::Systems {
     inline void BaseComponentSystem<ComponentTypes...>::Shutdown() {
         UtilityBox::Logger::LogMessage message {};
         message.Supply("Shutdown called for Base System.");
-        _loggingSystem.Log(message);
 
         // Clear system data.
+        message.Supply("Clearing component system's entity component list.");
         if (!_filteredEntities.empty()) {
             _filteredEntities.clear();
         }
         delete _data;
+
+        _loggingSystem.Log(message);
     }
 
     // Get a specific component pointer from the tuple at the provided index. Function ensures the desired component is
@@ -426,16 +465,25 @@ namespace ECS::Systems {
         // Ensure component is managed by this system.
         static_assert((std::is_same_v<ComponentType, ComponentTypes> || ...), "Invalid template parameter provided to base GetComponentHelper - component type is not managed by the queried system.");
 
+        UtilityBox::Logger::LogMessage message {};
+        message.Supply("Entering function GetComponent with index: %i.", index);
+
         // Check for invalid index.
         if (index >= _filteredEntities.size()) {
+            message.Supply("Index: %i provided to GetComponent is out of range. Error message issued.", index);
+            _loggingSystem.Log(message);
+
             UtilityBox::Logger::LogMessage errorMessage { UtilityBox::Logger::LogMessageSeverity::SEVERE };
-            errorMessage.Supply("Exception thrown: Index: %i provided to GetComponent is invalid.", index);
+            errorMessage.Supply("Exception thrown: Index: %i provided to GetComponent is out of range.", index);
             _loggingSystem.Log(errorMessage);
 
             throw std::out_of_range("Invalid index provided to GetComponent.");
         }
 
-        return _data->template GetComponentHelper<ComponentType, 0, ComponentTypes...>(_filteredEntities[index]);
+        message.Supply("Index is valid. Retrieving component of type: '%s' from index %i.", ComponentType::Name, index);
+        ComponentType* component = _data->template GetComponentHelper<ComponentType, 0, ComponentTypes...>(_filteredEntities[index], message);
+        _loggingSystem.Log(message);
+        return component;
     }
 
     // Get a specific component pointer from the tuple at the provided index. Function ensures the desired component is
@@ -445,7 +493,13 @@ namespace ECS::Systems {
     inline ComponentType* BaseComponentSystem<ComponentTypes...>::GetComponent(const BaseComponentSystem::ComponentTuple& componentTuple) {
         // Ensure component is managed by this system.
         static_assert((std::is_same_v<ComponentType, ComponentTypes> || ...), "Invalid template parameter provided to base GetComponentHelper - component type is not managed by the queried system.");
-        return _data->template GetComponentHelper<ComponentType, 0, ComponentTypes...>(componentTuple);
+
+        UtilityBox::Logger::LogMessage message {};
+        message.Supply("Entering function GetComponent with existing tuple. Retrieving component of type: '%s'.", ComponentType::Name);
+
+        ComponentType* component = _data->template GetComponentHelper<ComponentType, 0, ComponentTypes...>(componentTuple, message);
+        _loggingSystem.Log(message);
+        return component;
     }
 }
 
