@@ -9,22 +9,26 @@
 #include "../../Utilities/DataStructures/Array/array.h"
 
 namespace ECS::Components {
-
     template <class ...ComponentTypes>
     class ComponentManagerCollection {
         public:
-            ComponentManagerCollection();
-            void Initialize();
+            static ComponentManagerCollection* GetInstance();
 
             template <class ComponentType>
             ComponentManager<ComponentType>* GetComponentManager();
 
         private:
+            ComponentManagerCollection();
+            void Initialize();
+            ~ComponentManagerCollection();
+
             template <class ComponentType>
             void CreateComponentSystem(unsigned& index);
 
+            static ComponentManagerCollection* _componentManagerCollection;
             UtilityBox::DataStructures::Array _componentManagerStorage { sizeof(ComponentManager<BaseComponent>), sizeof...(ComponentTypes) };
             std::unordered_map<ComponentTypeID, ComponentManagerInterface*> _componentManagerMap;
+            UtilityBox::Logger::LoggingSystem _loggingSystem { "Component Manager Collection" };
     };
 }
 

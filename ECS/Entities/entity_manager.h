@@ -6,6 +6,7 @@
 #include "../ecs_typedefs.h"                         // EntityID
 #include "../../Utilities/Logger/logging_system.h"   // LoggingSystem
 #include "../../Utilities/Tools/compile_time_hash.h" // STRINGHASH
+#include "../Components/base_component.h"            // Components
 
 namespace ECS::Entities {
     class EntityManager {
@@ -141,4 +142,5 @@ namespace ECS::Entities {
 #include "entity_manager.tpp" // Template function includes.
 
 #endif //DATASTRUCTURES_ENTITY_MANAGER_H
+
 

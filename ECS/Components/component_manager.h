@@ -4,6 +4,7 @@
 
 #include "../../Utilities/Memory/segmented_pool_allocator.h"
 #include "base_component.h"
+#include "../../Utilities/Logger/logging_system.h"
 
 namespace ECS::Components {
 
@@ -26,6 +27,7 @@ namespace ECS::Components {
 
         private:
             UtilityBox::Memory::SegmentedPoolAllocator _allocator { sizeof(ComponentType) };
+            UtilityBox::Logger::LoggingSystem _loggingSystem { ComponentType::Name };
     };
 }
 

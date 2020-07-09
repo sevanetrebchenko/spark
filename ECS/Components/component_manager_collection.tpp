@@ -4,7 +4,22 @@
 
 #define PARAMETER_PACK_EXPAND(function, args, ...) ((void)function<args>(__VA_ARGS__), ...);
 
+#include "../../World/all_components.h"
+
 namespace ECS::Components {
+    template <class... ComponentTypes>
+    ComponentManagerCollection<ComponentTypes...>* ComponentManagerCollection<ComponentTypes...>::_componentManagerCollection = nullptr;
+
+    template<class... ComponentTypes>
+    ComponentManagerCollection<ComponentTypes...>* ComponentManagerCollection<ComponentTypes...>::GetInstance() {
+        if (!_componentManagerCollection) {
+            _componentManagerCollection = new ComponentManagerCollection<ALL_COMPONENTS>();
+            _componentManagerCollection->Initialize();
+        }
+
+        return _componentManagerCollection;
+    }
+
     template<class... ComponentTypes>
     ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollection() {
         static_assert((std::is_base_of_v<Components::BaseComponent, ComponentTypes> && ...), "Invalid template parameter provided to base BaseComponentSystem - component types must derive from ECS::Components::BaseComponent.");
@@ -46,8 +61,6 @@ namespace ECS::Components {
             return nullptr;
         }
     }
-
-
 }
 
 #endif // COMPONENT_MANAGER_COLLECTION_TPP

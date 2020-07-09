@@ -284,7 +284,7 @@ namespace ECS::Systems {
         }
         else {
             message.Supply("Component type: '%s' at tuple index: %i does not match desired component type: '%s'.", ComponentType::Name, INDEX, DesiredComponentType::Name);
-            return GetComponentHelper<DesiredComponentType, INDEX + 1, AdditionalComponentArgs...>(componentTuple);
+            return GetComponentHelper<DesiredComponentType, INDEX + 1, AdditionalComponentArgs...>(componentTuple, message);
         }
     }
 

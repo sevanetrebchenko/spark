@@ -114,7 +114,7 @@ int main() {
     auto* mysystem = new mySystem("name");
     mysystem->Initialize();
 
-    ENGINE_NAME::World::GetInstance().GetEntityManager()->CreateEntity("entity1");
+//    ENGINE_NAME::World::GetInstance().GetEntityManager()->CreateEntity("entity1");
 
     return 0;
 }
