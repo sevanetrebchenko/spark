@@ -23,12 +23,18 @@ namespace ECS::Components {
 
     template<class ComponentType>
     inline ComponentType* ComponentManager<ComponentType>::CreateComponent() {
-        return static_cast<ComponentType*>(_allocator.RetrieveBlock());
+        // Default construct block.
+        void* blockAddress = _allocator.RetrieveBlock();
+        new (blockAddress) ComponentType;
+        return static_cast<ComponentType*>(blockAddress);
     }
 
     template<class ComponentType>
     inline void ComponentManager<ComponentType>::DeleteComponent(ComponentType *component) {
-        _allocator.ReturnBlock(component);
+        if (component) {
+            delete component;
+            _allocator.ReturnBlock(static_cast<void*>(component));
+        }
     }
 }
 
