@@ -5,9 +5,9 @@
 #include "Utilities/Memory/segmented_pool_allocator.h"
 #include "Utilities/Memory/contiguous_pool_allocator.h"
 #include "Utilities/DataStructures/Array/array.h"
-#include "ECS/Components/component_manager.h"
-#include "ECS/Components/base_component.h"
-#include "ECS/Components/component_manager_collection.h"
+#include "ECS/Components/include/component_manager.h"
+#include "ECS/Components/include/base_component.h"
+#include "ECS/Components/include/component_manager_collection.h"
 #include "ECS/Systems/include/base_component_system.h"
 #include "World/world.h"
 #include "Utilities/Tools/compile_time_hash.h"
@@ -114,7 +114,14 @@ int main() {
 //    auto* mysystem = new mySystem("name");
 //    mysystem->Initialize();
 
-    ENGINE_NAME::World::GetInstance().GetEntityManager()->CreateEntity("entity1");
+    ECS::Components::ComponentManager<ECS::Components::BaseComponent> a = ECS::Components::ComponentManager<ECS::Components::BaseComponent> {};
+    a.Initialize();
+
+    auto* entitymanager = ENGINE_NAME::World::GetInstance().GetEntityManager();
+    entitymanager->CreateEntity("Entity1");
+    entitymanager->AddComponent<ECS::Components::BaseComponent>("Entity1");
+    entitymanager->DeleteComponent<ECS::Components::BaseComponent>("Entity1");
+    entitymanager->DestroyEntity("Entity1");
 
     return 0;
 }

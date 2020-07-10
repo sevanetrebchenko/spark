@@ -4,9 +4,10 @@
 
 #include <unordered_map>
 #include "component_manager.h"
-#include "../ecs_typedefs.h"
+#include "../../ecs_typedefs.h"
 #include "base_component.h"
-#include "../../Utilities/DataStructures/Array/array.h"
+#include "../../../Utilities/DataStructures/Array/array.h"
+#include "../../../Utilities/Logger/logging_system.h"
 
 namespace ECS::Components {
     template <class ...ComponentTypes>
@@ -19,20 +20,17 @@ namespace ECS::Components {
 
         private:
             ComponentManagerCollection();
-            void Initialize();
             ~ComponentManagerCollection();
-
-            template <class ComponentType>
-            void CreateComponentSystem(unsigned& index);
+            void Initialize();
 
             static ComponentManagerCollection* _componentManagerCollection;
-            UtilityBox::DataStructures::Array _componentManagerStorage { sizeof(ComponentManager<BaseComponent>), sizeof...(ComponentTypes) };
-            std::unordered_map<ComponentTypeID, ComponentManagerInterface*> _componentManagerMap;
-            UtilityBox::Logger::LoggingSystem _loggingSystem { "Component Manager Collection" };
+
+            class ComponentManagerCollectionData;
+            ComponentManagerCollectionData* _data;
     };
 }
 
-#include "component_manager_collection.tpp" // Template function includes.
+#include "../src/component_manager_collection.tpp" // Template function includes.
 
 #endif //DATASTRUCTURES_COMPONENT_MANAGER_COLLECTION_H
 

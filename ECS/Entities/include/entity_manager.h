@@ -4,7 +4,7 @@
 
 #include <unordered_map>                             // std::unordered_map
 #include "../../ecs_typedefs.h"                         // EntityID
-#include "../../Components/base_component.h"            // Components
+#include "../../Components/include/base_component.h"            // Components
 #include "../src/entity_manager_data.h"
 
 namespace ECS::Entities {

@@ -258,16 +258,15 @@ namespace UtilityBox::Memory {
     //------------------------------------------------------------------------------------------------------------------
     // Create a fixed-size block memory manager. Provides basic memory debugging information, along with checks for
     // memory corruption. Sets up the bare necessities for the memory manager, but does not initialize data.
-    SegmentedPoolAllocator::SegmentedPoolAllocator(unsigned blockSize) : _blockSize(blockSize),
-                                                                         _data(nullptr) {
+    SegmentedPoolAllocator::SegmentedPoolAllocator() : _data(nullptr) {
         // Defer initialization until second stage.
     }
 
     // Two-stage initialization. Allocates a fixed-size page of memory and sets up block lists to use.
-    void SegmentedPoolAllocator::Initialize() {
+    void SegmentedPoolAllocator::Initialize(unsigned blockSize) {
         // Construct data if it hasn't been already.
         if (!_data) {
-            _data = new AllocatorData(_blockSize);
+            _data = new AllocatorData(blockSize);
             // todo: try catch?
             _data->Initialize();
         }
@@ -286,6 +285,4 @@ namespace UtilityBox::Memory {
     void SegmentedPoolAllocator::ReturnBlock(void *blockAddress) {
         _data->ReturnBlock(blockAddress);
     }
-
-
 }

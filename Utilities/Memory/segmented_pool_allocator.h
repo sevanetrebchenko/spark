@@ -12,14 +12,14 @@ namespace UtilityBox::Memory {
                  * checks for memory corruption. Sets up the bare necessities for the memory manager, but does not
                  * initialize data.
                  * Note: Initialize() must be called in order for the memory manager to work properly.
-                 * @param blockSize - Size of block to manage.
                  */
-                explicit SegmentedPoolAllocator(unsigned blockSize);
+                explicit SegmentedPoolAllocator();
 
                 /**
                  * Two-stage initialization. Allocates a fixed-size page of memory and sets up block lists to use.
-                 */
-                void Initialize();
+                 * @param blockSize - Size of block to manage.
+                */
+                void Initialize(unsigned blockSize);
 
                 /**
                  * Cleans up all pages and returns all memory manager memory back to the OS.
@@ -42,8 +42,6 @@ namespace UtilityBox::Memory {
                 void ReturnBlock(void* blockAddress);
 
             private:
-                unsigned _blockSize; // Block size for the memory manager.
-
                 // Storage for SegmentedPoolAllocator data, back-end functionality, and helper functions.
                 class AllocatorData;
                 AllocatorData* _data = nullptr;

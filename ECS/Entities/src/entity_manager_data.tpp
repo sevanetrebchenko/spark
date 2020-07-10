@@ -3,7 +3,7 @@
 #define ENTITY_MANAGER_DATA_TPP
 
 #include "../../../Utilities/Tools/compile_time_hash.h"
-#include "../../Components/component_manager_collection.h" // ComponentManagerCollection
+#include "../../Components/include/component_manager_collection.h" // ComponentManagerCollection
 #include "../../../World/all_components.h"
 
 namespace ECS::Entities {
@@ -62,7 +62,7 @@ namespace ECS::Entities {
 
         // Ensure the entity doesn't already have the component attached.
         auto entityComponentIterator = entityIterator->second.find(ComponentType::ID);
-        if (entityComponentIterator != _entityComponents.end()) {
+        if (entityComponentIterator != entityIterator->second.end()) {
             message.Supply("Entities cannot hold multiple components of the same type. Entity at ID: %i already has a component with type: '%s'. Error message issued.", ID, ComponentType::Name);
             _loggingSystem.Log(message);
 
@@ -75,7 +75,7 @@ namespace ECS::Entities {
 
         // Retrieve entity manager from the engine world, construct a component, and append it to the entity component list of the given entity.
         Components::ComponentManager<ComponentType>* componentManager = Components::ComponentManagerCollection<ALL_COMPONENTS>::GetInstance()->GetComponentManager<ComponentType>();
-        _entityComponents.at(ID).insert(ComponentType::ID, componentManager->CreateComponent());
+        _entityComponents.at(ID)[ComponentType::ID] = componentManager->CreateComponent();
 
         message.Supply("Successfully added a default constructed component of type: '%s' to entity.", ComponentType::Name);
 
@@ -184,7 +184,6 @@ namespace ECS::Entities {
             (ReturnType)(std::mem_fn(memberFunction)(classInstance, additionalArguments...));
         };
     }
-
 }
 
 #endif // ENTITY_MANAGER_DATA_TPP

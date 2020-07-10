@@ -2,9 +2,9 @@
 #ifndef DATASTRUCTURES_COMPONENT_MANAGER_H
 #define DATASTRUCTURES_COMPONENT_MANAGER_H
 
-#include "../../Utilities/Memory/segmented_pool_allocator.h"
+#include "../../../Utilities/Memory/segmented_pool_allocator.h"
 #include "base_component.h"
-#include "../../Utilities/Logger/logging_system.h"
+#include "../../../Utilities/Logger/logging_system.h"
 
 namespace ECS::Components {
 
@@ -26,11 +26,11 @@ namespace ECS::Components {
             void DeleteComponent(ComponentType* component);
 
         private:
-            UtilityBox::Memory::SegmentedPoolAllocator _allocator { sizeof(ComponentType) };
-            UtilityBox::Logger::LoggingSystem _loggingSystem { ComponentType::Name };
+            class ComponentManagerData;
+            ComponentManagerData* _data;
     };
 }
 
 #endif //DATASTRUCTURES_COMPONENT_MANAGER_H
 
-#include "component_manager.tpp"
+#include "../src/component_manager.tpp"

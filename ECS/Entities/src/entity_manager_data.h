@@ -4,7 +4,7 @@
 
 #include <functional>
 #include "../../ecs_typedefs.h"
-#include "../../Components/base_component.h"
+#include "../../Components/include/base_component.h"
 #include "../../../Utilities/Logger/logging_system.h"
 #include "../include/entity_callback_type.h"
 
