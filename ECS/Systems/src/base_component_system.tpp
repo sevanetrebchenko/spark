@@ -2,10 +2,10 @@
 #ifndef BASE_COMPONENT_SYSTEM_TPP
 #define BASE_COMPONENT_SYSTEM_TPP
 
-#include "../Components/base_component.h" // BaseComponent
-#include "../Entities/include/entity_manager.h"   // EntityManager
-#include "../../World/world.h"            // World
-#include "../Entities/include/entity_callback_type.h"
+#include "../../Components/base_component.h" // BaseComponent
+#include "../../Entities/include/entity_manager.h"   // EntityManager
+#include "../../../World/world.h"            // World
+#include "../../Entities/include/entity_callback_type.h"
 
 namespace ECS::Systems {
     //------------------------------------------------------------------------------------------------------------------

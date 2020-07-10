@@ -3,7 +3,7 @@
 #define DATASTRUCTURES_WORLD_H
 
 #include "../ECS/Entities/include/entity_manager.h"
-#include "../ECS/Systems/base_component_system_interface.h"
+#include "../ECS/Systems/include/base_component_system_interface.h"
 #include <vector>
 
 namespace ENGINE_NAME {

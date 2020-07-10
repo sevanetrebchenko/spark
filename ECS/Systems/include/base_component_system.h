@@ -5,9 +5,9 @@
 #include <tuple>                             // std::tuple
 #include <vector>                            // std::vector
 #include "base_component_system_interface.h" // BaseComponentSystemInterface
+#include "../../../Utilities/Logger/logging_system.h"
 
 namespace ECS::Systems {
-
     template <class ...ComponentTypes>
     class BaseComponentSystem : public BaseComponentSystemInterface {
         public:
@@ -74,7 +74,7 @@ namespace ECS::Systems {
     };
 }
 
-#include "base_component_system.tpp" // Template function includes.
+#include "../src/base_component_system.tpp" // Template function includes.
 
 #endif //DATASTRUCTURES_BASE_COMPONENT_SYSTEM_H
 

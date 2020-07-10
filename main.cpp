@@ -8,7 +8,7 @@
 #include "ECS/Components/component_manager.h"
 #include "ECS/Components/base_component.h"
 #include "ECS/Components/component_manager_collection.h"
-#include "ECS/Systems/base_component_system.h"
+#include "ECS/Systems/include/base_component_system.h"
 #include "World/world.h"
 #include "Utilities/Tools/compile_time_hash.h"
 
