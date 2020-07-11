@@ -23,6 +23,8 @@ namespace UtilityBox::Memory {
                 GenericObject *_next = nullptr;
             };
 
+            constexpr static unsigned Size();
+
             /**
              * Create a fixed-size block memory manager. Provides basic memory debugging information, along with
              * checks for memory corruption. Sets up the bare necessities for the memory manager, but does not
@@ -103,6 +105,10 @@ namespace UtilityBox::Memory {
     //------------------------------------------------------------------------------------------------------------------
     // POOL ALLOCATOR DATA
     //------------------------------------------------------------------------------------------------------------------
+    constexpr unsigned ContiguousPoolAllocator::AllocatorData::Size() {
+        return sizeof(AllocatorData);
+    }
+
     // Constructor sets up the bare necessities for the memory manager, but does not initialize data.
     ContiguousPoolAllocator::AllocatorData::AllocatorData(unsigned blockSize, unsigned numBlocks, bool reallocateOnFull) : _freeList(nullptr),
                                                                                                                            _pageHeader(nullptr),
@@ -297,9 +303,14 @@ namespace UtilityBox::Memory {
         previousBlock->_next = nullptr;
     }
 
+
     //------------------------------------------------------------------------------------------------------------------
     // POOL ALLOCATOR
     //------------------------------------------------------------------------------------------------------------------
+    constexpr unsigned ContiguousPoolAllocator::Size() {
+        return sizeof(ContiguousPoolAllocator) + ContiguousPoolAllocator::AllocatorData::Size();
+    }
+
     // Create a fixed-size block memory manager. Provides basic memory debugging information, along with checks for
     // memory corruption. Sets up the bare necessities for the memory manager, but does not initialize data.
     ContiguousPoolAllocator::ContiguousPoolAllocator() : _data(nullptr) {

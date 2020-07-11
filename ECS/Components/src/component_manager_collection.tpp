@@ -10,7 +10,6 @@
 #include "../../Components/include/base_component.h"        // BaseComponent
 #include "../../../Utilities/Logger/logging_system.h"       // LoggingSystem
 #include <unordered_map>                                    // std::unordered_map
-#include "../../../Utilities/Memory/contiguous_pool_allocator.h"
 
 namespace ECS::Components {
     //------------------------------------------------------------------------------------------------------------------
@@ -51,7 +50,7 @@ namespace ECS::Components {
              * @param  index         - Index of the _componentManagerStorage array to construct the ComponentManager in.
              */
             template <class ComponentType>
-            void CreateComponentSystem(unsigned& index, UtilityBox::Logger::LogMessage& message);
+            void CreateComponentSystem(UtilityBox::Logger::LogMessage& message);
 
             /**
              * Destroy an individual ComponentManager and return the block back to the memory manager.
@@ -59,9 +58,8 @@ namespace ECS::Components {
              * @param  index         - Index of the _componentManagerStorage array to d the ComponentManager in.
              */
             template <class ComponentType>
-            void DestroyComponentSystem(unsigned& index, UtilityBox::Logger::LogMessage& message);
+            void DestroyComponentSystem(UtilityBox::Logger::LogMessage& message);
 
-            UtilityBox::Memory::ContiguousPoolAllocator _componentManagerStorage;                      // Storage for component managers.
             std::unordered_map<ComponentTypeID, ComponentManagerInterface*> _componentManagerMap;      // Map for getting individual ComponentManagers.
     };
 
@@ -77,8 +75,7 @@ namespace ECS::Components {
         _componentManagerMap.clear();
 
         // Destroy systems.
-        unsigned index = 0;
-        PARAMETER_PACK_EXPAND(DestroyComponentSystem, ComponentTypes, index, message);
+        PARAMETER_PACK_EXPAND(DestroyComponentSystem, ComponentTypes, message);
 
         message.Supply("Finished destroying all ComponentManagers.");
         _loggingSystem.Log(message);
@@ -86,37 +83,23 @@ namespace ECS::Components {
 
     template<class... ComponentTypes>
     template<class ComponentType>
-    inline void ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::CreateComponentSystem(unsigned& index, UtilityBox::Logger::LogMessage& message) {
+    inline void ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::CreateComponentSystem(UtilityBox::Logger::LogMessage& message) {
         message.Supply("Entering function CreateComponentSystem with component type: '%s'.", ComponentType::Name);
 
         // Construct component manager of given type in-place.
-        void* componentManagerBlock = _componentManagerStorage[index];
-        message.Supply("Creating ComponentManager in place in index: %s of contiguous memory storage array.", index);
-        new (componentManagerBlock) ComponentManager<ComponentType>();
-
-        message.Supply("Initializing component system.");
-        static_cast<ComponentManager<ComponentType>*>(componentManagerBlock)->Initialize();
-
-        // Set index in collection map.
-        message.Supply("Setting component index in collection's component manager map.");
-        _componentManagerMap[ComponentType::ID] = reinterpret_cast<ComponentManagerInterface*>(componentManagerBlock);
+        message.Supply("Constructing ComponentManager.");
+        ComponentManager<ComponentType>* componentManager = new ComponentManager<ComponentType>();
+        componentManager->Initialize(); // TODO: try catch
+        _componentManagerMap[ComponentType::ID] = componentManager;
     }
 
     template<class... ComponentTypes>
     template<class ComponentType>
-    void ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::DestroyComponentSystem(unsigned& index, UtilityBox::Logger::LogMessage& message) {
+    void ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::DestroyComponentSystem(UtilityBox::Logger::LogMessage& message) {
         message.Supply("Entering function DestroyComponentSystem with component type: '%s'.", ComponentType::Name);
 
-        message.Supply("Retrieving ComponentManager at index: %i.", index);
-        ComponentManager<ComponentType>* componentManagerBlock = static_cast<ComponentManager<ComponentType>*>(_componentManagerStorage[index++]);
-
-        // Destroy component before returning block back to memory manager.
-        message.Supply("Calling destructor for ComponentManager.");
-        componentManagerBlock->~ComponentManager<ComponentType>();
-
-        message.Supply("Returning block to memory manager.");
-        _componentManagerStorage.ReturnBlock(componentManagerBlock);
-        componentManagerBlock = nullptr;
+        message.Supply("Destroying ComponentManager from ComponentManagerCollection storage.");
+        _componentManagerMap.erase(ComponentType::ID);
     }
 
     template<class... ComponentTypes>
@@ -124,15 +107,9 @@ namespace ECS::Components {
         UtilityBox::Logger::LogMessage message {};
         message.Supply("Entered function Initialize.");
 
-        // Initialize contiguous storage.
-        unsigned blockSize = sizeof(ComponentManager<BaseComponent>);
-        unsigned numBlocks = sizeof...(ComponentTypes);
-        message.Supply("Initializing continuous memory allocator with %i blocks, each with size %i bytes.");
-        _componentManagerStorage.Initialize(blockSize, numBlocks, false);
-
         // Initialize systems.
-        unsigned index = 0;
-        PARAMETER_PACK_EXPAND(CreateComponentSystem, ComponentTypes, index, message);
+        message.Supply("Constructing all ComponentManagers.");
+        PARAMETER_PACK_EXPAND(CreateComponentSystem, ComponentTypes, message);
 
         message.Supply("Finished constructing all ComponentManagers.");
         _loggingSystem.Log(message);

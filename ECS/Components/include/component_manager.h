@@ -11,7 +11,7 @@ namespace ECS::Components {
     template <class ComponentType>
     class ComponentManager : public ComponentManagerInterface {
         public:
-            static std::size_t Size();
+            constexpr static unsigned Size();
 
             ComponentManager();
             void Initialize();

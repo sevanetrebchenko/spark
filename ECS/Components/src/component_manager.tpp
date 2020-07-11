@@ -120,7 +120,7 @@ namespace ECS::Components {
     // COMPONENT MANAGER
     //------------------------------------------------------------------------------------------------------------------
     template<class ComponentType>
-    std::size_t ComponentManager<ComponentType>::Size() {
+    constexpr unsigned ComponentManager<ComponentType>::Size() {
         return sizeof(ComponentManager) + ComponentManagerData::Size();
     }
 

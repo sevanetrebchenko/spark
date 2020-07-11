@@ -7,6 +7,8 @@
 namespace UtilityBox::Memory {
     class ContiguousPoolAllocator {
         public:
+            constexpr static unsigned Size();
+
             /**
              * Create a fixed-size block memory manager. Provides basic memory debugging information, along with
              * checks for memory corruption. Sets up the bare necessities for the memory manager, but does not
