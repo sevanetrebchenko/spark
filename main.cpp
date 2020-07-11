@@ -111,11 +111,8 @@ int main() {
     UtilityBox::Logger::LoggingHub::Initialize();
     ECS::Components::ComponentManagerCollection<ALL_COMPONENTS>* ok = ECS::Components::ComponentManagerCollection<ALL_COMPONENTS>::GetInstance();
 
-//    auto* mysystem = new mySystem("name");
-//    mysystem->Initialize();
 
     ECS::Components::ComponentManager<ECS::Components::BaseComponent> a = ECS::Components::ComponentManager<ECS::Components::BaseComponent> {};
-    a.Initialize();
 
     auto* entitymanager = ENGINE_NAME::World::GetInstance().GetEntityManager();
     entitymanager->CreateEntity("Entity1");

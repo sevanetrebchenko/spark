@@ -9,8 +9,6 @@ namespace ECS::Components {
     template <class ComponentType>
     class ComponentManager<ComponentType>::ComponentManagerData {
         public:
-            constexpr static unsigned Size();
-
             /**
              * Constructor (default). Creates logging system memory allocator for components managed by this system.
              */
@@ -20,11 +18,6 @@ namespace ECS::Components {
              * Destructor (default).
              */
             ~ComponentManagerData();
-
-            /**
-             * Two-stage initialization. Initializes allocator to the size of the component managed by this system.
-             */
-            void Initialize();
 
             /**
              * Uses the memory manager to retrieve a block of memory and default constructs a component in-place.
@@ -40,19 +33,15 @@ namespace ECS::Components {
             void DeleteComponent(ComponentType* component);
 
         private:
-            UtilityBox::Memory::SegmentedPoolAllocator _allocator; // Memory manager.
+            UtilityBox::Memory::SegmentedPoolAllocator _allocator { sizeof(ComponentType) }; // Memory manager.
             UtilityBox::Logger::LoggingSystem _loggingSystem { std::string("ComponentManager: ") + std::string(ComponentType::Name) }; // Logging system for this component manager.
     };
-
-    template<class ComponentType>
-    constexpr unsigned ComponentManager<ComponentType>::ComponentManagerData::Size() {
-        return sizeof(UtilityBox::Logger::LoggingSystem) + UtilityBox::Memory::SegmentedPoolAllocator::Size();
-    }
 
     template<class ComponentType>
     ComponentManager<ComponentType>::ComponentManagerData::ComponentManagerData() {
         UtilityBox::Logger::LogMessage message {};
         message.Supply("Entered constructor for component manager of component type: '%s'.", ComponentType::Name);
+
         _loggingSystem.Log(message);
     }
 
@@ -61,19 +50,6 @@ namespace ECS::Components {
         UtilityBox::Logger::LogMessage message {};
         message.Supply("Entered destructor for component manager of component type: '%s'.", ComponentType::Name);
         _loggingSystem.Log(message);
-    }
-
-    // Two-stage initialization. Initializes allocator to the size of the component managed by this system.
-    template<class ComponentType>
-    void ComponentManager<ComponentType>::ComponentManagerData::Initialize() {
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entering function Initialize.");
-
-        std::size_t blockSize = sizeof(ComponentType);
-        message.Supply("Initializing segmented memory allocator for components of type: '%s', sized: %i bytes.", ComponentType::Name, blockSize);
-        _loggingSystem.Log(message);
-
-        _allocator.Initialize(blockSize);
     }
 
     // Uses the memory manager to retrieve a block of memory and default constructs a component in-place.
@@ -120,21 +96,9 @@ namespace ECS::Components {
     // COMPONENT MANAGER
     //------------------------------------------------------------------------------------------------------------------
     template<class ComponentType>
-    constexpr unsigned ComponentManager<ComponentType>::Size() {
-        return sizeof(ComponentManager) + ComponentManagerData::Size();
-    }
-
-    template<class ComponentType>
-    inline ComponentManager<ComponentType>::ComponentManager() {
+    inline ComponentManager<ComponentType>::ComponentManager() : _data(new ComponentManagerData()) {
         // Make sure all component managers only manage valid types.
         static_assert(std::is_base_of<BaseComponent, ComponentType>::value, "Invalid template parameter provided to base ComponentManager - component type must derive from ECS::Components::BaseComponent.");
-        // Defer initialization to second stage.
-    }
-
-    template <typename ComponentType>
-    inline void ComponentManager<ComponentType>::Initialize() {
-        _data = new ComponentManagerData();
-        _data->Initialize();
     }
 
     template<class ComponentType>

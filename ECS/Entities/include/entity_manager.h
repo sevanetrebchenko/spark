@@ -13,13 +13,7 @@ namespace ECS::Entities {
             /**
              * Constructor.
              */
-            EntityManager() = default;
-
-            /**
-             * Two stage initialization: initializes resources associated with the Entity Manager, including support for
-             * logging and initializing entity component storage.
-             */
-            void Initialize();
+            EntityManager();
 
             /**
              * Cleans up any resources associated with the Entity Manager.

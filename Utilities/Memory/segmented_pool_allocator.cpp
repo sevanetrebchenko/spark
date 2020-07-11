@@ -18,18 +18,11 @@ namespace UtilityBox::Memory {
                 GenericObject *_next = nullptr;
             };
 
-            constexpr static unsigned Size();
-
             /**
              * Constructor sets up the bare necessities for the memory manager, but does not initialize data.
              * @param blockSize - Size of block this memory manager manages.
              */
             explicit AllocatorData(unsigned blockSize);
-
-            /**
-             * Two-stage initialization. Allocates a fixed-size page of memory and sets up block lists to use.
-             */
-            void Initialize();
 
             /**
              * Cleans up all pages and returns all memory manager memory back to the OS.
@@ -89,10 +82,6 @@ namespace UtilityBox::Memory {
     //------------------------------------------------------------------------------------------------------------------
     // POOL ALLOCATOR DATA
     //------------------------------------------------------------------------------------------------------------------
-    constexpr unsigned SegmentedPoolAllocator::AllocatorData::Size() {
-        return sizeof(AllocatorData);
-    }
-
     // Constructor sets up the bare necessities for the memory manager, but does not initialize data.
     SegmentedPoolAllocator::AllocatorData::AllocatorData(unsigned blockSize) : _freeList(nullptr),
                                                                                _pageList(nullptr),
@@ -101,11 +90,7 @@ namespace UtilityBox::Memory {
         // Header pointer + padding + user block + padding
         _totalBlockSize = sizeof(void*) + _formatter.CalculateMemorySignatureBlockSize() + (_formatter._numPaddingBytes * 2);
 
-        // Defer initialization to second stage.
-    }
-
-    // Two-stage initialization. Allocates a fixed-size page of memory and sets up block lists to use.
-    void SegmentedPoolAllocator::AllocatorData::Initialize() {
+        // Allocates a fixed-size page of memory and sets up block lists to use.
         ConstructPage();
     }
 
@@ -264,24 +249,10 @@ namespace UtilityBox::Memory {
     //------------------------------------------------------------------------------------------------------------------
     // POOL ALLOCATOR
     //------------------------------------------------------------------------------------------------------------------
-    constexpr unsigned SegmentedPoolAllocator::Size() {
-        return sizeof(SegmentedPoolAllocator) + AllocatorData::Size();
-    }
-
     // Create a fixed-size block memory manager. Provides basic memory debugging information, along with checks for
     // memory corruption. Sets up the bare necessities for the memory manager, but does not initialize data.
-    SegmentedPoolAllocator::SegmentedPoolAllocator() : _data(nullptr) {
-        // Defer initialization until second stage.
-    }
-
-    // Two-stage initialization. Allocates a fixed-size page of memory and sets up block lists to use.
-    void SegmentedPoolAllocator::Initialize(unsigned blockSize) {
-        // Construct data if it hasn't been already.
-        if (!_data) {
-            _data = new AllocatorData(blockSize);
-            // todo: try catch?
-            _data->Initialize();
-        }
+    SegmentedPoolAllocator::SegmentedPoolAllocator(unsigned blockSize) : _data(new AllocatorData(blockSize)) {
+        // Nothing to do here.
     }
 
     SegmentedPoolAllocator::~SegmentedPoolAllocator() {

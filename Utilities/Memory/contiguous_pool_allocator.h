@@ -14,17 +14,12 @@ namespace UtilityBox::Memory {
              * checks for memory corruption. Sets up the bare necessities for the memory manager, but does not
              * initialize data.
              * Note: Initialize() must be called in order for the memory manager to work properly.
-             */
-            explicit ContiguousPoolAllocator();
-
-            /**
-             * Two-stage initialization. Allocates a fixed-size page of memory and sets up block lists to use.
              * @param blockSize        - Size of block memory manager holds.
              * @param numBlocks        - Starting number of blocks to allocate.
              * @param reallocateOnFull - True:  reallocates page if more than capacity blocks are requested (invalidates any pointers).
              *                           False: returns nullptr when more than capacity blocks are requested (leaves page untouched).
              */
-            void Initialize(unsigned blockSize, unsigned numBlocks, bool reallocateOnFull);
+            explicit ContiguousPoolAllocator(unsigned blockSize, unsigned numBlocks, bool reallocateOnFull);
 
             /**
              * Cleans up all pages and returns all memory manager memory back to the OS.

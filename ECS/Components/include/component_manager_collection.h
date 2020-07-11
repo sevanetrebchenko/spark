@@ -34,12 +34,6 @@ namespace ECS::Components {
              */
             ~ComponentManagerCollection();
 
-            /**
-             * Creates and initializes back-end functionality for the Component Manager Collection. Private to enforce
-             * singleton class instance.
-             */
-            void Initialize();
-
             static ComponentManagerCollection* _componentManagerCollection; // Singleton.
 
             // Storage for ComponentManager data, back-end functionality, and helper functions.

@@ -2,12 +2,8 @@
 #include "../include/entity_manager.h"
 
 namespace ECS::Entities {
-    // Two stage initialization: initializes resources associated with the Entity Manager, including support for logging
-    // and initializing entity component storage.
-    void EntityManager::Initialize() {
-        if (!_data) {
-            _data = new EntityManagerData();
-        }
+    EntityManager::EntityManager() : _data(new EntityManagerData()) {
+        // Nothing to do here.
     }
 
     // Cleans up any resources associated with the Entity Manager.

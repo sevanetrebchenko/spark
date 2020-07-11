@@ -7,21 +7,13 @@
 namespace UtilityBox::Memory {
         class SegmentedPoolAllocator final {
             public:
-                constexpr static unsigned Size();
-
                 /**
                  * Create a fixed-size block memory manager. Provides basic memory debugging information, along with
                  * checks for memory corruption. Sets up the bare necessities for the memory manager, but does not
                  * initialize data.
                  * Note: Initialize() must be called in order for the memory manager to work properly.
                  */
-                explicit SegmentedPoolAllocator();
-
-                /**
-                 * Two-stage initialization. Allocates a fixed-size page of memory and sets up block lists to use.
-                 * @param blockSize - Size of block to manage.
-                */
-                void Initialize(unsigned blockSize);
+                explicit SegmentedPoolAllocator(unsigned blockSize);
 
                 /**
                  * Cleans up all pages and returns all memory manager memory back to the OS.

@@ -21,17 +21,12 @@ namespace ECS::Components {
             /**
              * Constructor (default).
              */
-            ComponentManagerCollectionData() = default;
+            ComponentManagerCollectionData();
 
             /**
              * Cleans up all resources and Component Managers managed by the Component Manager Collection.
              */
             ~ComponentManagerCollectionData();
-
-            /**
-             * Two-stage initialization. Creates and initializes all individual Component Managers.
-             */
-            void Initialize();
 
             /**
              * Get a Component Manager for a specific component type.
@@ -66,6 +61,19 @@ namespace ECS::Components {
     template <class... ComponentTypes>
     ComponentManagerCollection<ComponentTypes...>* ComponentManagerCollection<ComponentTypes...>::_componentManagerCollection = nullptr;
 
+    template<class... ComponentTypes>
+    ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::ComponentManagerCollectionData() {
+        UtilityBox::Logger::LogMessage message {};
+        message.Supply("Entered function Initialize.");
+
+        // Initialize systems.
+        message.Supply("Constructing all ComponentManagers.");
+        PARAMETER_PACK_EXPAND(CreateComponentSystem, ComponentTypes, message);
+
+        message.Supply("Finished constructing all ComponentManagers.");
+        _loggingSystem.Log(message);
+    }
+
     // Cleans up all resources and Component Managers managed by the Component Manager Collection.
     template<class... ComponentTypes>
     ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::~ComponentManagerCollectionData() {
@@ -88,9 +96,7 @@ namespace ECS::Components {
 
         // Construct component manager of given type in-place.
         message.Supply("Constructing ComponentManager.");
-        ComponentManager<ComponentType>* componentManager = new ComponentManager<ComponentType>();
-        componentManager->Initialize(); // TODO: try catch
-        _componentManagerMap[ComponentType::ID] = componentManager;
+        _componentManagerMap[ComponentType::ID] = new ComponentManager<ComponentType>();
     }
 
     template<class... ComponentTypes>
@@ -100,19 +106,6 @@ namespace ECS::Components {
 
         message.Supply("Destroying ComponentManager from ComponentManagerCollection storage.");
         _componentManagerMap.erase(ComponentType::ID);
-    }
-
-    template<class... ComponentTypes>
-    void ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::Initialize() {
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entered function Initialize.");
-
-        // Initialize systems.
-        message.Supply("Constructing all ComponentManagers.");
-        PARAMETER_PACK_EXPAND(CreateComponentSystem, ComponentTypes, message);
-
-        message.Supply("Finished constructing all ComponentManagers.");
-        _loggingSystem.Log(message);
     }
 
     template<class... ComponentTypes>
@@ -137,11 +130,8 @@ namespace ECS::Components {
         message.Supply("Entering function GetInstance.");
         if (!_componentManagerCollection) {
             message.Supply("ComponentManagerCollection not constructed. Constructing...");
-            _componentManagerCollection = new ComponentManagerCollection<ALL_COMPONENTS>();
-
-            message.Supply("ComponentManagerCollection not initialized. Initializing...");
             try {
-                _componentManagerCollection->Initialize();
+                _componentManagerCollection = new ComponentManagerCollection<ALL_COMPONENTS>();
             }
             catch (std::bad_alloc& exceptionAllocation) {
                 // Record instance.
@@ -176,27 +166,14 @@ namespace ECS::Components {
 
     // Private constructor for singleton class instance.
     template<class... ComponentTypes>
-    ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollection() {
+    ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollection() : _data(new ComponentManagerCollectionData()) {
         static_assert((std::is_base_of_v<Components::BaseComponent, ComponentTypes> && ...), "Invalid template parameter provided to base BaseComponentSystem - component types must derive from ECS::Components::BaseComponent.");
-
-        // Defer initialization to second stage.
     }
 
     // Private destructor for singleton class instance.
     template<class... ComponentTypes>
     ComponentManagerCollection<ComponentTypes...>::~ComponentManagerCollection() {
         delete _data;
-    }
-
-    // Creates and initializes back-end functionality for the Component Manager Collection. Private to enforce singleton
-    // class instance.
-    template<class... ComponentTypes>
-    inline void ComponentManagerCollection<ComponentTypes...>::Initialize() {
-        if (!_data) {
-            _data = new ComponentManagerCollectionData();
-            // TODO: try catch
-            _data->Initialize();
-        }
     }
 }
 

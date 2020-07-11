@@ -10,13 +10,8 @@ namespace ENGINE_NAME {
     World &World::GetInstance() {
         if (!_world) {
             _world = new World();
-            _world->Initialize();
         }
 
         return *_world;
-    }
-
-    void World::Initialize() {
-        _entityManager.Initialize();
     }
 }

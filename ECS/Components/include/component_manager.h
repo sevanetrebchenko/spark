@@ -11,11 +11,7 @@ namespace ECS::Components {
     template <class ComponentType>
     class ComponentManager : public ComponentManagerInterface {
         public:
-            constexpr static unsigned Size();
-
             ComponentManager();
-            void Initialize();
-
             ~ComponentManager() override;
 
             _NODISCARD_ ComponentType* CreateComponent();

@@ -23,8 +23,6 @@ namespace UtilityBox::Memory {
                 GenericObject *_next = nullptr;
             };
 
-            constexpr static unsigned Size();
-
             /**
              * Create a fixed-size block memory manager. Provides basic memory debugging information, along with
              * checks for memory corruption. Sets up the bare necessities for the memory manager, but does not
@@ -36,11 +34,6 @@ namespace UtilityBox::Memory {
              *                           False: returns nullptr when more than capacity blocks are requested (leaves page untouched).
              */
             explicit AllocatorData(unsigned blockSize, unsigned numBlocks, bool reallocateOnFull);
-
-            /**
-             * Two-stage initialization. Allocates a fixed-size page of memory and sets up block lists to use.
-             */
-            void Initialize();
 
             /**
              * Cleans up all pages and returns all memory manager memory back to the OS.
@@ -105,10 +98,6 @@ namespace UtilityBox::Memory {
     //------------------------------------------------------------------------------------------------------------------
     // POOL ALLOCATOR DATA
     //------------------------------------------------------------------------------------------------------------------
-    constexpr unsigned ContiguousPoolAllocator::AllocatorData::Size() {
-        return sizeof(AllocatorData);
-    }
-
     // Constructor sets up the bare necessities for the memory manager, but does not initialize data.
     ContiguousPoolAllocator::AllocatorData::AllocatorData(unsigned blockSize, unsigned numBlocks, bool reallocateOnFull) : _freeList(nullptr),
                                                                                                                            _pageHeader(nullptr),
@@ -117,11 +106,7 @@ namespace UtilityBox::Memory {
                                                                                                                            _reallocateOnFull(reallocateOnFull) {
         _totalBlockSize = _formatter.CalculateMemorySignatureBlockSize() + (_formatter._numPaddingBytes * 2);
 
-        // Defer initialization to second stage.
-    }
-
-    // Two-stage initialization. Allocates a fixed-size page of memory and sets up block lists to use.
-    void ContiguousPoolAllocator::AllocatorData::Initialize() {
+        // Allocates a fixed-size page of memory and sets up block lists to use.
         ConstructPage(false);
     }
 
@@ -307,29 +292,10 @@ namespace UtilityBox::Memory {
     //------------------------------------------------------------------------------------------------------------------
     // POOL ALLOCATOR
     //------------------------------------------------------------------------------------------------------------------
-    constexpr unsigned ContiguousPoolAllocator::Size() {
-        return sizeof(ContiguousPoolAllocator) + ContiguousPoolAllocator::AllocatorData::Size();
-    }
-
     // Create a fixed-size block memory manager. Provides basic memory debugging information, along with checks for
     // memory corruption. Sets up the bare necessities for the memory manager, but does not initialize data.
-    ContiguousPoolAllocator::ContiguousPoolAllocator() : _data(nullptr) {
-        // Defer initialization until second stage.
-    }
-
-    // Two-stage initialization. Allocates a fixed-size page of memory and sets up block lists to use.
-    void ContiguousPoolAllocator::Initialize(unsigned blockSize, unsigned numBlocks, bool reallocateOnFull) {
-        // Construct data if it hasn't been already.
-        if (!_data) {
-            // Register destructor to be called on exit.
-            // TODO register destructor
-//            int registrationValue = atexit();
-//            ASSERT(registrationValue == 0, "Registration of // function failed with code: %i", registrationValue);
-
-            _data = new AllocatorData(blockSize, numBlocks, reallocateOnFull);
-            // todo: try catch?
-            _data->Initialize();
-        }
+    ContiguousPoolAllocator::ContiguousPoolAllocator(unsigned blockSize, unsigned numBlocks, bool reallocateOnFull) : _data(new AllocatorData(blockSize, numBlocks, reallocateOnFull)) {
+        // Nothing to do here.
     }
 
     // Destructor.
