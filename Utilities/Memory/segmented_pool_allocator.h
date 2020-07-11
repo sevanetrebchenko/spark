@@ -2,11 +2,13 @@
 #ifndef DATASTRUCTURES_SEGMENTED_POOL_ALLOCATOR_H
 #define DATASTRUCTURES_SEGMENTED_POOL_ALLOCATOR_H
 
-#include "../global_defines.h" // _NODISCARD_
+#include "../Tools/global_defines.h" // _NODISCARD_
 
 namespace UtilityBox::Memory {
         class SegmentedPoolAllocator final {
             public:
+                constexpr static unsigned Size();
+
                 /**
                  * Create a fixed-size block memory manager. Provides basic memory debugging information, along with
                  * checks for memory corruption. Sets up the bare necessities for the memory manager, but does not

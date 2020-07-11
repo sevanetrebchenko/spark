@@ -2,7 +2,7 @@
 #ifndef DATASTRUCTURES_ADAPTER_H
 #define DATASTRUCTURES_ADAPTER_H
 
-#include "../global_defines.h" // _NODISCARD_
+#include "../Tools/global_defines.h" // _NODISCARD_
 #include "adapter_config.h"    // AdapterConfiguration
 #include "timestamp.h"         // TimeStamp
 #include <sstream>             // std::stringstream

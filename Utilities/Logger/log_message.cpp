@@ -1,6 +1,6 @@
 
 #include "log_message.h"   // LogMessage functions
-#include "../assert_dev.h" // Asserts
+#include "../Tools/assert_dev.h" // Asserts
 #include <cstdarg>         // std::va_list, va_copy, va_start, va_end
 
 namespace UtilityBox::Logger {

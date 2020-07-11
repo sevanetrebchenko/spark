@@ -2,7 +2,7 @@
 #ifndef DATASTRUCTURES_MEMORY_FORMATTER_H
 #define DATASTRUCTURES_MEMORY_FORMATTER_H
 
-#include "../global_defines.h" // _NODISCARD_
+#include "../Tools/global_defines.h" // _NODISCARD_
 
 namespace UtilityBox::Memory {
     struct MemoryFormatter {

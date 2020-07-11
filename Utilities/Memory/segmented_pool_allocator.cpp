@@ -1,11 +1,12 @@
 
 #include "segmented_pool_allocator.h" // SegmentedPoolAllocator
-#include "../assert_dev.h"            // Asserts
+#include "../Tools/assert_dev.h"            // Asserts
 #include "memory_formatter.h"         // MemoryFormatter
 
 namespace UtilityBox::Memory {
     class SegmentedPoolAllocator::AllocatorData {
         public:
+
             // Holds data about the blocks in one specific page. Creates a linked list with pages.
             struct PageHeader {
                 PageHeader* _next = nullptr; // Next page pointer.
@@ -16,6 +17,8 @@ namespace UtilityBox::Memory {
             struct GenericObject {
                 GenericObject *_next = nullptr;
             };
+
+            constexpr static unsigned Size();
 
             /**
              * Constructor sets up the bare necessities for the memory manager, but does not initialize data.
@@ -86,6 +89,10 @@ namespace UtilityBox::Memory {
     //------------------------------------------------------------------------------------------------------------------
     // POOL ALLOCATOR DATA
     //------------------------------------------------------------------------------------------------------------------
+    constexpr unsigned SegmentedPoolAllocator::AllocatorData::Size() {
+        return sizeof(AllocatorData);
+    }
+
     // Constructor sets up the bare necessities for the memory manager, but does not initialize data.
     SegmentedPoolAllocator::AllocatorData::AllocatorData(unsigned blockSize) : _freeList(nullptr),
                                                                                _pageList(nullptr),
@@ -253,9 +260,14 @@ namespace UtilityBox::Memory {
         }
     }
 
+
     //------------------------------------------------------------------------------------------------------------------
     // POOL ALLOCATOR
     //------------------------------------------------------------------------------------------------------------------
+    constexpr unsigned SegmentedPoolAllocator::Size() {
+        return sizeof(SegmentedPoolAllocator) + AllocatorData::Size();
+    }
+
     // Create a fixed-size block memory manager. Provides basic memory debugging information, along with checks for
     // memory corruption. Sets up the bare necessities for the memory manager, but does not initialize data.
     SegmentedPoolAllocator::SegmentedPoolAllocator() : _data(nullptr) {

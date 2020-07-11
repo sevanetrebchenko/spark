@@ -2,31 +2,49 @@
 #ifndef DATASTRUCTURES_COMPONENT_MANAGER_COLLECTION_H
 #define DATASTRUCTURES_COMPONENT_MANAGER_COLLECTION_H
 
-#include <unordered_map>
-#include "component_manager.h"
-#include "../../ecs_typedefs.h"
-#include "base_component.h"
-#include "../../../Utilities/DataStructures/Array/array.h"
-#include "../../../Utilities/Logger/logging_system.h"
+#include "component_manager.h" // ComponentManager
 
 namespace ECS::Components {
     template <class ...ComponentTypes>
     class ComponentManagerCollection {
         public:
+            /**
+             * Returns singleton instance of the ComponentManagerCollection. Instantiates singleton if necessary.
+             * @return Pointer to singleton instance of the ComponentManagerCollection.
+             */
             static ComponentManagerCollection* GetInstance();
 
+            /**
+             * Get a Component Manager for a specific component type. Function ensures the desired component type is
+             * present and managed by the Component Manager Collection.
+             * @tparam ComponentType - Desired type of the Component Manager.
+             * @return Pointer to component manager.
+             */
             template <class ComponentType>
             ComponentManager<ComponentType>* GetComponentManager();
 
         private:
+            /**
+             * Private constructor for singleton class instance.
+             */
             ComponentManagerCollection();
+
+            /**
+             * Private destructor for singleton class instance.
+             */
             ~ComponentManagerCollection();
+
+            /**
+             * Creates and initializes back-end functionality for the Component Manager Collection. Private to enforce
+             * singleton class instance.
+             */
             void Initialize();
 
-            static ComponentManagerCollection* _componentManagerCollection;
+            static ComponentManagerCollection* _componentManagerCollection; // Singleton.
 
+            // Storage for ComponentManager data, back-end functionality, and helper functions.
             class ComponentManagerCollectionData;
-            ComponentManagerCollectionData* _data;
+            ComponentManagerCollectionData* _data = nullptr;
     };
 }
 

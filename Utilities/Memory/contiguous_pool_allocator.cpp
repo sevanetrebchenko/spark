@@ -1,6 +1,6 @@
 
 #include "contiguous_pool_allocator.h" // ContiguousPoolAllocator
-#include "../assert_dev.h"             // Asserts
+#include "../Tools/assert_dev.h"             // Asserts
 #include "memory_formatter.h"          // MemoryFormatter
 #include <cstdlib>                     // memset
 
@@ -95,7 +95,7 @@ namespace UtilityBox::Memory {
             unsigned _blockDataSize;                                            // Size of only the user data block.
             MemoryFormatter _formatter { _blockDataSize, false }; // Memory formatter functions.
 
-            unsigned _totalNumBlocks;      // Total number of blocks the page can hold.
+            unsigned _totalNumBlocks; // Total number of blocks the page can hold.
             bool _reallocateOnFull;   // Flag to reallocate the page with a larger size if there are no more blocks.
             unsigned _totalBlockSize; // Size of an entire block (header, padding, and user data included).
     };
@@ -302,15 +302,12 @@ namespace UtilityBox::Memory {
     //------------------------------------------------------------------------------------------------------------------
     // Create a fixed-size block memory manager. Provides basic memory debugging information, along with checks for
     // memory corruption. Sets up the bare necessities for the memory manager, but does not initialize data.
-    ContiguousPoolAllocator::ContiguousPoolAllocator(unsigned blockSize, unsigned numBlocks, bool reallocateOnFull) : _blockSize(blockSize),
-                                                                                                                      _numBlocks(numBlocks),
-                                                                                                                      _reallocateOnFull(reallocateOnFull),
-                                                                                                                      _data(nullptr) {
+    ContiguousPoolAllocator::ContiguousPoolAllocator() : _data(nullptr) {
         // Defer initialization until second stage.
     }
 
     // Two-stage initialization. Allocates a fixed-size page of memory and sets up block lists to use.
-    void ContiguousPoolAllocator::Initialize() {
+    void ContiguousPoolAllocator::Initialize(unsigned blockSize, unsigned numBlocks, bool reallocateOnFull) {
         // Construct data if it hasn't been already.
         if (!_data) {
             // Register destructor to be called on exit.
@@ -318,7 +315,7 @@ namespace UtilityBox::Memory {
 //            int registrationValue = atexit();
 //            ASSERT(registrationValue == 0, "Registration of // function failed with code: %i", registrationValue);
 
-            _data = new AllocatorData(_blockSize, _numBlocks, _reallocateOnFull);
+            _data = new AllocatorData(blockSize, numBlocks, reallocateOnFull);
             // todo: try catch?
             _data->Initialize();
         }

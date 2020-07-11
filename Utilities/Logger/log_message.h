@@ -2,7 +2,7 @@
 #ifndef DATASTRUCTURES_LOG_MESSAGE_H
 #define DATASTRUCTURES_LOG_MESSAGE_H
 
-#include "../global_defines.h" // _NODISCARD_
+#include "../Tools/global_defines.h" // _NODISCARD_
 #include "timestamp.h"         // TimeStamp functions
 #include <memory>              // std::unique_ptr
 #include <vector>              // std::vector

@@ -5,18 +5,14 @@
 #include "../../../Utilities/Memory/segmented_pool_allocator.h"
 #include "base_component.h"
 #include "../../../Utilities/Logger/logging_system.h"
+#include "component_manager_interface.h"
 
 namespace ECS::Components {
-
-    // Virtual abstract interface so that component managers can be polymorphic at runtime.
-    class ComponentManagerInterface {
-        public:
-            virtual ~ComponentManagerInterface() = default;
-    };
-
     template <class ComponentType>
     class ComponentManager : public ComponentManagerInterface {
         public:
+            static std::size_t Size();
+
             ComponentManager();
             void Initialize();
 

@@ -1,10 +1,9 @@
 #include <iostream>
 #include "Utilities/Logger/logger.h"
 #include "Utilities/Logger/adapter.h"
-#include "Utilities/assert_dev.h"
+#include "Utilities/Tools/assert_dev.h"
 #include "Utilities/Memory/segmented_pool_allocator.h"
 #include "Utilities/Memory/contiguous_pool_allocator.h"
-#include "Utilities/DataStructures/Array/array.h"
 #include "ECS/Components/include/component_manager.h"
 #include "ECS/Components/include/base_component.h"
 #include "ECS/Components/include/component_manager_collection.h"
@@ -110,6 +109,7 @@ void mySystem::Shutdown() {
 
 int main() {
     UtilityBox::Logger::LoggingHub::Initialize();
+    ECS::Components::ComponentManagerCollection<ALL_COMPONENTS>* ok = ECS::Components::ComponentManagerCollection<ALL_COMPONENTS>::GetInstance();
 
 //    auto* mysystem = new mySystem("name");
 //    mysystem->Initialize();

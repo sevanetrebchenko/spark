@@ -2,7 +2,7 @@
 #ifndef DATASTRUCTURES_TIMESTAMP_H
 #define DATASTRUCTURES_TIMESTAMP_H
 
-#include "../global_defines.h" // _NODISCARD_
+#include "../Tools/global_defines.h" // _NODISCARD_
 #include <memory>              // std::unique_ptr
 #include <chrono>              // std::chrono
 #include <ostream>             // std::ostream

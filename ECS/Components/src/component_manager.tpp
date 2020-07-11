@@ -9,6 +9,8 @@ namespace ECS::Components {
     template <class ComponentType>
     class ComponentManager<ComponentType>::ComponentManagerData {
         public:
+            constexpr static unsigned Size();
+
             /**
              * Constructor (default). Creates logging system memory allocator for components managed by this system.
              */
@@ -41,6 +43,11 @@ namespace ECS::Components {
             UtilityBox::Memory::SegmentedPoolAllocator _allocator; // Memory manager.
             UtilityBox::Logger::LoggingSystem _loggingSystem { std::string("ComponentManager: ") + std::string(ComponentType::Name) }; // Logging system for this component manager.
     };
+
+    template<class ComponentType>
+    constexpr unsigned ComponentManager<ComponentType>::ComponentManagerData::Size() {
+        return sizeof(UtilityBox::Logger::LoggingSystem) + UtilityBox::Memory::SegmentedPoolAllocator::Size();
+    }
 
     template<class ComponentType>
     ComponentManager<ComponentType>::ComponentManagerData::ComponentManagerData() {
@@ -113,6 +120,11 @@ namespace ECS::Components {
     // COMPONENT MANAGER
     //------------------------------------------------------------------------------------------------------------------
     template<class ComponentType>
+    std::size_t ComponentManager<ComponentType>::Size() {
+        return sizeof(ComponentManager) + ComponentManagerData::Size();
+    }
+
+    template<class ComponentType>
     inline ComponentManager<ComponentType>::ComponentManager() {
         // Make sure all component managers only manage valid types.
         static_assert(std::is_base_of<BaseComponent, ComponentType>::value, "Invalid template parameter provided to base ComponentManager - component type must derive from ECS::Components::BaseComponent.");
@@ -121,6 +133,7 @@ namespace ECS::Components {
 
     template <typename ComponentType>
     inline void ComponentManager<ComponentType>::Initialize() {
+        _data = new ComponentManagerData();
         _data->Initialize();
     }
 
