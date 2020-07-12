@@ -2,9 +2,9 @@
 #ifndef DATASTRUCTURES_BASE_COMPONENT_SYSTEM_H
 #define DATASTRUCTURES_BASE_COMPONENT_SYSTEM_H
 
-#include <tuple>                                      // std::tuple
-#include <vector>                                     // std::vector
-#include "base_component_system_interface.h"          // BaseComponentSystemInterface
+#include <tuple>                                              // std::tuple
+#include <vector>                                             // std::vector
+#include "base_component_system_interface.h"                  // BaseComponentSystemInterface
 #include "../../../Utilities/Logger/include/logging_system.h" // LoggingSystem
 
 namespace ECS::Systems {
@@ -63,9 +63,9 @@ namespace ECS::Systems {
             template <typename ComponentType>
             ComponentType* GetComponent(const ComponentTuple& componentTuple);
 
-            std::string _systemName;                                                                           // Name of this component system.
+            std::string _systemName;                                                                  // Name of this component system.
             UtilityBox::Logger::LoggingSystem _loggingSystem { std::move(std::string(_systemName)) }; // Logging system instance for this component system.
-            std::vector<ComponentTuple> _filteredEntities;                                                     // Array of component tuples of entities managed by this system.
+            std::vector<ComponentTuple> _filteredEntities;                                            // Array of component tuples of entities managed by this system.
 
         private:
             // Storage for BaseComponentSystem data, back-end functionality, and helper functions.

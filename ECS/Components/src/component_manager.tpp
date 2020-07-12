@@ -5,9 +5,8 @@
 #include "../../../Utilities/Memory/include/segmented_pool_allocator.h" // SegmentedPoolAllocator
 #include "../../../Utilities/Logger/include/logging_system.h"           // LoggingSystem
 #include "../../../Utilities/Logger/include/log_message.h"              // LogMessage, LogMessageSeverity
-#include "../../../Utilities/Tools/global_defines.h"            // _NODISCARD_
-#include "../../Components/include/base_component.h"            // BaseComponent
-#include <string>                                               // std::string
+#include "../../../Utilities/Tools/global_defines.h"                    // _NODISCARD_
+#include "../../Components/include/base_component.h"                    // BaseComponent
 
 namespace ECS::Components {
     //------------------------------------------------------------------------------------------------------------------
