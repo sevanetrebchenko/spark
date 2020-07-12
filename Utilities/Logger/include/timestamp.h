@@ -3,7 +3,6 @@
 #define DATASTRUCTURES_TIMESTAMP_H
 
 #include "../../Tools/global_defines.h" // _NODISCARD_
-#include <memory>              // std::unique_ptr
 #include <chrono>              // std::chrono
 #include <ostream>             // std::ostream
 
@@ -56,7 +55,7 @@ namespace UtilityBox::Timing {
         private:
             // Storage for Timestamp data, back-end functionality, and helper functions.
             struct TimeStampData;
-            std::unique_ptr<TimeStampData> _data;
+            TimeStampData* _data;
     };
 }
 

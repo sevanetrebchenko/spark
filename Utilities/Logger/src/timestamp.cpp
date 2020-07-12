@@ -1,7 +1,7 @@
 
-#include "../include/timestamp.h" // TimeStamp functions
-#include "../include/logger.h"    // GetLoggingInitializationTime()
-#include <iomanip>     // std::setfill, std::setw
+#include "../include/timestamp.h" // TimeStamp
+#include "../include/logger.h"    // GetLoggingInitializationTime
+#include <iomanip>                // std::setfill, std::setw
 
 namespace UtilityBox::Timing {
     //------------------------------------------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ namespace UtilityBox::Timing {
     //------------------------------------------------------------------------------------------------------------------
     // Constructor for a timestamp. Uses std::chrono::high_resolution_clock::now() (time when constructor was called)
     // as the time record.
-    TimeStamp::TimeStamp() : _data(std::make_unique<TimeStampData>(std::chrono::high_resolution_clock::now())) {
+    TimeStamp::TimeStamp() : _data(new TimeStampData(std::chrono::high_resolution_clock::now())) {
         // Nothing to do here.
     }
 
@@ -52,7 +52,7 @@ namespace UtilityBox::Timing {
 
     // Destructor.
     TimeStamp::~TimeStamp() {
-        _data.reset();
+        delete _data;
     }
 
     // Get only the millisecond portion of this timestamp.

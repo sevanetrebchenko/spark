@@ -1,7 +1,7 @@
 
 #include "../include/contiguous_pool_allocator.h" // ContiguousPoolAllocator
 #include "../../Tools/assert_dev.h"             // Asserts
-#include "../include/memory_formatter.h"          // MemoryFormatter
+#include "memory_formatter.h"          // MemoryFormatter
 #include <cstdlib>                     // memset
 
 namespace UtilityBox::Memory {
