@@ -1,5 +1,5 @@
 
-#include "entity_manager_data.h"
+#include "entity_manager_data.h" // EntityManagerData
 
 namespace ECS::Entities {
     // Constructor.

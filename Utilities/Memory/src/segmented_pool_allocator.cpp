@@ -1,7 +1,7 @@
 
-#include "segmented_pool_allocator.h" // SegmentedPoolAllocator
-#include "../Tools/assert_dev.h"            // Asserts
-#include "memory_formatter.h"         // MemoryFormatter
+#include "../include/segmented_pool_allocator.h" // SegmentedPoolAllocator
+#include "../../Tools/assert_dev.h"            // Asserts
+#include "../include/memory_formatter.h"         // MemoryFormatter
 
 namespace UtilityBox::Memory {
     class SegmentedPoolAllocator::AllocatorData {

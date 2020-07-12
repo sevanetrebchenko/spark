@@ -1,6 +1,6 @@
 
-#include "logger.h"         // Logger functions
-#include "../Tools/assert_dev.h"  // Asserts
+#include "../include/logger.h"         // Logger functions
+#include "../../Tools/assert_dev.h"  // Asserts
 #include <stdexcept>        // std::invalid_argument
 #include <mutex>            // std::mutex
 #include <thread>           // std::thread

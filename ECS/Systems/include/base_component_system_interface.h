@@ -3,6 +3,7 @@
 #define DATASTRUCTURES_BASE_COMPONENT_SYSTEM_INTERFACE_H
 
 namespace ECS::Systems {
+    // Interface for making ComponentSystems polymorphic at runtime + storage.
     class BaseComponentSystemInterface {
         public:
             virtual void Initialize() = 0;

@@ -1,5 +1,5 @@
 
-#include "../include/entity_manager.h"
+#include "../include/entity_manager.h" // EntityManager
 
 namespace ECS::Entities {
     EntityManager::EntityManager() : _data(new EntityManagerData()) /* Throws on error, caught elsewhere. */ {

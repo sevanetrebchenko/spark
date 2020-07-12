@@ -207,10 +207,8 @@ namespace ECS::Systems {
             RemoveEntity(entityToDeleteIterator, message);
         }
         else {
-            message.Supply("Entity location was not found in the system component list - no entity exists at ID: %i. Warning message issued.", ID);
-
-            UtilityBox::Logger::LogMessage warningMessage { UtilityBox::Logger::LogMessageSeverity::WARNING };
-            message.Supply("Entity at given entity ID to destroy is invalid - no entity exists at ID: %i.", ID);
+            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::WARNING);
+            message.Supply("Entity location was not found in the system component list - no entity exists at ID: %i.", ID);
             _loggingSystemReference.Log(message);
         }
 

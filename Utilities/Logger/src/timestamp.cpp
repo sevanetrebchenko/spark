@@ -1,6 +1,6 @@
 
-#include "timestamp.h" // TimeStamp functions
-#include "logger.h"    // GetLoggingInitializationTime()
+#include "../include/timestamp.h" // TimeStamp functions
+#include "../include/logger.h"    // GetLoggingInitializationTime()
 #include <iomanip>     // std::setfill, std::setw
 
 namespace UtilityBox::Timing {

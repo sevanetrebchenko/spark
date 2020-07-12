@@ -2,9 +2,9 @@
 #ifndef ENTITY_MANAGER_DATA_TPP
 #define ENTITY_MANAGER_DATA_TPP
 
-#include "../../../Utilities/Tools/compile_time_hash.h"
+#include "../../../Utilities/Tools/compile_time_hash.h"            // STRINGHASH
 #include "../../Components/include/component_manager_collection.h" // ComponentManagerCollection
-#include "../../../World/all_components.h"
+#include "../../../World/all_components.h"                         // ALL_COMPONENTS
 
 namespace ECS::Entities {
     // Function to capture a class member function to convert it to a standard callback function callable from within
@@ -49,13 +49,10 @@ namespace ECS::Entities {
 
         // Ensure the entity with the given ID exists.
         auto entityIterator = _entityComponents.find(ID);
-        if (entityIterator == _entityComponents.cend()) {
-            message.Supply("Entity location was not found in entity manager - no entity exists at ID: %i. Error message issued.", ID);
+        if (entityIterator == _entityComponents.end()) {
+            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
+            message.Supply("Entity location was not found in entity manager - no entity exists at ID: %i.", ID);
             _loggingSystem.Log(message);
-
-            UtilityBox::Logger::LogMessage errorMessage { UtilityBox::Logger::LogMessageSeverity::SEVERE };
-            errorMessage.Supply("In function AddComponent: Entity ID provided is invalid - no entity exists at ID: %i.", ID);
-            _loggingSystem.Log(errorMessage);
 
             throw std::invalid_argument("In function AddComponent: Entity ID provided is invalid - no entity exists at the provided ID.");
         }
@@ -63,12 +60,9 @@ namespace ECS::Entities {
         // Ensure the entity doesn't already have the component attached.
         auto entityComponentIterator = entityIterator->second.find(ComponentType::ID);
         if (entityComponentIterator != entityIterator->second.end()) {
-            message.Supply("Entities cannot hold multiple components of the same type. Entity at ID: %i already has a component with type: '%s'. Error message issued.", ID, ComponentType::Name);
+            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
+            message.Supply("Entities cannot hold multiple components of the same type. Entity at ID: %i already has a component with type: '%s'.", ID, ComponentType::Name);
             _loggingSystem.Log(message);
-
-            UtilityBox::Logger::LogMessage errorMessage { UtilityBox::Logger::LogMessageSeverity::SEVERE };
-            errorMessage.Supply("In function AddComponent: Entities cannot hold multiple components of the same type. Entity at ID: %i already has a component with type: '%s'.", ID, ComponentType::Name);
-            _loggingSystem.Log(errorMessage);
 
             throw std::invalid_argument("In function AddComponent: Entities cannot hold multiple components of the same type. Entity at the provided ID already has an instance of the desired component type.");
         }
@@ -138,11 +132,8 @@ namespace ECS::Entities {
             }
         }
         else {
-            message.Supply("Entity location was not found in entity manager - no entity exists at ID: %i. Warning message issued.", ID);
-            _loggingSystem.Log(message);
-
-            UtilityBox::Logger::LogMessage warningMessage { UtilityBox::Logger::LogMessageSeverity::WARNING };
-            message.Supply("Entity at given entity ID to delete component of is invalid - no entity exists at ID: %i.", ID);
+            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::WARNING);
+            message.Supply("Entity location was not found in entity manager - no entity exists at ID: %i.", ID);
             _loggingSystem.Log(message);
         }
     }

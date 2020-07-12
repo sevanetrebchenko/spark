@@ -2,11 +2,11 @@
 #ifndef DATASTRUCTURES_ENTITY_MANAGER_DATA_H
 #define DATASTRUCTURES_ENTITY_MANAGER_DATA_H
 
-#include <functional>
-#include "../../ecs_typedefs.h"
-#include "../../Components/include/base_component.h"
-#include "../../../Utilities/Logger/logging_system.h"
-#include "../include/entity_callback_type.h"
+#include <functional>                                 // std::function
+#include "../../ecs_typedefs.h"                       // EntityID, ComponentTypeID
+#include "../../Components/include/base_component.h"  // BaseComponent
+#include "../../../Utilities/Logger/include/logging_system.h" // LoggingSystem
+#include "../include/entity_callback_type.h"          // CallbackType
 
 namespace ECS::Entities {
     class EntityManagerData {

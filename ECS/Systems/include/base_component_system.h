@@ -5,7 +5,7 @@
 #include <tuple>                                      // std::tuple
 #include <vector>                                     // std::vector
 #include "base_component_system_interface.h"          // BaseComponentSystemInterface
-#include "../../../Utilities/Logger/logging_system.h" // LoggingSystem
+#include "../../../Utilities/Logger/include/logging_system.h" // LoggingSystem
 
 namespace ECS::Systems {
     template <class ...ComponentTypes>

@@ -1,5 +1,5 @@
 
-#include "adapter_config.h" // AdapterConfiguration
+#include "../include/adapter_config.h" // AdapterConfiguration
 
 namespace UtilityBox::Logger {
     // Constructor. Establishes default formats for headers and messages.

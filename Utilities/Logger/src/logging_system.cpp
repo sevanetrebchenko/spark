@@ -1,6 +1,6 @@
 
-#include "logging_system.h" // LoggingSystem functions
-#include "logger.h"         // SendMessage
+#include "../include/logging_system.h" // LoggingSystem functions
+#include "../include/logger.h"         // SendMessage
 
 namespace UtilityBox::Logger {
     // Construct a LoggingSystem instance with a desired name.

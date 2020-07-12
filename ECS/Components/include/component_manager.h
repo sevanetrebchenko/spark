@@ -2,7 +2,7 @@
 #ifndef DATASTRUCTURES_COMPONENT_MANAGER_H
 #define DATASTRUCTURES_COMPONENT_MANAGER_H
 
-#include "component_manager_interface.h"                        // ComponentManagerInterface
+#include "component_manager_interface.h" // ComponentManagerInterface
 
 namespace ECS::Components {
     template <class ComponentType>
@@ -39,6 +39,7 @@ namespace ECS::Components {
     };
 }
 
+#include "../src/component_manager.tpp" // Template function includes.
+
 #endif //DATASTRUCTURES_COMPONENT_MANAGER_H
 
-#include "../src/component_manager.tpp"

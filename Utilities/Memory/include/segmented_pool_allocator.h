@@ -2,7 +2,7 @@
 #ifndef DATASTRUCTURES_SEGMENTED_POOL_ALLOCATOR_H
 #define DATASTRUCTURES_SEGMENTED_POOL_ALLOCATOR_H
 
-#include "../Tools/global_defines.h" // _NODISCARD_
+#include "../../Tools/global_defines.h" // _NODISCARD_
 
 namespace UtilityBox::Memory {
         class SegmentedPoolAllocator final {

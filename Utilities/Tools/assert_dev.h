@@ -4,7 +4,7 @@
 
 #include <iostream>        // std::cerr
 #include <cstdio>          // fprintf
-#include "../Logger/logger.h" // LoggingHub
+#include "../Logger/include/logger.h" // LoggingHub
 
 // Function used when more parameters are passed with the message (printf-style assert).
 #define ASSERT_VARIADIC(function, file, line, check, formatString, ...)                                                                        \

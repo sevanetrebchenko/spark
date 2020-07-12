@@ -1,9 +1,9 @@
 #include <iostream>
-#include "Utilities/Logger/logger.h"
-#include "Utilities/Logger/adapter.h"
+#include "Utilities/Logger/include/logger.h"
+#include "Utilities/Logger/include/adapter.h"
 #include "Utilities/Tools/assert_dev.h"
-#include "Utilities/Memory/segmented_pool_allocator.h"
-#include "Utilities/Memory/contiguous_pool_allocator.h"
+#include "Utilities/Memory/include/segmented_pool_allocator.h"
+#include "Utilities/Memory/include/contiguous_pool_allocator.h"
 #include "ECS/Components/include/component_manager.h"
 #include "ECS/Components/include/base_component.h"
 #include "ECS/Components/include/component_manager_collection.h"

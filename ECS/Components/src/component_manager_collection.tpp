@@ -4,12 +4,12 @@
 
 #define PARAMETER_PACK_EXPAND(function, args, ...) ((void)function<args>(__VA_ARGS__), ...);
 
-#include "../../../World/all_components.h"                  // ALL_COMPONENTS
-#include "../include/component_manager_interface.h"         // ComponentManagerInterface
-#include "../../ecs_typedefs.h"                             // ComponentTypeID
-#include "../../Components/include/base_component.h"        // BaseComponent
-#include "../../../Utilities/Logger/logging_system.h"       // LoggingSystem
-#include <unordered_map>                                    // std::unordered_map
+#include "../../../World/all_components.h"            // ALL_COMPONENTS
+#include "../include/component_manager_interface.h"   // ComponentManagerInterface
+#include "../../ecs_typedefs.h"                       // ComponentTypeID
+#include "../../Components/include/base_component.h"  // BaseComponent
+#include "../../../Utilities/Logger/include/logging_system.h" // LoggingSystem
+#include <unordered_map>                              // std::unordered_map
 
 namespace ECS::Components {
     //------------------------------------------------------------------------------------------------------------------

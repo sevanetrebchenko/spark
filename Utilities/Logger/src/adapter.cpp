@@ -1,7 +1,7 @@
 
-#include "logger.h"        // LogMessage
-#include "adapter.h"       // Adapter
-#include "../Tools/assert_dev.h" // Asserts
+#include "../include/logger.h"        // LogMessage
+#include "../include/adapter.h"       // Adapter
+#include "../../Tools/assert_dev.h" // Asserts
 #include <vector>          // std::vector
 #include <sstream>         // std::stringstream
 #include <iomanip>         // std::setw, std::setfill

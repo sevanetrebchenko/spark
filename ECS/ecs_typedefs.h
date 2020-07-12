@@ -6,7 +6,7 @@
 
 namespace ECS {
     typedef unsigned ComponentTypeID; // Component type gets hashed into an unsigned value.
-    typedef std::uint32_t EntityID;
+    typedef std::uint32_t EntityID;   // EntityID gets created by STRINGHASHing the entity name.
 }
 
 #endif //DATASTRUCTURES_ECS_TYPEDEFS_H
