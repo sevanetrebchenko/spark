@@ -2,14 +2,13 @@
 #ifndef DATASTRUCTURES_LOGGER_H
 #define DATASTRUCTURES_LOGGER_H
 
-#include "log_message.h"       // LogMessage
-#include "logging_system.h"    // LoggingSystem
-#include "adapter.h"           // Adapter
+#include "log_message.h"                // LogMessage
+#include "logging_system.h"             // LoggingSystem
+#include "adapter.h"                    // Adapter
 #include "../../Tools/global_defines.h" // _NODISCARD_
-#include <vector>              // std::vector
-#include <string>              // std::string
-#include <chrono>              // std::chrono
-#include <memory>              // std::unique_ptr
+#include <vector>                       // std::vector
+#include <string>                       // std::string
+#include <chrono>                       // std::chrono
 
 namespace UtilityBox::Logger {
     class LoggingHub {
@@ -18,12 +17,13 @@ namespace UtilityBox::Logger {
              * Get a singleton LoggingHub instance.
              * @return Reference to the singleton LoggingHub instance.
              */
-            static LoggingHub& GetInstance();
+            static LoggingHub* GetInstance();
 
             /**
              * Direct call to initialize the necessary data for the LoggingHub to function properly. If not called,
              * will automatically be called before any messages are logged. Timestamps for log messages start at
-             * LoggingHub initialization time.
+             * LoggingHub initialization time. Attempts to register function to automatically clean up LoggingHub at
+             * the end of program execution.
              */
             static void Initialize();
 
@@ -103,11 +103,11 @@ namespace UtilityBox::Logger {
              */
             void SendMessage(LogMessage* message, const std::string& loggingSystemName);
 
+            static LoggingHub* _loggingHub; // Singleton.
+
             // Storage for LoggingHub data, back-end functionality, and helper functions.
             class LoggingHubData;
-            std::unique_ptr<LoggingHubData> _data;
-
-            static LoggingHub* _loggingHub; // Pointer to the singleton instance of this class.
+            LoggingHubData* _data;
     };
 }
 

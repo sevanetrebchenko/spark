@@ -3,12 +3,11 @@
 #define DATASTRUCTURES_LOG_MESSAGE_H
 
 #include "../../Tools/global_defines.h" // _NODISCARD_
-#include "timestamp.h"         // TimeStamp functions
-#include <memory>              // std::unique_ptr
-#include <vector>              // std::vector
-#include <cstring>             // strrchr
+#include "timestamp.h"                  // TimeStamp functions
+#include <vector>                       // std::vector
+#include <cstring>                      // strrchr
 
-//#define DEBUG_MESSAGES
+#define DEBUG_MESSAGES
 
 namespace UtilityBox::Logger {
 
@@ -73,10 +72,7 @@ namespace UtilityBox::Logger {
         private:
             // Storage for LogMessage data, back-end functionality, and helper functions.
             class LogMessageData;
-            std::unique_ptr<LogMessageData> _data;
-
-            std::vector<LogRecord> _logMessages; // Store of log record information
-            LogMessageSeverity _messageSeverity; // Message severity
+            LogMessageData* _data;
     };
 
 #ifdef DEBUG_MESSAGES
@@ -156,10 +152,7 @@ namespace UtilityBox::Logger {
         private:
             // Storage for LogMessage data, back-end functionality, and helper functions.
             class LogMessageData;
-            std::unique_ptr<LogMessageData> _data;
-
-            std::vector<LogRecord> _logMessages; // Store of log record information
-            LogMessageSeverity _messageSeverity; // Message severity
+            LogMessageData* _data;
     };
 
     // Shorten file name - get the last occurrence of the '/' character to only get the file name.

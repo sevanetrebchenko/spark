@@ -26,7 +26,7 @@ myAdapter::myAdapter() : Adapter("myAdapter") {
 
 void myAdapter::ProcessMessage(void *messageAddress) {
     messageAddress = static_cast<int*>(messageAddress) + 3;
-    const LogMessageSeverity& messageSeverity = LoggingHub::GetInstance().GetMessageSeverity(messageAddress);
+    const LogMessageSeverity& messageSeverity = LoggingHub::GetInstance()->GetMessageSeverity(messageAddress);
 
     if (messageSeverity >= _config.GetMessageSeverityCutoff()) {
         // format header

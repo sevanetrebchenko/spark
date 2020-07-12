@@ -10,11 +10,11 @@ namespace UtilityBox::Logger {
 
     // Log a message through this LoggingSystem.
     void LoggingSystem::Log(LogMessage* message) const {
-        LoggingHub::GetInstance().SendMessage(message, _name);
+        LoggingHub::GetInstance()->SendMessage(message, _name);
         delete message;
     }
 
     void LoggingSystem::Log(LogMessage& message) const {
-        LoggingHub::GetInstance().SendMessage(&message, _name);
+        LoggingHub::GetInstance()->SendMessage(&message, _name);
     }
 }

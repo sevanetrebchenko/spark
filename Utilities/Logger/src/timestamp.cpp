@@ -23,7 +23,7 @@ namespace UtilityBox::Timing {
     // Construct the back-end for timestamp processing.
     TimeStamp::TimeStampData::TimeStampData(const std::chrono::time_point<std::chrono::high_resolution_clock>& timestamp) : _raw(timestamp) {
         // Get the total timestamp time in milliseconds.
-        unsigned long elapsed = (_raw - Logger::LoggingHub::GetInstance().GetLoggingInitializationTime()).count() / 1000;
+        unsigned long elapsed = (_raw - Logger::LoggingHub::GetInstance()->GetLoggingInitializationTime()).count() / 1000;
 
         // Get millisecond portion.
         _milliseconds = elapsed % 1000;
@@ -47,7 +47,18 @@ namespace UtilityBox::Timing {
 
     // Move constructor.
     TimeStamp::TimeStamp(TimeStamp&& other) noexcept {
+        // Copy over data from other.
         _data = std::move(other._data);
+        _data->_raw = std::move(other._data->_raw);
+        _data->_milliseconds = std::move(other._data->_milliseconds);
+        _data->_seconds = std::move(other._data->_seconds);
+        _data->_minutes = std::move(other._data->_seconds);
+
+        // Set other to null.
+        other._data->_milliseconds = 0;
+        other._data->_seconds = 0;
+        other._data->_minutes = 0;
+        other._data = nullptr;
     }
 
     // Destructor.

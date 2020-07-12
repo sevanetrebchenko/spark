@@ -107,9 +107,10 @@ namespace UtilityBox::Logger {
     };
 
     // Constructor. Allocates necessary buffers for processing messages.
-    Adapter::AdapterData::AdapterData() : _calendarTime(std::time(nullptr)), _calendarBufferSize(64u) {
-        _calendarBuffer = new(std::nothrow) char[_calendarBufferSize];
-        ASSERT(_calendarBuffer != nullptr, "Operation new failed to allocate adapter calendar processing buffer - program is out of memory.");
+    Adapter::AdapterData::AdapterData() : _calendarTime(std::time(nullptr)),
+                                          _calendarBufferSize(64u),
+                                          _calendarBuffer(new char[_calendarBufferSize]) /* Throws exception, caught elsewhere. */ {
+        // Nothing to do here.
     }
 
     // Attemps to reallocate the calendar buffer until the buffer can adequately fit the desired calendar information, given by the formatString.
@@ -119,8 +120,7 @@ namespace UtilityBox::Logger {
         while(!std::strftime(_calendarBuffer, _calendarBufferSize, formatString.c_str(), std::localtime(&_calendarTime))) {
             _calendarBufferSize *= 2;
             delete[] _calendarBuffer;
-            _calendarBuffer = new (std::nothrow) char[_calendarBufferSize];
-            ASSERT(_calendarBuffer != nullptr, "Operation new failed to re-allocate adapter calendar processing buffer - program is out of memory.");
+            _calendarBuffer = new char[_calendarBufferSize]; // Throws exception, caught elsewhere.
         }
     }
 
@@ -313,21 +313,21 @@ namespace UtilityBox::Logger {
     // ADAPTER
     //------------------------------------------------------------------------------------------------------------------
     // Construct an adapter with default formatting with a given name.
-    Adapter::Adapter(std::string&& name) : _adapterName(std::move(name)), _logCount(0), _config(), _data(std::move(std::make_unique<AdapterData>())) {
+    Adapter::Adapter(std::string&& name) : _adapterName(std::move(name)), _logCount(0), _config(), _data(new AdapterData()) {
         // Nothing to do here.
     }
 
     // Destructor.
     Adapter::~Adapter() {
-        _data.reset();
+        delete _data;
     }
 
     // Process a message given a void pointer provided by the LoggingHub and output formatted strings into the
     // formattedMessages queue to be outputted.
     void Adapter::ProcessMessage(void* messageAddress) {
         // Verify pointer was passed to a legitimate object to begin with.
-        if (LoggingHub::GetInstance().VerifyDataPointer(messageAddress)) {
-            const LogMessageSeverity& messageSeverity = LoggingHub::GetInstance().GetMessageSeverity(messageAddress);
+        if (LoggingHub::GetInstance()->VerifyDataPointer(messageAddress)) {
+            const LogMessageSeverity& messageSeverity = LoggingHub::GetInstance()->GetMessageSeverity(messageAddress);
 
             // Only log message if the adapter's cutoff allows it.
             if (messageSeverity >= _config.GetMessageSeverityCutoff()) {
@@ -366,8 +366,8 @@ namespace UtilityBox::Logger {
     void Adapter::ConstructMessageHeader(void* messageAddress) {
         // Header format is copied to use.
         std::queue<HeaderFormatElement> headerFormat = _config.GetHeaderFormat();
-        const LogMessageSeverity& messageSeverity = LoggingHub::GetInstance().GetMessageSeverity(messageAddress);
-        const std::string& throughSystem = LoggingHub::GetInstance().GetThroughLoggingSystem(messageAddress);
+        const LogMessageSeverity& messageSeverity = LoggingHub::GetInstance()->GetMessageSeverity(messageAddress);
+        const std::string& throughSystem = LoggingHub::GetInstance()->GetThroughLoggingSystem(messageAddress);
 
         while (!headerFormat.empty()) {
             HeaderFormatElement& element = headerFormat.front();
@@ -432,7 +432,7 @@ namespace UtilityBox::Logger {
     // Given the desired message format provided through the AdapterConfiguration and data accessed through the
     // LoggingHub with the messageAddress, define what is added to the output message with each message format element.
     void Adapter::ConstructMessageBody(void* messageAddress) {
-        const std::vector<LogMessage::LogRecord>& messageRecords = LoggingHub::GetInstance().GetLogRecords(messageAddress);
+        const std::vector<LogMessage::LogRecord>& messageRecords = LoggingHub::GetInstance()->GetLogRecords(messageAddress);
 
         // Message format queue is applied on a per-message basis.
         for (auto& record : messageRecords) {

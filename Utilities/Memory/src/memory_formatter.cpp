@@ -44,7 +44,7 @@ namespace UtilityBox::Memory {
     // Validate padding bytes on either side of the user data block to ensure no data corruption happened.
     bool MemoryFormatter::ValidatePaddingBytes(void *blockAddress) const {
         // Check padding bytes before data.
-        char* preBlockPaddingBytes = static_cast<char*>(blockAddress) - _numPaddingBytes;
+        unsigned char* preBlockPaddingBytes = static_cast<unsigned char*>(blockAddress) - _numPaddingBytes;
         for (int i = 0; i < _numPaddingBytes; ++i) {
             if (preBlockPaddingBytes[i] != PADDING) {
                 return false;
@@ -52,7 +52,7 @@ namespace UtilityBox::Memory {
         }
 
         // Check padding bytes after data.
-        char* postBlockPaddingBytes = static_cast<char*>(blockAddress) + _blockDataSize;
+        unsigned char* postBlockPaddingBytes = static_cast<unsigned char*>(blockAddress) + _blockDataSize;
         for (int i = 0; i < _numPaddingBytes; ++i) {
             if (postBlockPaddingBytes[i] != PADDING) {
                 return false;

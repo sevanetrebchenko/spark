@@ -3,14 +3,13 @@
 #define DATASTRUCTURES_ADAPTER_H
 
 #include "../../Tools/global_defines.h" // _NODISCARD_
-#include "adapter_config.h"    // AdapterConfiguration
-#include "timestamp.h"         // TimeStamp
-#include <sstream>             // std::stringstream
-#include <queue>               // std::queue
-#include <string>              // std::string
+#include "adapter_config.h"             // AdapterConfiguration
+#include "timestamp.h"                  // TimeStamp
+#include <sstream>                      // std::stringstream
+#include <queue>                        // std::queue
+#include <string>                       // std::string
 
 namespace UtilityBox::Logger {
-
     class Adapter {
         public:
             /**
@@ -140,13 +139,12 @@ namespace UtilityBox::Logger {
             std::string _adapterName;                   // Adapter's name.
             int _logCount;                              // Number of messages logged through this adapter.
             std::queue<std::string> _formattedMessages; // Intermediate storage for formatted messages to be stored for later printing.
-
+            std::stringstream _format;                  // Stringstream for construction/formatting message headers/body.
         private:
-            std::stringstream _format; // Stringstream for construction/formatting message headers/body.
 
             // Storage for Adapter data, back-end functionality, and helper functions.
             class AdapterData;
-            std::unique_ptr<AdapterData> _data;
+            AdapterData* _data;
     };
 }
 

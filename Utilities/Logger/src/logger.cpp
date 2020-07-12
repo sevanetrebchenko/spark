@@ -753,23 +753,29 @@ namespace UtilityBox::Logger {
     // LOGGING HUB
     //------------------------------------------------------------------------------------------------------------------
     // Get a singleton LoggingHub instance.
-    LoggingHub& Logger::LoggingHub::GetInstance() {
-        if (!_loggingHub) {
-            // Construct singleton
-            _loggingHub = new LoggingHub();
-        }
-
-        return *_loggingHub;
+    LoggingHub* Logger::LoggingHub::GetInstance() {
+        Initialize();
+        return _loggingHub;
     }
 
     // Direct call to initialize the necessary data for the LoggingHub to function properly.
     void LoggingHub::Initialize() {
-        // Register destructor to be called on exit.
-        int registrationValue = atexit(Reset);
-        ASSERT(registrationValue == 0, "Registration of LogginHub Reset/Destructor function failed with code: %i", registrationValue);
-
         // Construct instance.
-        GetInstance();
+        if (!_loggingHub) {
+            // Register destructor to be called on exit.
+            int registrationValue = atexit(Reset);
+            ASSERT(registrationValue == 0, "Registration of LogginHub Reset/Destructor function failed with code: %i", registrationValue);
+
+            // Construct singleton
+            try {
+                _loggingHub = new LoggingHub();
+            }
+            catch (std::bad_alloc& exception) {
+                // Issue exit status message.
+                std::cerr << "Failed to allocate resources for LoggingHub back-end - program is out of usable memory. Exiting program execution." << std::endl;
+                exit(1);
+            }
+        }
     }
 
     // Attach a custom adapter to process and receive messages through the LoggingHub.
@@ -808,7 +814,7 @@ namespace UtilityBox::Logger {
     }
 
     // Private (singleton) constructor for an instance of the LoggingHub.
-    Logger::LoggingHub::LoggingHub() : _data(std::move(std::make_unique<LoggingHubData>(std::chrono::high_resolution_clock::now()))) {
+    Logger::LoggingHub::LoggingHub() : _data(new LoggingHubData(std::chrono::high_resolution_clock::now())) {
         // Nothing to do here.
     }
 
@@ -822,7 +828,7 @@ namespace UtilityBox::Logger {
     // Direct call to shutdown the LoggingHub instance and flush all remaining messages.
     void LoggingHub::Reset() {
         _loggingHub->_data->TerminateWorkerThread();
-        _loggingHub->_data.reset();
+        delete _loggingHub->_data;
     }
 
     // Send a message through to the LoggingHub. Function only available to logging systems.
