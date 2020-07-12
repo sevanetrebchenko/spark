@@ -135,7 +135,7 @@ namespace UtilityBox::Memory {
     void SegmentedPoolAllocator::AllocatorData::ReturnBlock(void *blockAddress) {
         // Check padding bytes to ensure memory was not corrupted by data underflow/overflow.
         if (!_formatter.ValidatePaddingBytes(blockAddress)) {
-            // todo
+            throw std::runtime_error("Failed to validate padding bytes of a returned block - memory has been corrupted and put in an undefined state.");
         }
 
         // Clear block data
@@ -166,7 +166,10 @@ namespace UtilityBox::Memory {
 
         // Allocate page.
         void* pageBase = malloc(pageSize);
-        ASSERT(pageBase != nullptr, "Failed to allocate memory for pool allocator.");
+
+        if (!pageBase) {
+            throw std::bad_alloc();
+        }
 
         PageHeader* currentPageHeader;
 

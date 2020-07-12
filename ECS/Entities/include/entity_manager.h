@@ -3,9 +3,9 @@
 #define DATASTRUCTURES_ENTITY_MANAGER_H
 
 #include <unordered_map>                             // std::unordered_map
-#include "../../ecs_typedefs.h"                         // EntityID
-#include "../../Components/include/base_component.h"            // Components
-#include "../src/entity_manager_data.h"
+#include "../../ecs_typedefs.h"                      // EntityID
+#include "../../Components/include/base_component.h" // Components
+#include "../src/entity_manager_data.h"              // EntityManagerData
 
 namespace ECS::Entities {
     class EntityManager {

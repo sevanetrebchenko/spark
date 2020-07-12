@@ -94,7 +94,7 @@ namespace ECS::Entities {
     template<class ComponentType>
     inline void EntityManagerData::AddComponent(std::string name) {
         UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entering function AddComponent with entity name: '%s.'", name.c_str());
+        message.Supply("Entering function AddComponent.  with entity name: '%s' and component type: '%s'.", name.c_str(), ComponentType::Name);
 
         ConvertToLowercase(name);
         message.Supply("Entity name converted to lowercase: '%s.'", name.c_str());

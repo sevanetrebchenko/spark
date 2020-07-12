@@ -2,10 +2,10 @@
 #ifndef DATASTRUCTURES_BASE_COMPONENT_SYSTEM_H
 #define DATASTRUCTURES_BASE_COMPONENT_SYSTEM_H
 
-#include <tuple>                             // std::tuple
-#include <vector>                            // std::vector
-#include "base_component_system_interface.h" // BaseComponentSystemInterface
-#include "../../../Utilities/Logger/logging_system.h"
+#include <tuple>                                      // std::tuple
+#include <vector>                                     // std::vector
+#include "base_component_system_interface.h"          // BaseComponentSystemInterface
+#include "../../../Utilities/Logger/logging_system.h" // LoggingSystem
 
 namespace ECS::Systems {
     template <class ...ComponentTypes>
@@ -21,7 +21,7 @@ namespace ECS::Systems {
             /**
              * Destructor.
              */
-            ~BaseComponentSystem() = default;
+            ~BaseComponentSystem();
 
             /**
              * Initialize the logging system and any supplemental back-end functionality.

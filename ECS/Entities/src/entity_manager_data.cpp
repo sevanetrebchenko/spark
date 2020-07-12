@@ -5,34 +5,30 @@ namespace ECS::Entities {
     // Constructor.
     EntityManagerData::EntityManagerData() {
         UtilityBox::Logger::LogMessage message {};
-        // Constructor for Entity Manager Data is called from EntityManager::Initialize.
-        message.Supply("Entering function Initialize: creating Entity Manager back-end functionality and helper functions.");
+        message.Supply("Constructing EntityManager.");
         _loggingSystem.Log(message);
     }
 
     // Cleans up any resources associated with the Entity Manager helper class.
     EntityManagerData::~EntityManagerData() {
         UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entering destructor for Entity Manager back end.");
+        message.Supply("Destroying EntityManager.");
+        _loggingSystem.Log(message);
 
         // Clear entity components.
-        message.Supply("Clearing entity component lists.");
         for (auto entityComponentList : _entityComponents) {
             entityComponentList.second.clear();
         }
         _entityComponents.clear();
 
-        message.Supply("Clearing entity names.");
+        // Clear entity names.
         _entityNames.clear();
 
         // Clear callback functions.
-        message.Supply("Clearing component system callback functions.");
         _entityCreateCallbackFunctions.clear();
         _entityDestroyCallbackFunctions.clear();
         _componentAddCallbackFunctions.clear();
         _componentRemoveCallbackFunctions.clear();
-
-        _loggingSystem.Log(message);
     }
 
     // Create an entity. Throws error if the provided entity name matches any of the the build-in component type names
@@ -48,12 +44,9 @@ namespace ECS::Entities {
         message.Supply("Checking name against the names of all build-in component names.");
 
         if (CheckEntityName<ALL_COMPONENTS>(name)) {
-            message.Supply("Entity name: '%s' matches the name of a built-in component type.", name.c_str());
+            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
+            message.Supply("Exception thrown: Provided entity name: '%s' cannot match a built-in component name.", name.c_str());
             _loggingSystem.Log(message);
-
-            UtilityBox::Logger::LogMessage errorMessage { UtilityBox::Logger::LogMessageSeverity::SEVERE };
-            errorMessage.Supply("In function CreateEntity: Provided entity name: '%s' cannot match a built-in component name.", name.c_str());
-            _loggingSystem.Log(errorMessage);
 
             throw std::invalid_argument("In function CreateEntity: Provided entity name cannot match a built-in component name.");
         }
@@ -63,12 +56,9 @@ namespace ECS::Entities {
 
         // Newly created entity cannot have a matching ID to an already existing entity.
         if (_entityComponents.find(hashedID) != _entityComponents.end()) {
-            message.Supply("Hashed entity ID matches with another entity: there already exists an entity with the same hashed ID under entity name: '%s'.", _entityNames.find(hashedID)->second.c_str());
+            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
+            message.Supply("Exception thrown: Hashed entity ID matches with another entity: there already exists an entity with the same hashed ID under entity name: '%s'.", _entityNames.find(hashedID)->second.c_str());
             _loggingSystem.Log(message);
-
-            UtilityBox::Logger::LogMessage errorMessage { UtilityBox::Logger::LogMessageSeverity::SEVERE };
-            errorMessage.Supply("In function CreateEntity: Provided entity name: '%s' matches an already existing entity name.", name.c_str());
-            _loggingSystem.Log(errorMessage);
 
             throw std::invalid_argument("In function CreateEntity: Provided entity name matches an already existing entity name.");
         }
@@ -107,11 +97,8 @@ namespace ECS::Entities {
             }
         }
         else {
-            message.Supply("Entity location was not found in entity manager - no entity exists at ID: %i. Warning message issued.", ID);
-            _loggingSystem.Log(message);
-
-            UtilityBox::Logger::LogMessage warningMessage { UtilityBox::Logger::LogMessageSeverity::WARNING };
-            message.Supply("Entity at given entity ID to destroy is invalid - no entity exists at ID: %i.", ID);
+            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::WARNING);
+            message.Supply("Entity location was not found in entity manager - no entity exists at ID: %i.", ID);
             _loggingSystem.Log(message);
         }
     }
@@ -139,12 +126,9 @@ namespace ECS::Entities {
         message.Supply("Entering function GetComponents with entity ID: %i.", ID);
 
         if (_entityComponents.find(ID) == _entityComponents.end()) {
-            message.Supply("Entity location was not found in entity manager - no entity exists at ID: %i. Error message issued.", ID);
+            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
+            message.Supply("Exception thrown: Entity location was not found in entity manager - no entity exists at ID: %i.", ID);
             _loggingSystem.Log(message);
-
-            UtilityBox::Logger::LogMessage errorMessage { UtilityBox::Logger::LogMessageSeverity::SEVERE };
-            errorMessage.Supply("In function GetComponents: Entity ID is invalid - no entity exists at ID: %i.", ID);
-            _loggingSystem.Log(errorMessage);
 
             throw std::out_of_range("In function GetComponents: Entity ID is invalid - no entity exists at the provided ID.");
         }

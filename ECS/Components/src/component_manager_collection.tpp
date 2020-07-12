@@ -19,105 +19,113 @@ namespace ECS::Components {
     class ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData {
         public:
             /**
-             * Constructor (default).
+             * Registers a ComponentManager for each unique component type in the system's template argument list.
              */
             ComponentManagerCollectionData();
 
             /**
-             * Cleans up all resources and Component Managers managed by the Component Manager Collection.
+             * Cleans up all resources and unregisters all registered ComponentManager instances.
              */
             ~ComponentManagerCollectionData();
 
             /**
-             * Get a Component Manager for a specific component type.
-             * @tparam ComponentType - Desired type of the Component Manager.
+             * Get a ComponentManager for a specific component type.
+             * @tparam ComponentType - Desired type of the ComponentManager.
              * @return Pointer to component manager.
              */
             template <class ComponentType>
             ComponentManager<ComponentType>* GetComponentManager();
 
-            UtilityBox::Logger::LoggingSystem _loggingSystem { "Component Manager Collection" }; // ComponentManagerCollection logging system.
-
         private:
             /**
-             * Retrieve a block from the memory manager and construct an individual Component Manager for a given component type.
-             * @tparam ComponentType - Component type for Component Manager to manage.
-             * @param  index         - Index of the _componentManagerStorage array to construct the ComponentManager in.
+             * Constructs and registers a unique ComponentManager for the provided component type.
+             * @tparam ComponentType - Component type for ComponentManager to manage.
+             * @param  message       - Log message to record messages to.
              */
             template <class ComponentType>
             void CreateComponentSystem(UtilityBox::Logger::LogMessage& message);
 
             /**
-             * Destroy an individual ComponentManager and return the block back to the memory manager.
+             * Safely cleans up a ComponentManager with the provided component type.
              * @tparam ComponentType - Component type for Component Manager to manage.
-             * @param  index         - Index of the _componentManagerStorage array to d the ComponentManager in.
+             * @param  message       - Log message to record messages to.
              */
             template <class ComponentType>
             void DestroyComponentSystem(UtilityBox::Logger::LogMessage& message);
 
-            std::unordered_map<ComponentTypeID, ComponentManagerInterface*> _componentManagerMap;      // Map for getting individual ComponentManagers.
+            std::unordered_map<ComponentTypeID, ComponentManagerInterface*> _componentManagerMap; // Map for getting individual ComponentManagers.
+            UtilityBox::Logger::LoggingSystem _loggingSystem { "Component Manager Collection" };  // ComponentManagerCollection logging system.
     };
 
+    // Static instance initialization.
     template <class... ComponentTypes>
     ComponentManagerCollection<ComponentTypes...>* ComponentManagerCollection<ComponentTypes...>::_componentManagerCollection = nullptr;
 
+    // Registers a ComponentManager for each unique component type in the system's template argument list.
     template<class... ComponentTypes>
     ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::ComponentManagerCollectionData() {
         UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entered function Initialize.");
 
         // Initialize systems.
         message.Supply("Constructing all ComponentManagers.");
         PARAMETER_PACK_EXPAND(CreateComponentSystem, ComponentTypes, message);
 
-        message.Supply("Finished constructing all ComponentManagers.");
+        message.Supply("Finished constructing ComponentManagers.");
         _loggingSystem.Log(message);
     }
 
-    // Cleans up all resources and Component Managers managed by the Component Manager Collection.
+    // Cleans up all resources and unregisters all registered ComponentManager instances.
     template<class... ComponentTypes>
     ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::~ComponentManagerCollectionData() {
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entering ComponentManagerCollection destructor.");
-        message.Supply("Clearing component manager pointer map.");
         _componentManagerMap.clear();
 
+        UtilityBox::Logger::LogMessage message {};
         // Destroy systems.
+        message.Supply("Destroying all ComponentManagers.");
         PARAMETER_PACK_EXPAND(DestroyComponentSystem, ComponentTypes, message);
-
         message.Supply("Finished destroying all ComponentManagers.");
+
         _loggingSystem.Log(message);
     }
 
-    template<class... ComponentTypes>
-    template<class ComponentType>
-    inline void ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::CreateComponentSystem(UtilityBox::Logger::LogMessage& message) {
-        message.Supply("Entering function CreateComponentSystem with component type: '%s'.", ComponentType::Name);
-
-        // Construct component manager of given type in-place.
-        message.Supply("Constructing ComponentManager.");
-        _componentManagerMap[ComponentType::ID] = new ComponentManager<ComponentType>();
-    }
-
-    template<class... ComponentTypes>
-    template<class ComponentType>
-    void ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::DestroyComponentSystem(UtilityBox::Logger::LogMessage& message) {
-        message.Supply("Entering function DestroyComponentSystem with component type: '%s'.", ComponentType::Name);
-
-        message.Supply("Destroying ComponentManager from ComponentManagerCollection storage.");
-        _componentManagerMap.erase(ComponentType::ID);
-    }
-
+    // Get a ComponentManager for a specific component type.
     template<class... ComponentTypes>
     template<class ComponentType>
     ComponentManager<ComponentType>* ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::GetComponentManager() {
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entering function GetComponentManager with component type: '%s'.", ComponentType::Name);
-        _loggingSystem.Log(message);
-
         // Component system will always be found due to static assert in ComponentManagerCollection ensuring the component manager collection
         // manages this type of component.
         return dynamic_cast<ComponentManager<ComponentType>*>(_componentManagerMap.find(ComponentType::ID)->second);
+    }
+
+    // Constructs and registers a unique ComponentManager for the provided component type.
+    template<class... ComponentTypes>
+    template<class ComponentType>
+    inline void ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::CreateComponentSystem(UtilityBox::Logger::LogMessage& message) {
+        // Construct component manager of given type.
+        message.Supply("Constructing ComponentManager of component type: '%s'.", ComponentType::Name);
+
+        try {
+            ComponentManager<ComponentType>* componentManager = new ComponentManager<ComponentType>();
+
+            // Register in component manager map.
+            _componentManagerMap[ComponentType::ID] = componentManager;
+        }
+        catch (std::bad_alloc& e) {
+            // Failure to allocate component manager is a fatal error.
+            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
+            message.Supply("Exception thrown: Failed to allocate sufficient memory for back-end of ComponentManager with component type: '%s'.", ComponentType::Name);
+            _loggingSystem.Log(message);
+
+            throw e;
+        }
+    }
+
+    // Safely cleans up a ComponentManager with the provided component type.
+    template<class... ComponentTypes>
+    template<class ComponentType>
+    void ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::DestroyComponentSystem(UtilityBox::Logger::LogMessage& message) {
+        message.Supply("Destroying ComponentManager of component type: '%s'.", ComponentType::Name);
+        _componentManagerMap.erase(ComponentType::ID);
     }
 
 
@@ -126,33 +134,16 @@ namespace ECS::Components {
     //------------------------------------------------------------------------------------------------------------------
     template<class... ComponentTypes>
     ComponentManagerCollection<ComponentTypes...>* ComponentManagerCollection<ComponentTypes...>::GetInstance() {
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entering function GetInstance.");
-        if (!_componentManagerCollection) {
-            message.Supply("ComponentManagerCollection not constructed. Constructing...");
-            try {
-                _componentManagerCollection = new ComponentManagerCollection<ALL_COMPONENTS>();
-            }
-            catch (std::bad_alloc& exceptionAllocation) {
-                // Record instance.
-                message.Supply("ComponentManagerCollection failed to allocate memory for back-end functionality and data. Provided exception message: '%s'.", exceptionAllocation.what());
-                message.Supply("Error message issued.");
-                _componentManagerCollection->_data->_loggingSystem.Log(message);
-
-                UtilityBox::Logger::LogMessage errorMessage { UtilityBox::Logger::LogMessageSeverity::SEVERE };
-                errorMessage.Supply("Exception thrown: function GetInstance in ComponentManagerCollection failed to allocate memory.");
-                _componentManagerCollection->_data->_loggingSystem.Log(errorMessage);
-
-                // Re-throw exception.
-                throw exceptionAllocation;
-            }
-        }
-        else {
-            message.Supply("ComponentManagerCollection was already initialized. Returning instance.");
-        }
-
-        _componentManagerCollection->_data->_loggingSystem.Log(message);
+        Initialize();
         return _componentManagerCollection;
+    }
+
+    // Direct call to initialize resources necessary for the ComponentManagerCollection to function properly.
+    template<class... ComponentTypes>
+    void ComponentManagerCollection<ComponentTypes...>::Initialize() {
+        if (!_componentManagerCollection) {
+            _componentManagerCollection = new ComponentManagerCollection<ALL_COMPONENTS>(); // Throws on error, caught elsewhere.
+        }
     }
 
     // Get a Component Manager for a specific component type. Function ensures the desired component type is present and

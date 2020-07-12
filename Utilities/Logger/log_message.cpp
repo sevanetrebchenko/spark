@@ -97,6 +97,11 @@ namespace UtilityBox::Logger {
         return _messageSeverity;
     }
 
+    // Update the message severity. Can be used anytime before the message is logged.
+    void LogMessage::SetMessageSeverity(LogMessageSeverity messageSeverity) {
+        _messageSeverity = messageSeverity;
+    }
+
 #ifdef DEBUG_MESSAGES
     // Construct a debug log record to store callee information about a logged message.
     DBG_LOG_MESSAGE::DBG_LOG_RECORD::DBG_LOG_RECORD(std::string &&filename, std::string &&functionName, int lineNumber) : _fileName(std::move(filename)),

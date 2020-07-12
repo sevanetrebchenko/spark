@@ -64,6 +64,12 @@ namespace UtilityBox::Logger {
              */
             _NODISCARD_ LogMessageSeverity& GetMessageSeverity();
 
+            /**
+             * Update the message severity. Can be used anytime before the message is logged.
+             * @param messageSeverity - New message severity.
+             */
+            void SetMessageSeverity(LogMessageSeverity messageSeverity);
+
         private:
             // Storage for LogMessage data, back-end functionality, and helper functions.
             class LogMessageData;
@@ -140,6 +146,12 @@ namespace UtilityBox::Logger {
              * @return Severity of this message.
              */
             _NODISCARD_ LogMessageSeverity& GetMessageSeverity();
+
+            /**
+             * Update the message severity. Can be used anytime before the message is logged.
+             * @param messageSeverity - New message severity.
+             */
+            void SetMessageSeverity(LogMessageSeverity messageSeverity);
 
         private:
             // Storage for LogMessage data, back-end functionality, and helper functions.

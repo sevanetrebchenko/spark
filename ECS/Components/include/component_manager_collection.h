@@ -15,8 +15,13 @@ namespace ECS::Components {
             static ComponentManagerCollection* GetInstance();
 
             /**
-             * Get a Component Manager for a specific component type. Function ensures the desired component type is
-             * present and managed by the Component Manager Collection.
+             * Direct call to initialize resources necessary for the ComponentManagerCollection to function properly.
+             */
+            static void Initialize();
+
+            /**
+             * Get a ComponentManager for a specific component type. Function ensures the desired component type is
+             * present and managed by the ComponentManagerCollection.
              * @tparam ComponentType - Desired type of the Component Manager.
              * @return Pointer to component manager.
              */

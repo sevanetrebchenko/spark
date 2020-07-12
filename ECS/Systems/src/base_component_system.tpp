@@ -2,10 +2,10 @@
 #ifndef BASE_COMPONENT_SYSTEM_TPP
 #define BASE_COMPONENT_SYSTEM_TPP
 
-#include "../../Components/include/base_component.h" // BaseComponent
-#include "../../Entities/include/entity_manager.h"   // EntityManager
-#include "../../../World/world.h"            // World
-#include "../../Entities/include/entity_callback_type.h"
+#include "../../Components/include/base_component.h"     // BaseComponent
+#include "../../Entities/include/entity_manager.h"       // EntityManager
+#include "../../../World/world.h"                        // World
+#include "../../Entities/include/entity_callback_type.h" // CallbackType
 
 namespace ECS::Systems {
     //------------------------------------------------------------------------------------------------------------------
@@ -138,11 +138,11 @@ namespace ECS::Systems {
 
     // Construct the helper function class for the Base System.
     template<class... ComponentTypes>
-    inline BaseComponentSystem<ComponentTypes...>::BaseComponentSystemData::BaseComponentSystemData(::UtilityBox::Logger::LoggingSystem& loggingSystem, std::vector<ComponentTuple>& filteredEntities) : _loggingSystemReference(loggingSystem),
-                                                                                                                                                                                                         _filteredEntitiesReference(filteredEntities)
-                                                                                                                                                                                                         {
+    inline BaseComponentSystem<ComponentTypes...>::BaseComponentSystemData::BaseComponentSystemData(UtilityBox::Logger::LoggingSystem& loggingSystem, std::vector<ComponentTuple>& filteredEntities) : _loggingSystemReference(loggingSystem),
+                                                                                                                                                                                                       _filteredEntitiesReference(filteredEntities)
+                                                                                                                                                                                                       {
         UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entering function Initialize: creating Base Component System back-end functionality and helper functions.");
+        message.Supply("Constructing BaseComponentSystem.");
         // Register callback functions.
         Entities::EntityManager *entityManager = ENGINE_NAME::World::GetInstance().GetEntityManager();
 
@@ -169,13 +169,11 @@ namespace ECS::Systems {
     template<class... ComponentTypes>
     inline BaseComponentSystem<ComponentTypes...>::BaseComponentSystemData::~BaseComponentSystemData() {
         UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entered destructor for Base Component System back-end.");
+        message.Supply("Destroying BaseComponentSystem.");
+        _loggingSystemReference.Log(message);
 
-        message.Supply("Clearing maps.");
         _containerIndexToEntityID.clear();
         _entityIDToContainerIndex.clear();
-
-        _loggingSystemReference.Log(message);
     }
 
     // Function gets called whenever an entity is created. Filters the components on the entity at creation time and
@@ -416,29 +414,32 @@ namespace ECS::Systems {
     // Constructs the necessary fundamentals for a component system, including automatic entity filtering and logging
     // system instance. Enforces all component types managed by this system are derived from BaseComponent.
     template <class... ComponentTypes>
-    inline BaseComponentSystem<ComponentTypes...>::BaseComponentSystem(std::string&& systemName) : _systemName(std::move(systemName)) {
+    inline BaseComponentSystem<ComponentTypes...>::BaseComponentSystem(std::string&& systemName) : _systemName(std::move(systemName)),
+                                                                                                   _data(new BaseComponentSystemData(_loggingSystem, _filteredEntities)) /* Throws exception, not caught purposefully. */
+                                                                                                   {
         // Ensure all components are derived from base component.
         static_assert((std::is_base_of_v<Components::BaseComponent, ComponentTypes> && ...), "Invalid template parameter provided to base BaseComponentSystem - component types must derive from ECS::Components::BaseComponent.");
+    }
 
-        // Defer initialization to second stage.
+    // Destructor.
+    template <class... ComponentTypes>
+    inline BaseComponentSystem<ComponentTypes...>::~BaseComponentSystem() {
+        delete _data;
     }
 
     // Initialize the logging system and any supplemental back-end functionality.
     template<class... ComponentTypes>
     inline void BaseComponentSystem<ComponentTypes...>::Initialize() {
         UtilityBox::Logger::LogMessage message {};
-        message.Supply("Initializing Base System.");
+        message.Supply("Entering function Initialize (for BaseComponentSystem).");
         _loggingSystem.Log(message);
-
-        // Constructor for BaseComponentSystemData automatically registers component callback functions.
-        _data = new BaseComponentSystemData(_loggingSystem, _filteredEntities);
     }
 
     // Update.
     template<class... ComponentTypes>
     inline void BaseComponentSystem<ComponentTypes...>::Update(float dt) {
         UtilityBox::Logger::LogMessage message {};
-        message.Supply("Update called for Base System.");
+        message.Supply("Entering function Update (for BaseComponentSystem).");
         _loggingSystem.Log(message);
     }
 
@@ -446,10 +447,9 @@ namespace ECS::Systems {
     template <class... ComponentTypes>
     inline void BaseComponentSystem<ComponentTypes...>::Shutdown() {
         UtilityBox::Logger::LogMessage message {};
-        message.Supply("Shutdown called for Base System.");
+        message.Supply("Entering function Shutdown (for BaseComponentSystem).");
 
         // Clear system data.
-        message.Supply("Clearing component system's entity component list.");
         if (!_filteredEntities.empty()) {
             _filteredEntities.clear();
         }
@@ -471,12 +471,9 @@ namespace ECS::Systems {
 
         // Check for invalid index.
         if (index >= _filteredEntities.size()) {
-            message.Supply("Index: %i provided to GetComponent is out of range. Error message issued.", index);
+            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
+            message.Supply("Exception thrown: Index: %i provided to GetComponent is out of range.", index);
             _loggingSystem.Log(message);
-
-            UtilityBox::Logger::LogMessage errorMessage { UtilityBox::Logger::LogMessageSeverity::SEVERE };
-            errorMessage.Supply("Exception thrown: Index: %i provided to GetComponent is out of range.", index);
-            _loggingSystem.Log(errorMessage);
 
             throw std::out_of_range("Invalid index provided to GetComponent.");
         }

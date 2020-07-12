@@ -2,7 +2,7 @@
 #include "../include/entity_manager.h"
 
 namespace ECS::Entities {
-    EntityManager::EntityManager() : _data(new EntityManagerData()) {
+    EntityManager::EntityManager() : _data(new EntityManagerData()) /* Throws on error, caught elsewhere. */ {
         // Nothing to do here.
     }
 
