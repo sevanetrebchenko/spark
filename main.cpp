@@ -1,15 +1,16 @@
 #include <iostream>
-#include "Utilities/Logger/include/logger.h"
-#include "Utilities/Logger/include/adapter.h"
-#include "Utilities/Tools/assert_dev.h"
-#include "Utilities/Memory/include/segmented_pool_allocator.h"
-#include "Utilities/Memory/include/contiguous_pool_allocator.h"
+#include "UtilityBox/Logger/include/logger.h"
+#include "UtilityBox/Logger/include/adapter.h"
+#include "UtilityBox/Tools/assert_dev.h"
+#include "UtilityBox/Memory/include/segmented_pool_allocator.h"
+#include "UtilityBox/Memory/include/contiguous_pool_allocator.h"
 #include "ECS/Components/include/component_manager.h"
 #include "ECS/Components/include/base_component.h"
 #include "ECS/Components/include/component_manager_collection.h"
 #include "ECS/Systems/include/base_component_system.h"
 #include "World/world.h"
-#include "Utilities/Tools/compile_time_hash.h"
+#include "UtilityBox/Tools/compile_time_hash.h"
+#include <SDL.h>
 
 using namespace UtilityBox::Logger;
 
@@ -111,8 +112,28 @@ int main() {
     UtilityBox::Logger::LoggingHub::Initialize();
     ECS::Components::ComponentManagerCollection<ALL_COMPONENTS>* ok = ECS::Components::ComponentManagerCollection<ALL_COMPONENTS>::GetInstance();
 
-
     ECS::Components::ComponentManager<ECS::Components::BaseComponent> a = ECS::Components::ComponentManager<ECS::Components::BaseComponent> {};
+
+    SDL_Init(SDL_INIT_VIDEO);
+
+    SDL_Window *window = SDL_CreateWindow(
+            "SDL2Test",
+            SDL_WINDOWPOS_UNDEFINED,
+            SDL_WINDOWPOS_UNDEFINED,
+            640,
+            480,
+            0
+    );
+
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+    SDL_RenderClear(renderer);
+    SDL_RenderPresent(renderer);
+
+    SDL_Delay(3000);
+
+    SDL_DestroyWindow(window);
+//    SDL_Quit();
 
     auto* entitymanager = ENGINE_NAME::World::GetInstance().GetEntityManager();
     entitymanager->CreateEntity("Entity1");

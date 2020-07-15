@@ -2,7 +2,7 @@
 #ifndef DATASTRUCTURES_BASE_COMPONENT_H
 #define DATASTRUCTURES_BASE_COMPONENT_H
 
-#include "../../../Utilities/Tools/compile_time_hash.h" // STRINGHASH
+#include "../../../UtilityBox/Tools/compile_time_hash.h" // STRINGHASH
 
 namespace ECS::Components {
     struct BaseComponent {

@@ -5,7 +5,7 @@
 #include <functional>                                         // std::function
 #include "../../ecs_typedefs.h"                               // EntityID, ComponentTypeID
 #include "../../Components/include/base_component.h"          // BaseComponent
-#include "../../../Utilities/Logger/include/logging_system.h" // LoggingSystem
+#include "../../../UtilityBox/Logger/include/logging_system.h" // LoggingSystem
 #include "../include/entity_callback_type.h"                  // CallbackType
 
 namespace ECS::Entities {

@@ -9,7 +9,7 @@
 #include "../include/component_manager_interface.h"           // ComponentManagerInterface
 #include "../../ecs_typedefs.h"                               // ComponentTypeID
 #include "../../Components/include/base_component.h"          // BaseComponent
-#include "../../../Utilities/Logger/include/logging_system.h" // LoggingSystem
+#include "../../../UtilityBox/Logger/include/logging_system.h" // LoggingSystem
 
 namespace ECS::Components {
     //------------------------------------------------------------------------------------------------------------------

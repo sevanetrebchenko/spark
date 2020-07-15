@@ -47,17 +47,14 @@ namespace UtilityBox::Timing {
 
     // Move constructor.
     TimeStamp::TimeStamp(TimeStamp&& other) noexcept {
-        // Copy over data from other.
-        _data = std::move(other._data);
-        _data->_raw = std::move(other._data->_raw);
-        _data->_milliseconds = std::move(other._data->_milliseconds);
-        _data->_seconds = std::move(other._data->_seconds);
-        _data->_minutes = std::move(other._data->_seconds);
+        // Transfer data ownership to this.
+        _data = other._data;
+        _data->_raw = other._data->_raw;
+        _data->_milliseconds = other._data->_milliseconds;
+        _data->_seconds = other._data->_seconds;
+        _data->_minutes = other._data->_seconds;
 
         // Set other to null.
-        other._data->_milliseconds = 0;
-        other._data->_seconds = 0;
-        other._data->_minutes = 0;
         other._data = nullptr;
     }
 

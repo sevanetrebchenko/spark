@@ -7,7 +7,7 @@
 #include <vector>                       // std::vector
 #include <cstring>                      // strrchr
 
-#define DEBUG_MESSAGES
+//#define DEBUG_MESSAGES
 
 namespace UtilityBox::Logger {
 

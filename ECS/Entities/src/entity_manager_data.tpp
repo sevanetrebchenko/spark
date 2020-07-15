@@ -2,7 +2,7 @@
 #ifndef ENTITY_MANAGER_DATA_TPP
 #define ENTITY_MANAGER_DATA_TPP
 
-#include "../../../Utilities/Tools/compile_time_hash.h"            // STRINGHASH
+#include "../../../UtilityBox/Tools/compile_time_hash.h"            // STRINGHASH
 #include "../../Components/include/component_manager_collection.h" // ComponentManagerCollection
 #include "../../../World/all_components.h"                         // ALL_COMPONENTS
 
