@@ -32,6 +32,7 @@ set(SOURCE_FILES main.cpp
         )
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} -pthread)
 ## link SDL2 libraries to work with the project
 #target_link_libraries(${PROJECT_NAME} ${GLFW3_LIBRARIES} -pthread)
 #message("Linking GLFW3 libraries with flag: ${GLFW3_LIBRARIES}")
