@@ -1,4 +1,3 @@
-#include <iostream>
 #include "UtilityBox/Logger/include/logger.h"
 #include "UtilityBox/Logger/include/adapter.h"
 #include "UtilityBox/Tools/assert_dev.h"
@@ -10,7 +9,6 @@
 #include "ECS/Systems/include/base_component_system.h"
 #include "World/world.h"
 #include "UtilityBox/Tools/compile_time_hash.h"
-#include <SDL.h>
 
 using namespace UtilityBox::Logger;
 
@@ -110,36 +108,12 @@ void mySystem::Shutdown() {
 
 int main() {
     UtilityBox::Logger::LoggingHub::Initialize();
-    ECS::Components::ComponentManagerCollection<ALL_COMPONENTS>* ok = ECS::Components::ComponentManagerCollection<ALL_COMPONENTS>::GetInstance();
+    ECS::Components::ComponentManagerCollection<ALL_COMPONENTS> *ok = ECS::Components::ComponentManagerCollection<ALL_COMPONENTS>::GetInstance();
 
-    ECS::Components::ComponentManager<ECS::Components::BaseComponent> a = ECS::Components::ComponentManager<ECS::Components::BaseComponent> {};
-
-    SDL_Init(SDL_INIT_VIDEO);
-
-    SDL_Window *window = SDL_CreateWindow(
-            "SDL2Test",
-            SDL_WINDOWPOS_UNDEFINED,
-            SDL_WINDOWPOS_UNDEFINED,
-            640,
-            480,
-            0
-    );
-
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-    SDL_RenderClear(renderer);
-    SDL_RenderPresent(renderer);
-
-    SDL_Delay(3000);
-
-    SDL_DestroyWindow(window);
-//    SDL_Quit();
-
-    auto* entitymanager = ENGINE_NAME::World::GetInstance().GetEntityManager();
+    ECS::Components::ComponentManager<ECS::Components::BaseComponent> a = ECS::Components::ComponentManager<ECS::Components::BaseComponent>{};
+    auto *entitymanager = ENGINE_NAME::World::GetInstance().GetEntityManager();
     entitymanager->CreateEntity("Entity1");
     entitymanager->AddComponent<ECS::Components::BaseComponent>("Entity1");
     entitymanager->DeleteComponent<ECS::Components::BaseComponent>("Entity1");
     entitymanager->DestroyEntity("Entity1");
-
-    return 0;
 }

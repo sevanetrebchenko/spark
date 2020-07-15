@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.10)
-project(DataStructures)
+project(Spark)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 # GLFW3
-# use pkg-config to find glfw3 config file that was installed with GLFW binaries
-find_package(PkgConfig REQUIRED)
-pkg_search_module(GLFW REQUIRED glfw3)
+## use pkg-config to find glfw3 config file that was installed with GLFW binaries
+#find_package(PkgConfig REQUIRED)
+#pkg_search_module(GLFW REQUIRED glfw3)
 
 # SDL2
 # find SDL2 so it's location is known to the compiler
@@ -31,7 +31,7 @@ set(SOURCE_FILES main.cpp
         World/world.cpp
         )
 
-add_executable(DataStructures ${SOURCE_FILES})
-# link SDL2 libraries to work with the project
-target_link_libraries(DataStructures ${GLFW3_LIBRARIES} -pthread)
-message("Linking GLFW3 libraries with flag: ${GLFW3_LIBRARIES}")
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+## link SDL2 libraries to work with the project
+#target_link_libraries(${PROJECT_NAME} ${GLFW3_LIBRARIES} -pthread)
+#message("Linking GLFW3 libraries with flag: ${GLFW3_LIBRARIES}")
