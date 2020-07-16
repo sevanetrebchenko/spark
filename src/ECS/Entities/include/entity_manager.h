@@ -33,7 +33,7 @@ namespace ECS::Entities {
             void RegisterCallback(CallbackType, Class* classInstance, ReturnType(Class::*memberFunction)(FunctionArguments...));
 
             /**
-             * Create an entity. Throws error if the provided entity name matches any of the the build-in component type
+             * Create an entity. Throws error if the provided entity name matches any of the the bin-in component type
              * names or any pre-existing entity names. Automatically notifies all fully registered component systems that
              * a new entity has been created.
              * @param name - Unique name for the entity to have.

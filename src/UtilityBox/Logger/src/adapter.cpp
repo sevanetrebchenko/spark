@@ -168,7 +168,7 @@ namespace UtilityBox::Logger {
                     length = 0;
                 }
 
-                // String hasn't reached limit yet, append token to storage (build string).
+                // String hasn't reached limit yet, append token to storage (bin string).
                 length += storage.length() + 1;
                 tokens.emplace_back(std::move(storage));
             }

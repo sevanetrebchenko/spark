@@ -4,6 +4,7 @@ project(Spark)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
+
 # GLFW3
 ## use pkg-config to find glfw3 config file that was installed with GLFW binaries
 #find_package(PkgConfig REQUIRED)
@@ -16,19 +17,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 #message("Including SLD2 libraries found at: ${SDL2_INCLUDE_DIRS}")
 
 set(SOURCE_FILES main.cpp
-        UtilityBox/Memory/src/segmented_pool_allocator.cpp
-        UtilityBox/Memory/src/contiguous_pool_allocator.cpp
-        UtilityBox/Memory/src/memory_formatter.cpp
-        UtilityBox/Logger/src/logger.cpp
-        UtilityBox/Logger/src/timestamp.cpp
-        UtilityBox/Logger/src/log_message.cpp
-        UtilityBox/Logger/src/logging_system.cpp
-        UtilityBox/Logger/src/adapter.cpp
-        UtilityBox/Logger/src/adapter_config.cpp
+        src/UtilityBox/Memory/src/segmented_pool_allocator.cpp
+        src/UtilityBox/Memory/src/contiguous_pool_allocator.cpp
+        src/UtilityBox/Memory/src/memory_formatter.cpp
+        src/UtilityBox/Logger/src/logger.cpp
+        src/UtilityBox/Logger/src/timestamp.cpp
+        src/UtilityBox/Logger/src/log_message.cpp
+        src/UtilityBox/Logger/src/logging_system.cpp
+        src/UtilityBox/Logger/src/adapter.cpp
+        src/UtilityBox/Logger/src/adapter_config.cpp
         # ECS/Components/component_manager.cpp
-        ECS/Entities/src/entity_manager.cpp
-        ECS/Entities/src/entity_manager_data.cpp
-        World/world.cpp
+        src/ECS/Entities/src/entity_manager.cpp
+        src/ECS/Entities/src/entity_manager_data.cpp
+        src/World/world.cpp
         )
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})

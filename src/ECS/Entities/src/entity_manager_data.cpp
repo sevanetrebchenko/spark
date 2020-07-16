@@ -31,7 +31,7 @@ namespace ECS::Entities {
         _componentRemoveCallbackFunctions.clear();
     }
 
-    // Create an entity. Throws error if the provided entity name matches any of the the build-in component type names
+    // Create an entity. Throws error if the provided entity name matches any of the the bin-in component type names
     // or any pre-existing entity names. Automatically notifies all fully registered component systems that a new entity has been created.
     void EntityManagerData::CreateEntity(std::string name) {
         UtilityBox::Logger::LogMessage message {};
@@ -41,7 +41,7 @@ namespace ECS::Entities {
         message.Supply("Entity name converted to lowercase: '%s.'", name.c_str());
 
         // Entity name cannot be a name of any component.
-        message.Supply("Checking name against the names of all build-in component names.");
+        message.Supply("Checking name against the names of all bin-in component names.");
 
         if (CheckEntityName<ALL_COMPONENTS>(name)) {
             message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);

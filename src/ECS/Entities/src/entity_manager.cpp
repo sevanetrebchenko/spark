@@ -11,7 +11,7 @@ namespace ECS::Entities {
         delete _data;
     }
 
-    // Create an entity. Throws error if the provided entity name matches any of the the build-in component type names
+    // Create an entity. Throws error if the provided entity name matches any of the the bin-in component type names
     // or any pre-existing entity names. Automatically notifies all fully registered component systems that a new entity has been created.
     void EntityManager::CreateEntity(std::string name) {
         _data->CreateEntity(std::move(name));

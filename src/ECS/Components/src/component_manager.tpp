@@ -6,7 +6,7 @@
 #include "../../../UtilityBox/Logger/include/logging_system.h"           // LoggingSystem
 #include "../../../UtilityBox/Logger/include/log_message.h"              // LogMessage, LogMessageSeverity
 #include "../../../UtilityBox/Tools/global_defines.h"                    // _NODISCARD_
-#include "../../Components/include/base_component.h"                    // BaseComponent
+#include "../include/base_component.h"                    // BaseComponent
 
 namespace ECS::Components {
     //------------------------------------------------------------------------------------------------------------------
