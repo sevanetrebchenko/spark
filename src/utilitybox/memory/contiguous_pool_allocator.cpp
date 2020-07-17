@@ -233,7 +233,7 @@ namespace Spark::UtilityBox::Memory {
             void* dataBase = static_cast<char*>(pageBase) + sizeof(PageHeader);
 
             // Final block memory signatures.
-            for (int i = 0; i < _totalNumBlocks; ++i) {
+            for (unsigned i = 0; i < _totalNumBlocks; ++i) {
                 _formatter.SetBlockMemorySignatures(static_cast<char *>(dataBase) + (_totalBlockSize * i));
             }
 
@@ -263,7 +263,7 @@ namespace Spark::UtilityBox::Memory {
             void* dataBase = static_cast<char*>(pageBase) + sizeof(PageHeader);
 
             // Final block memory signatures and link header.
-            for (int i = 0; i < _totalNumBlocks; ++i) {
+            for (unsigned i = 0; i < _totalNumBlocks; ++i) {
                 _formatter.SetBlockMemorySignatures(static_cast<char *>(dataBase) + (_totalBlockSize * i));
             }
 

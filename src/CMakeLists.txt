@@ -28,11 +28,11 @@ target_include_directories(spark PUBLIC ${SPARK_PUBLIC_INCLUDE_FILES})
 
 # COMPILER
 # Set C++ requirements.
-set(CMAKE_CXX_STANDARD 17)
+target_compile_options(spark PRIVATE -std=c++17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 # Set compiler flags.
-target_compile_options(spark PRIVATE -Wall -Wextra -pedantic -Wnon-virtual-dtor -Wno-unused-parameter)
+#target_compile_options(spark PRIVATE -Wall -Wextra -pedantic -Wnon-virtual-dtor -Wno-unused-parameter)
 target_compile_options(spark PRIVATE -pthread) # Link with threading library.
 
 # DEPENDENCY LINKING

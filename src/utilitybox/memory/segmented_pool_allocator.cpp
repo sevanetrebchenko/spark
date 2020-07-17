@@ -85,8 +85,9 @@ namespace Spark::UtilityBox::Memory {
     // Constructor sets up the bare necessities for the memory manager, but does not initialize data.
     SegmentedPoolAllocator::AllocatorData::AllocatorData(unsigned blockSize) : _freeList(nullptr),
                                                                                _pageList(nullptr),
-                                                                               _numPages(0),
-                                                                               _blockDataSize(blockSize) {
+                                                                               _blockDataSize(blockSize),
+                                                                               _numPages(0)
+                                                                                {
         // Header pointer + padding + user block + padding
         _totalBlockSize = sizeof(void*) + _formatter.CalculateMemorySignatureBlockSize() + (_formatter._numPaddingBytes * 2);
 
@@ -198,7 +199,7 @@ namespace Spark::UtilityBox::Memory {
         void* dataBase = static_cast<char*>(pageBase) + sizeof(PageHeader);
 
         // Final block memory signatures and link header.
-        for (int i = 0; i < _blocksPerPage; ++i) {
+        for (unsigned i = 0; i < _blocksPerPage; ++i) {
             _formatter.SetBlockMemorySignatures(static_cast<char *>(dataBase) + (_totalBlockSize * i));
             SetBlockHeader(static_cast<char *>(dataBase) + (_totalBlockSize * i), currentPageHeader);
         }
@@ -221,7 +222,7 @@ namespace Spark::UtilityBox::Memory {
         _freeList = previousBlock;
 
         // Set pointers to the rest of the blocks in the list.
-        for (int i = 1; i < _blocksPerPage; ++i) {
+        for (unsigned i = 1; i < _blocksPerPage; ++i) {
             auto* currentBlock = reinterpret_cast<GenericObject*>(reinterpret_cast<char*>(previousBlock) + (_totalBlockSize));
             previousBlock->_next = currentBlock;
             previousBlock = currentBlock;

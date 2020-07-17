@@ -10,7 +10,7 @@
         if (!(check)) {                                                                                                                        \
             std::cerr << "Assert of condition: " << #check << " failed in function: " << function << ", " << file << ":" << line << std::endl; \
             std::cerr << "Assertion message: ";                                                                                                \
-            fprintf(stderr, formatString, __VA_ARGS__);                                                                                        \
+            fprintf(stderr, formatString, ##__VA_ARGS__);                                                                                      \
             std::cerr << std::endl;                                                                                                            \
             std::cerr << "Aborting program execution." << std::endl;                                                                           \
             exit(0);                                                                                                                           \
