@@ -1,16 +1,15 @@
-#include "src/UtilityBox/Logger/include/logger.h"
-#include "src/UtilityBox/Logger/include/adapter.h"
-#include "src/UtilityBox/Tools/assert_dev.h"
-#include "src/UtilityBox/Memory/include/segmented_pool_allocator.h"
-#include "src/UtilityBox/Memory/include/contiguous_pool_allocator.h"
-#include "src/ECS/Components/include/component_manager.h"
-#include "src/ECS/Components/include/base_component.h"
-#include "src/ECS/Components/include/component_manager_collection.h"
-#include "src/ECS/Systems/include/base_component_system.h"
+#include "include/spark/utilitybox/logger/logger.h"
+#include "include/spark/utilitybox/logger/adapter.h"
+#include "include/spark/utilitybox/tools/assert_dev.h"
+#include "include/spark/utilitybox/memory/segmented_pool_allocator.h"
+#include "include/spark/ecs/components/component_manager.h"
+#include "include/spark/ecs/components/base_component.h"
+#include "include/spark/ecs/components/component_manager_collection.h"
+#include "include/spark/ecs/systems/base_component_system.h"
 #include "src/World/world.h"
-#include "src/UtilityBox/Tools/compile_time_hash.h"
+#include "include/spark/utilitybox/tools/compile_time_hash.h"
 
-using namespace UtilityBox::Logger;
+using namespace Spark::UtilityBox::Logger;
 
 class myAdapter : public Adapter {
     public:
@@ -43,7 +42,7 @@ void myAdapter::OutputMessage() {
     }
 }
 
-class Data : public ECS::Components::BaseComponent {
+class Data : public Spark::ECS::Components::BaseComponent {
     public:
         static constexpr unsigned ID = STRINGHASH("Data");
         static constexpr const char* Name = "Data";
@@ -55,7 +54,7 @@ class Data : public ECS::Components::BaseComponent {
 };
 
 
-class Data2 : public ECS::Components::BaseComponent {
+class Data2 : public Spark::ECS::Components::BaseComponent {
     public:
         static constexpr std::uint32_t ID = STRINGHASH("Data2");
         static constexpr const char* Name = "Data2";
@@ -65,7 +64,7 @@ class Data2 : public ECS::Components::BaseComponent {
         char h[16];
 };
 
-class Data3 : public ECS::Components::BaseComponent {
+class Data3 : public Spark::ECS::Components::BaseComponent {
     public:
         static constexpr unsigned ID = STRINGHASH("Data3");
         static constexpr const char* Name = "Data3";
@@ -76,7 +75,7 @@ class Data3 : public ECS::Components::BaseComponent {
         char h[16];
 };
 
-class mySystem : ECS::Systems::BaseComponentSystem<Data, Data2, Data3> {
+class mySystem : Spark::ECS::Systems::BaseComponentSystem<Data, Data2, Data3> {
     public:
         explicit mySystem(std::string&& name);
 
@@ -86,7 +85,7 @@ class mySystem : ECS::Systems::BaseComponentSystem<Data, Data2, Data3> {
     private:
 };
 
-mySystem::mySystem(std::string &&name) : ECS::Systems::BaseComponentSystem<Data, Data2, Data3>(std::move(name)) {
+mySystem::mySystem(std::string &&name) : Spark::ECS::Systems::BaseComponentSystem<Data, Data2, Data3>(std::move(name)) {
 }
 
 void mySystem::Update(float dt) {
@@ -107,13 +106,13 @@ void mySystem::Shutdown() {
 }
 
 int main() {
-    UtilityBox::Logger::LoggingHub::Initialize();
-    ECS::Components::ComponentManagerCollection<ALL_COMPONENTS> *ok = ECS::Components::ComponentManagerCollection<ALL_COMPONENTS>::GetInstance();
+    Spark::UtilityBox::Logger::LoggingHub::Initialize();
+    Spark::ECS::Components::ComponentManagerCollection<ALL_COMPONENTS> *ok = Spark::ECS::Components::ComponentManagerCollection<ALL_COMPONENTS>::GetInstance();
 
-    ECS::Components::ComponentManager<ECS::Components::BaseComponent> a = ECS::Components::ComponentManager<ECS::Components::BaseComponent>{};
-    auto *entitymanager = ENGINE_NAME::World::GetInstance().GetEntityManager();
+    Spark::ECS::Components::ComponentManager<Spark::ECS::Components::BaseComponent> a = Spark::ECS::Components::ComponentManager<Spark::ECS::Components::BaseComponent>{};
+    auto *entitymanager = Spark::World::GetInstance().GetEntityManager();
     entitymanager->CreateEntity("Entity1");
-    entitymanager->AddComponent<ECS::Components::BaseComponent>("Entity1");
-    entitymanager->DeleteComponent<ECS::Components::BaseComponent>("Entity1");
+    entitymanager->AddComponent<Spark::ECS::Components::BaseComponent>("Entity1");
+    entitymanager->DeleteComponent<Spark::ECS::Components::BaseComponent>("Entity1");
     entitymanager->DestroyEntity("Entity1");
 }

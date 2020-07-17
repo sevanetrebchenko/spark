@@ -1,9 +1,9 @@
 
-#ifndef DATASTRUCTURES_ALL_COMPONENTS_H
-#define DATASTRUCTURES_ALL_COMPONENTS_H
+#ifndef SPARK_ALL_COMPONENTS_H
+#define SPARK_ALL_COMPONENTS_H
 
 // Component includes go here:
 
-#define ALL_COMPONENTS ECS::Components::BaseComponent // temporary
+#define ALL_COMPONENTS Spark::ECS::Components::BaseComponent // temporary
 
-#endif //DATASTRUCTURES_ALL_COMPONENTS_H
+#endif // SPARK_ALL_COMPONENTS_H

@@ -16,22 +16,24 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 #message("Including SLD2 libraries found at: ${SDL2_INCLUDE_DIRS}")
 
 set(SOURCE_FILES main.cpp
-        src/UtilityBox/Memory/src/segmented_pool_allocator.cpp
-        src/UtilityBox/Memory/src/contiguous_pool_allocator.cpp
-        src/UtilityBox/Memory/src/memory_formatter.cpp
-        src/UtilityBox/Logger/src/logger.cpp
-        src/UtilityBox/Logger/src/timestamp.cpp
-        src/UtilityBox/Logger/src/log_message.cpp
-        src/UtilityBox/Logger/src/logging_system.cpp
-        src/UtilityBox/Logger/src/adapter.cpp
-        src/UtilityBox/Logger/src/adapter_config.cpp
-        src/ECS/Entities/src/entity_manager.cpp
-        src/ECS/Entities/src/entity_manager_data.cpp
+        src/utilitybox/memory/segmented_pool_allocator.cpp
+        src/utilitybox/memory/contiguous_pool_allocator.cpp
+        src/utilitybox/memory/memory_formatter.cpp
+        src/utilitybox/logger/logger.cpp
+        src/utilitybox/logger/timestamp.cpp
+        src/utilitybox/logger/log_message.cpp
+        src/utilitybox/logger/logging_system.cpp
+        src/utilitybox/logger/adapter.cpp
+        src/utilitybox/logger/adapter_config.cpp
+        src/ecs/entities/entity_manager.cpp
+        src/ecs/entities/entity_manager_data.cpp
         src/World/world.cpp
         )
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} -pthread)
+
+add_subdirectory(lib)
 
 # DOXYGEN
 # Option to build documentation.

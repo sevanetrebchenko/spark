@@ -1,12 +1,12 @@
 
-#ifndef DATASTRUCTURES_WORLD_H
-#define DATASTRUCTURES_WORLD_H
+#ifndef SPARK_WORLD_H
+#define SPARK_WORLD_H
 
-#include "../ECS/Entities/include/entity_manager.h"
-#include "../ECS/Systems/include/base_component_system_interface.h"
-#include <vector>
+#include "../../include/spark/ecs/entities/entity_manager.h"
+#include "../../include/spark/ecs/systems/base_component_system_interface.h"
+#include "../../include/spark/spark_pch.h" // vector
 
-namespace ENGINE_NAME {
+namespace Spark {
     class World {
         public:
             static World& GetInstance();
@@ -15,7 +15,7 @@ namespace ENGINE_NAME {
             void Update();
             void Shutdown();
 
-            ECS::Entities::EntityManager* GetEntityManager();
+            Spark::ECS::Entities::EntityManager* GetEntityManager();
 
         private:
             World() = default;
@@ -23,10 +23,10 @@ namespace ENGINE_NAME {
 
             static World* _world;
 
-            ECS::Entities::EntityManager _entityManager {};
-            std::vector<ECS::Systems::BaseComponentSystemInterface*> _systems;
+            Spark::ECS::Entities::EntityManager _entityManager {};
+            std::vector<Spark::ECS::Systems::BaseComponentSystemInterface*> _systems;
     };
 }
 
 
-#endif //DATASTRUCTURES_WORLD_H
+#endif // SPARK_WORLD_H

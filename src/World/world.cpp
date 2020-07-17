@@ -1,6 +1,6 @@
 #include "world.h"
 
-namespace ENGINE_NAME {
+namespace Spark {
     World* World::_world = nullptr;
 
     ECS::Entities::EntityManager *World::GetEntityManager() {
