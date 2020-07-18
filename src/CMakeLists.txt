@@ -42,6 +42,7 @@ target_link_libraries(spark PUBLIC spark-glad)
 
 # Link GLFW
 # GLFW does not depend on OpenGL - OpenGL/Vulkan dependencies get loaded in at runtime.
+find_package(OpenGL REQUIRED) # ensure OpenGL exists on the system.
 target_link_libraries(spark PUBLIC glfw)
 
 # ImGui.
