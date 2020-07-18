@@ -13,11 +13,11 @@ set(CORE_SOURCE_FILES
         utilitybox/logger/adapter_config.cpp
         ecs/entities/entity_manager.cpp
         ecs/entities/entity_manager_data.cpp
-        World/world.cpp
+        core/core.cpp
     )
 
 # Make Spark Engine core library.
-add_library(spark STATIC ${CORE_SOURCE_FILES})
+add_executable(spark ${CORE_SOURCE_FILES})
 
 # Enable precompiled headers. #TODO: Check to make sure target_precompile_headers exists in CMake.
 target_precompile_headers(spark PRIVATE "${PROJECT_SOURCE_DIR}/include/spark/spark_pch.h")

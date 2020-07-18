@@ -2,10 +2,10 @@
 #ifndef SPARK_BASE_COMPONENT_SYSTEM_TPP
 #define SPARK_BASE_COMPONENT_SYSTEM_TPP
 
-#include "../../World/world.h"                                        // World
-#include "../../../include/spark/ecs/components/base_component.h"     // BaseComponent
-#include "../../../include/spark/ecs/entities/entity_manager.h"       // EntityManager
-#include "../../../include/spark/ecs/entities/entity_callback_type.h" // CallbackType
+#include "core/core.h"                         // World
+#include "ecs/components/base_component.h"     // BaseComponent
+#include "ecs/entities/entity_manager.h"       // EntityManager
+#include "ecs/entities/entity_callback_type.h" // CallbackType
 
 namespace Spark::ECS::Systems {
     //------------------------------------------------------------------------------------------------------------------
@@ -144,7 +144,7 @@ namespace Spark::ECS::Systems {
         UtilityBox::Logger::LogMessage message {};
         message.Supply("Constructing BaseComponentSystem.");
         // Register callback functions.
-        Entities::EntityManager *entityManager = Spark::World::GetInstance().GetEntityManager();
+        Entities::EntityManager *entityManager = Spark::Core::GetInstance()->GetEntityManager();
 
         // Register callback for when entities get created.
         message.Supply("Registering 'OnEntityCreate' callback function.");
@@ -319,7 +319,7 @@ namespace Spark::ECS::Systems {
         message.Supply("Entering function FilterEntity with entity ID: %s.", ID);
         ComponentTuple componentTuple;
         unsigned numMatchingComponents = 0;
-        Entities::EntityManager* entityManager = Spark::World::GetInstance().GetEntityManager();
+        Entities::EntityManager* entityManager = Spark::Core::GetInstance()->GetEntityManager();
 
         for (const auto& entityComponentPair : entityManager->GetComponents(ID)) { // ComponentTypeID, BaseComponent*
             // Attempt to see if this component is present in the system's component list.

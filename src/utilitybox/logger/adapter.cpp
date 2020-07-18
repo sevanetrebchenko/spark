@@ -1,7 +1,7 @@
 
-#include <spark_pch.h>                                              // std::setw, std::setfill, std::vector, std::stringstream, std::string
-#include "../../../include/spark/utilitybox/logger/logger.h"        // LogMessage
-#include "../../../include/spark/utilitybox/logger/adapter.h"       // Adapter
+#include <spark_pch.h>                 // std::setw, std::setfill, std::vector, std::stringstream, std::string
+#include "utilitybox/logger/logger.h"  // LogMessage
+#include "utilitybox/logger/adapter.h" // Adapter
 
 namespace Spark::UtilityBox::Logger {
     //------------------------------------------------------------------------------------------------------------------

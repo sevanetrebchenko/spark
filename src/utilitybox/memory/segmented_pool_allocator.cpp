@@ -1,7 +1,7 @@
 
-#include "memory_formatter.h"                                                  // MemoryFormatter
-#include "../../../include/spark/utilitybox/memory/segmented_pool_allocator.h" // SegmentedPoolAllocator
-#include "../../../include/spark/utilitybox/tools/assert_dev.h"                // Asserts
+#include "memory_formatter.h"                           // MemoryFormatter
+#include "utilitybox/memory/segmented_pool_allocator.h" // SegmentedPoolAllocator
+#include "utilitybox/tools/assert_dev.h"                // Asserts
 
 namespace Spark::UtilityBox::Memory {
     class SegmentedPoolAllocator::AllocatorData {

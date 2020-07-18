@@ -1,6 +1,6 @@
 
-#include "../../../include/spark/utilitybox/logger/logging_system.h" // LoggingSystem functions
-#include "../../../include/spark/utilitybox/logger/logger.h"         // SendMessage
+#include "utilitybox/logger/logging_system.h" // LoggingSystem functions
+#include "utilitybox/logger/logger.h"         // SendMessage
 
 namespace Spark::UtilityBox::Logger {
     // Construct a LoggingSystem instance with a desired name.

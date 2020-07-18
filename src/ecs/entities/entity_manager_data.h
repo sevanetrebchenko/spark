@@ -2,11 +2,11 @@
 #ifndef SPARK_ENTITY_MANAGER_DATA_H
 #define SPARK_ENTITY_MANAGER_DATA_H
 
-#include <spark_pch.h>                                                // std::function
-#include "../../../include/spark/ecs/ecs_typedefs.h"                  // EntityID, ComponentTypeID
-#include "../../../include/spark/ecs/components/base_component.h"     // BaseComponent
-#include "../../../include/spark/utilitybox/logger/logging_system.h"  // LoggingSystem
-#include "../../../include/spark/ecs/entities/entity_callback_type.h" // CallbackType
+#include <spark_pch.h>                         // std::function
+#include "ecs/ecs_typedefs.h"                  // EntityID, ComponentTypeID
+#include "ecs/components/base_component.h"     // BaseComponent
+#include "utilitybox/logger/logging_system.h"  // LoggingSystem
+#include "ecs/entities/entity_callback_type.h" // CallbackType
 
 namespace Spark {
     namespace ECS {

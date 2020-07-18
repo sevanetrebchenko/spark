@@ -1,15 +1,15 @@
 
-#ifndef SPARK_WORLD_H
-#define SPARK_WORLD_H
+#ifndef SPARK_CORE_H
+#define SPARK_CORE_H
 
-#include "../../include/spark/ecs/entities/entity_manager.h"
-#include "../../include/spark/ecs/systems/base_component_system_interface.h"
+#include "ecs/entities/entity_manager.h"
+#include "ecs/systems/base_component_system_interface.h"
 #include <spark_pch.h> // vector
 
 namespace Spark {
-    class World {
+    class Core {
         public:
-            static World& GetInstance();
+            static Core* GetInstance();
 
             void Initialize();
             void Update();
@@ -18,10 +18,10 @@ namespace Spark {
             Spark::ECS::Entities::EntityManager* GetEntityManager();
 
         private:
-            World() = default;
-            ~World() = default;
+            Core() = default;
+            ~Core() = default;
 
-            static World* _world;
+            static Core* _world;
 
             Spark::ECS::Entities::EntityManager _entityManager {};
             std::vector<Spark::ECS::Systems::BaseComponentSystemInterface*> _systems;
@@ -29,4 +29,4 @@ namespace Spark {
 }
 
 
-#endif // SPARK_WORLD_H
+#endif // SPARK_CORE_H

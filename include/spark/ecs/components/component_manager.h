@@ -2,8 +2,8 @@
 #ifndef SPARK_COMPONENT_MANAGER_H
 #define SPARK_COMPONENT_MANAGER_H
 
-#include "component_manager_interface.h"           // ComponentManagerInterface
-#include "../../utilitybox/tools/global_defines.h" // _NODISCARD_
+#include "component_manager_interface.h"     // ComponentManagerInterface
+#include "utilitybox/tools/global_defines.h" // _NODISCARD_
 
 namespace Spark {
     namespace ECS {

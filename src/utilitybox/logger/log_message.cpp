@@ -1,7 +1,7 @@
 
-#include <spark_pch.h>                                              // std::va_list, va_copy, va_start, va_end
-#include "../../../include/spark/utilitybox/logger/log_message.h"   // LogMessage functions
-#include "../../../include/spark/utilitybox/tools/assert_dev.h"     // Asserts
+#include <spark_pch.h>                       // std::va_list, va_copy, va_start, va_end
+#include "utilitybox/logger/log_message.h"   // LogMessage functions
+#include "utilitybox/tools/assert_dev.h"     // Asserts
 
 namespace Spark::UtilityBox::Logger {
     //------------------------------------------------------------------------------------------------------------------

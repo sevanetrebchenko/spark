@@ -18,7 +18,7 @@ namespace Spark {
                      * Get a singleton LoggingHub instance.
                      * @return Reference to the singleton LoggingHub instance.
                      */
-                    static LoggingHub *GetInstance();
+                    static LoggingHub* GetInstance();
 
                     /**
                      * Direct call to initialize the necessary data for the LoggingHub to function properly. If not called,

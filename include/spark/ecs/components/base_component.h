@@ -2,7 +2,7 @@
 #ifndef SPARK_BASE_COMPONENT_H
 #define SPARK_BASE_COMPONENT_H
 
-#include "../../utilitybox/tools/compile_time_hash.h" // STRINGHASH
+#include "utilitybox/tools/compile_time_hash.h" // STRINGHASH
 
 namespace Spark {
     namespace ECS {

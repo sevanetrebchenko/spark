@@ -6,8 +6,11 @@
 #include "include/spark/ecs/components/base_component.h"
 #include "include/spark/ecs/components/component_manager_collection.h"
 #include "include/spark/ecs/systems/base_component_system.h"
-#include "src/World/world.h"
+#include "core/core.h"
 #include "include/spark/utilitybox/tools/compile_time_hash.h"
+
+#include <glad.h>
+#include <GLFW/glfw3.h>
 
 using namespace Spark::UtilityBox::Logger;
 
@@ -110,7 +113,7 @@ int main() {
     Spark::ECS::Components::ComponentManagerCollection<ALL_COMPONENTS> *ok = Spark::ECS::Components::ComponentManagerCollection<ALL_COMPONENTS>::GetInstance();
 
     Spark::ECS::Components::ComponentManager<Spark::ECS::Components::BaseComponent> a = Spark::ECS::Components::ComponentManager<Spark::ECS::Components::BaseComponent>{};
-    auto *entitymanager = Spark::World::GetInstance().GetEntityManager();
+    auto *entitymanager = Spark::Core::GetInstance()->GetEntityManager();
     entitymanager->CreateEntity("Entity1");
     entitymanager->AddComponent<Spark::ECS::Components::BaseComponent>("Entity1");
     entitymanager->DeleteComponent<Spark::ECS::Components::BaseComponent>("Entity1");
