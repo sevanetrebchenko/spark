@@ -2,9 +2,9 @@
 #ifndef SPARK_LOG_MESSAGE_H
 #define SPARK_LOG_MESSAGE_H
 
-#include "../timing/timestamp.h"               // TimeStamp
+#include <spark_pch.h>               // strrchr, std::vector
+#include "../timing/timestamp.h"     // TimeStamp
 #include "../tools/global_defines.h" // _NODISCARD_
-#include "../../spark_pch.h"         // strrchr, std::vector
 
 //#define DEBUG_MESSAGES
 

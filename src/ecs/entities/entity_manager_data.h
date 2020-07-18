@@ -2,7 +2,7 @@
 #ifndef SPARK_ENTITY_MANAGER_DATA_H
 #define SPARK_ENTITY_MANAGER_DATA_H
 
-#include "../../../include/spark/spark_pch.h"                         // std::function
+#include <spark_pch.h>                                                // std::function
 #include "../../../include/spark/ecs/ecs_typedefs.h"                  // EntityID, ComponentTypeID
 #include "../../../include/spark/ecs/components/base_component.h"     // BaseComponent
 #include "../../../include/spark/utilitybox/logger/logging_system.h"  // LoggingSystem

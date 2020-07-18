@@ -2,7 +2,7 @@
 #ifndef SPARK_ASSERT_DEV_H
 #define SPARK_ASSERT_DEV_H
 
-#include "../../spark_pch.h" // std::cerr, fprintf
+#include <spark_pch.h> // std::cerr, fprintf
 
 // Function used when more parameters are passed with the message (printf-style assert).
 #define ASSERT_VARIADIC(function, file, line, check, formatString, ...)                                                                        \

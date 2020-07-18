@@ -2,10 +2,10 @@
 #ifndef SPARK_ADAPTER_H
 #define SPARK_ADAPTER_H
 
+#include <spark_pch.h>               // std::string, std::stringstream, std::queue
 #include "adapter_config.h"          // AdapterConfiguration
 #include "../timing/timestamp.h"     // TimeStamp
 #include "../tools/global_defines.h" // _NODISCARD_
-#include "../../spark_pch.h"         // std::string, std::stringstream, std::queue
 
 namespace Spark {
     namespace UtilityBox {

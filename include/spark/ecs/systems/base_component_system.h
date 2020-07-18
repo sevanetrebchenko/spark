@@ -2,8 +2,8 @@
 #ifndef SPARK_BASE_COMPONENT_SYSTEM_H
 #define SPARK_BASE_COMPONENT_SYSTEM_H
 
+#include <spark_pch.h>                              // std::tuple, std::vector
 #include "base_component_system_interface.h"        // BaseComponentSystemInterface
-#include "../../spark_pch.h"                        // std::tuple, std::vector
 #include "../../utilitybox/logger/logging_system.h" // LoggingSystem
 
 namespace Spark {

@@ -2,10 +2,10 @@
 #ifndef SPARK_ENTITY_MANAGER_H
 #define SPARK_ENTITY_MANAGER_H
 
+#include <spark_pch.h>                                        // std::unordered_map
 #include "entity_callback_type.h"                             // CallbackType
 #include "../ecs_typedefs.h"                                  // EntityID, ComponentTypeID
 #include "../components/base_component.h"                     // BaseComponent
-#include "../../spark_pch.h"                                  // std::unordered_map
 #include "../../../../src/ecs/entities/entity_manager_data.h" // EntityManagerData
 
 namespace Spark {

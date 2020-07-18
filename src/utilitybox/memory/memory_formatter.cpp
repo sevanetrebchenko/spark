@@ -1,6 +1,6 @@
 
-#include "memory_formatter.h"                 // MemoryFormatter
-#include "../../../include/spark/spark_pch.h" // memset
+#include <spark_pch.h>        // memset
+#include "memory_formatter.h" // MemoryFormatter
 
 namespace Spark::UtilityBox::Memory {
     // Constructor.

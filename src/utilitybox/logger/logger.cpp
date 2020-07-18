@@ -1,7 +1,7 @@
 
+#include <spark_pch.h>                                           // std::invalid_argument, std::mutex, std::thread, std::atomic, std::cout, std::cerr, std::find, atexit
 #include "../../../include/spark/utilitybox/logger/logger.h"     // LoggingHub
 #include "../../../include/spark/utilitybox/tools/assert_dev.h"  // Asserts
-#include "../../../include/spark/spark_pch.h"                    // std::invalid_argument, std::mutex, std::thread, std::atomic, std::cout, std::cerr, std::find, atexit
 
 namespace Spark::UtilityBox::Logger {
     //------------------------------------------------------------------------------------------------------------------

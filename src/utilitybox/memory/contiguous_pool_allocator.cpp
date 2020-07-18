@@ -1,8 +1,8 @@
 
+#include <spark_pch.h>                                                          // memset
 #include "memory_formatter.h"                                                   // MemoryFormatter
 #include "../../../include/spark/utilitybox/memory/contiguous_pool_allocator.h" // ContiguousPoolAllocator
 #include "../../../include/spark/utilitybox/tools/assert_dev.h"                 // Asserts
-#include "../../../include/spark/spark_pch.h"                                   // memset
 
 namespace Spark::UtilityBox::Memory {
     class ContiguousPoolAllocator::AllocatorData {

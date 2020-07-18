@@ -2,7 +2,7 @@
 #ifndef SPARK_COMPILE_TIME_HASH_H
 #define SPARK_COMPILE_TIME_HASH_H
 
-#include "../../spark_pch.h" // std::uint32_t
+#include <spark_pch.h> // std::uint32_t
 
 namespace Spark {
     namespace UtilityBox {

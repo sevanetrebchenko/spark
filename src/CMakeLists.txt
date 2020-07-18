@@ -35,14 +35,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 #target_compile_options(spark PRIVATE -Wall -Wextra -pedantic -Wnon-virtual-dtor -Wno-unused-parameter)
 target_compile_options(spark PRIVATE -pthread) # Link with threading library.
 
-# DEPENDENCY LINKING
+# DEPENDENCIES
 # Link Glad.
 # Glad gives access to both OpenGL extensions and the modern version of the core OpenGL API.
 target_link_libraries(spark PUBLIC spark-glad)
 
 # Link GLFW
 # GLFW does not depend on OpenGL - OpenGL/Vulkan dependencies get loaded in at runtime.
-find_package(OpenGL REQUIRED) # ensure OpenGL exists on the system.
+find_package(OpenGL REQUIRED) # Ensure OpenGL exists on the system.
 target_link_libraries(spark PUBLIC glfw)
 
 # ImGui.

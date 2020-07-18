@@ -1,12 +1,11 @@
 # Initialize dependencies.
-
 # Build glad.
 add_subdirectory(glad)
 
 # Build GLFW.
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build GLFW documentation." FORCE)     # Turn off building GLFW documentation.
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build GLFW tests." FORCE)    # Turn off building GLFW tests.
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build GLFW examples." FORCE) # Turn off building GLFW example code.
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build GLFW documentation." FORCE) # Turn off building GLFW documentation.
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build GLFW tests." FORCE)        # Turn off building GLFW tests.
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build GLFW examples." FORCE)  # Turn off building GLFW example code.
 add_subdirectory(glfw)
 
 # Build ImGui.

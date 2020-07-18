@@ -29,4 +29,4 @@
 #include <stack>
 #include <string>
 
-#endif //SPARK_SPARK_PCH_H
+#endif // SPARK_SPARK_PCH_H

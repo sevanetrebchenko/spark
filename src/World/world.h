@@ -4,7 +4,7 @@
 
 #include "../../include/spark/ecs/entities/entity_manager.h"
 #include "../../include/spark/ecs/systems/base_component_system_interface.h"
-#include "../../include/spark/spark_pch.h" // vector
+#include <spark_pch.h> // vector
 
 namespace Spark {
     class World {
