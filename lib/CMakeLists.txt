@@ -8,6 +8,9 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build GLFW tests." FORCE)        # Turn off
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build GLFW examples." FORCE)  # Turn off building GLFW example code.
 add_subdirectory(glfw)
 
+# Build GLM.
+add_subdirectory(glm)
+
 # Build ImGui.
 include(imgui_setup
         RESULT_VARIABLE IMGUI_SETUP_RESULT)

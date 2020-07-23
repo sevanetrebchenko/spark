@@ -13,6 +13,9 @@
 #include <functional>
 #include <iomanip>
 #include <cstdarg>
+#include <utility>
+#include <bitset>
+
 // Logger
 #include <stdexcept>
 #include <mutex>

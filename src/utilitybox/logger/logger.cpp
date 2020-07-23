@@ -310,6 +310,7 @@ namespace Spark::UtilityBox::Logger {
             std::chrono::time_point<std::chrono::high_resolution_clock> _initializationTime; // Timestamp for the initialization of the parent LoggingHub.
             std::atomic<bool> _reset;                                                        // Flag to prevent multiple resets of LoggingHubData
     };
+
     LoggingHub* LoggingHub::_loggingHub = nullptr;
 
     // Gather all data from the log message into one storage location while message is in queue to be processed.

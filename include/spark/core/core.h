@@ -9,6 +9,10 @@
 namespace Spark {
     class Core {
         public:
+            /**
+             * Returns singleton instance of the engine Core. Instantiates singleton if necessary.
+             * @return Pointer to singleton Core instance.
+             */
             static Core* GetInstance();
 
             void Initialize();
@@ -18,13 +22,13 @@ namespace Spark {
             Spark::ECS::Entities::EntityManager* GetEntityManager();
 
         private:
-            Core() = default;
-            ~Core() = default;
+            Core();
+            ~Core();
 
-            static Core* _world;
+            static Core* _world; // Singleton
 
-            Spark::ECS::Entities::EntityManager _entityManager {};
-            std::vector<Spark::ECS::Systems::BaseComponentSystemInterface*> _systems;
+            class CoreData;
+            CoreData* _data;
     };
 }
 

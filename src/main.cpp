@@ -1,15 +1,16 @@
-#include "include/spark/utilitybox/logger/logger.h"
-#include "include/spark/utilitybox/logger/adapter.h"
-#include "include/spark/utilitybox/tools/assert_dev.h"
-#include "include/spark/utilitybox/memory/segmented_pool_allocator.h"
-#include "include/spark/ecs/components/component_manager.h"
-#include "include/spark/ecs/components/base_component.h"
-#include "include/spark/ecs/components/component_manager_collection.h"
-#include "include/spark/ecs/systems/base_component_system.h"
+#include "utilitybox/logger/logger.h"
+#include "utilitybox/logger/adapter.h"
+#include "utilitybox/tools/assert_dev.h"
+#include "utilitybox/memory/segmented_pool_allocator.h"
+#include "ecs/components/component_manager.h"
+#include "ecs/components/base_component.h"
+#include "ecs/components/component_manager_collection.h"
+#include "ecs/systems/base_component_system.h"
 #include "core/core.h"
-#include "include/spark/utilitybox/tools/compile_time_hash.h"
+#include "utilitybox/tools/compile_time_hash.h"
 
-#include <glad.h>
+#include "graphics/renderer/rendering_context.h"
+
 #include <GLFW/glfw3.h>
 
 using namespace Spark::UtilityBox::Logger;
@@ -110,12 +111,8 @@ void mySystem::Shutdown() {
 
 int main() {
     Spark::UtilityBox::Logger::LoggingHub::Initialize();
-    Spark::ECS::Components::ComponentManagerCollection<ALL_COMPONENTS> *ok = Spark::ECS::Components::ComponentManagerCollection<ALL_COMPONENTS>::GetInstance();
-
-    Spark::ECS::Components::ComponentManager<Spark::ECS::Components::BaseComponent> a = Spark::ECS::Components::ComponentManager<Spark::ECS::Components::BaseComponent>{};
     auto *entitymanager = Spark::Core::GetInstance()->GetEntityManager();
-    entitymanager->CreateEntity("Entity1");
-    entitymanager->AddComponent<Spark::ECS::Components::BaseComponent>("Entity1");
-    entitymanager->DeleteComponent<Spark::ECS::Components::BaseComponent>("Entity1");
-    entitymanager->DestroyEntity("Entity1");
+    Spark::Core::GetInstance()->Initialize();
+    Spark::Core::GetInstance()->Update();
+    Spark::Core::GetInstance()->Shutdown();
 }

@@ -1,19 +1,7 @@
 # PROJECT FILES
 # TODO: Platform specific.
-set(CORE_SOURCE_FILES
-        ../main.cpp
-        utilitybox/memory/segmented_pool_allocator.cpp
-        utilitybox/memory/contiguous_pool_allocator.cpp
-        utilitybox/memory/memory_formatter.cpp
-        utilitybox/logger/logger.cpp
-        utilitybox/logger/timestamp.cpp
-        utilitybox/logger/log_message.cpp
-        utilitybox/logger/logging_system.cpp
-        utilitybox/logger/adapter.cpp
-        utilitybox/logger/adapter_config.cpp
-        ecs/entities/entity_manager.cpp
-        ecs/entities/entity_manager_data.cpp
-        core/core.cpp
+file(GLOB_RECURSE
+        CORE_SOURCE_FILES "${PROJECT_SOURCE_DIR}/src/*.cpp"
     )
 
 # Make Spark Engine core library.
