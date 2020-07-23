@@ -20,9 +20,6 @@ namespace Spark {
             Spark::ECS::Entities::EntityManager _entityManager {};
             std::vector<Spark::ECS::Systems::BaseComponentSystemInterface*> _systems;
             Graphics::Renderer::RenderingContext* _context;
-
-            GLuint vertex_buffer, vertex_shader, fragment_shader, program;
-            GLint mvp_location, vpos_location, vcol_location;
     };
 
     Core* Core::_world = nullptr;
@@ -149,6 +146,6 @@ namespace Spark {
     }
 
     void Core::CoreData::Shutdown() {
-
+        delete _context;
     }
 }

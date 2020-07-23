@@ -33,7 +33,7 @@ namespace Spark::Platform::OpenGL {
         glfwTerminate();
 
         // Window deletion is not handled here.
-        _window = nullptr;
+        delete _window;
     }
 
     void OpenGLRenderingContext::OpenGLRenderingContextData::GLFWErrorCallback(int errorCode, const char* errorDescription) {
