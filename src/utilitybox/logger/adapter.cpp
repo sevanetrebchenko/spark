@@ -119,6 +119,8 @@ namespace Spark::UtilityBox::Logger {
             delete[] _calendarBuffer;
             _calendarBuffer = new char[_calendarBufferSize]; // Throws exception, caught elsewhere.
         }
+
+        _calendarTime = std::time(nullptr);
     }
 
     // Destructor. Safely deallocates all memory used by Adapter Data helper functions.

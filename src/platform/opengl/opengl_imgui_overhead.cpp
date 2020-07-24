@@ -4,7 +4,6 @@
 #include <examples/imgui_impl_glfw.h>
 #include <imgui.h>
 #include <platform/opengl/opengl_window.h>
-#include <spark_pch.h> // std::bitset
 
 #define GLFW_VERSION_HAS_NEW_CURSORS (GLFW_VERSION_MAJOR * 1000 + GLFW_VERSION_MINOR * 100 >= 3400)
 
@@ -12,6 +11,12 @@ namespace Spark::Platform::OpenGL {
 
     class OpenGLImGuiOverhead::ImGuiOverheadData {
         public:
+            /**
+             * Initialize ImGui for OpenGL given a fully initialized GLFW window.
+             * @param window      - Window to use to initialize ImGui.
+             *                      Note: Window must be in a fully initialized and valid state in order for
+             * @param glslVersion
+             */
             ImGuiOverheadData(GLFWwindow* window, const char* glslVersion);
             ~ImGuiOverheadData();
 
@@ -30,23 +35,22 @@ namespace Spark::Platform::OpenGL {
 
             static void GLFWMouseScrollCallback(GLFWwindow* /* WINDOW UNUSED */, double xOffset, double yOffset);
 
-            static void GLFWKeyCallback(GLFWwindow* /* WINDOW UNUSED */, int keyCode, int /* SCANCODE UNUSED */, int keyAction, int keyMods);
+            static void GLFWKeyCallback(GLFWwindow* /* WINDOW UNUSED */, int keyCode, int /* SCANCODE UNUSED */, int keyAction, int /* MODS UNUSED */);
             static void KeyStateToString(UtilityBox::Logger::LogMessage& message, int keyCode, int keyAction);
             static void KeyButtonToString(UtilityBox::Logger::LogMessage& message, int keyCode, const char* actionString);
-            static void KeyModsToString(UtilityBox::Logger::LogMessage& message, int keyMods);
 
             static const char* GLFWGetClipboardText(void* window);
             static void GLFWSetClipboardText(void* window, const char* text);
 
+            void GLFWNewFrame(UtilityBox::Logger::LogMessage& message);
+            void UpdateWindowSize();
             void UpdateMousePosition();
             void UpdateMouseCursor();
 
             void SetupImGuiOpenGLEnvironment(UtilityBox::Logger::LogMessage& message);
-            void GLFWNewFrame(UtilityBox::Logger::LogMessage& message);
-            void UpdateWindowSize();
 
             GLFWwindow* _window;
-            GLFWcursor* _mouseCursors[ImGuiMouseCursor_COUNT] { };
+            static GLFWcursor* _mouseCursors[ImGuiMouseCursor_COUNT];
             UtilityBox::Logger::LoggingSystem _loggingSystem { "ImGui Overhead" };
             const char* _glslVersion;
             static bool _mouseButtonStates[ImGuiMouseButton_COUNT]; // Button input flags.
@@ -57,6 +61,7 @@ namespace Spark::Platform::OpenGL {
     };
 
     bool OpenGLImGuiOverhead::ImGuiOverheadData::_mouseButtonStates[ImGuiMouseButton_COUNT] {};
+    GLFWcursor* OpenGLImGuiOverhead::ImGuiOverheadData::_mouseCursors[ImGuiMouseCursor_COUNT] {};
 
     OpenGLImGuiOverhead::ImGuiOverheadData::ImGuiOverheadData(GLFWwindow *window, const char *glslVersion) : _window(window),
                                                                                                              _glslVersion(glslVersion) {
@@ -88,11 +93,7 @@ namespace Spark::Platform::OpenGL {
         UtilityBox::Logger::LogMessage message {};
         message.Supply("Entering function StartFrame for OpenGL ImGui overhead.");
 
-        // Update display / framebuffer size every frame to accommodate for changing window sizes.
-        UpdateWindowSize();
-        UpdateMousePosition();
-        UpdateMouseCursor();
-
+        GLFWNewFrame(message);
         ImGui::NewFrame();
     }
 
@@ -122,7 +123,12 @@ namespace Spark::Platform::OpenGL {
     }
 
     void OpenGLImGuiOverhead::ImGuiOverheadData::GLFWNewFrame(UtilityBox::Logger::LogMessage &message) {
+        // Update display / framebuffer size every frame to accommodate for changing window sizes.
+        UpdateWindowSize();
 
+        // Update mouse details.
+        UpdateMousePosition();
+        UpdateMouseCursor();
     }
 
     void OpenGLImGuiOverhead::ImGuiOverheadData::UpdateWindowSize() {
@@ -243,12 +249,11 @@ namespace Spark::Platform::OpenGL {
         mouseScrollCallbackLoggingSystem.Log(message);
     }
 
-    void OpenGLImGuiOverhead::ImGuiOverheadData::GLFWKeyCallback(GLFWwindow* /* WINDOW UNUSED */, int keyCode, int /* SCANCODE UNUSED */, int keyAction, int keyMods) {
+    void OpenGLImGuiOverhead::ImGuiOverheadData::GLFWKeyCallback(GLFWwindow* /* WINDOW UNUSED */, int keyCode, int /* SCANCODE UNUSED */, int keyAction, int /* MODS UNUSED */) {
         static UtilityBox::Logger::LoggingSystem keyCallbackLoggingSystem { "GLFW Key Callback" };
         UtilityBox::Logger::LogMessage message {};
         message.Supply("Entering function GLFWKeyCallback.");
         KeyStateToString(message, keyCode, keyAction);
-        KeyModsToString(message, keyMods);
 
         ImGuiIO& io = ImGui::GetIO();
         switch (keyAction) {
@@ -304,6 +309,7 @@ namespace Spark::Platform::OpenGL {
             _mouseCursor = nullptr;
         }
 
+        // Window deletion is not handled here.
         _window = nullptr;
 
         ImGui::DestroyContext();
@@ -744,31 +750,6 @@ namespace Spark::Platform::OpenGL {
         }
     }
 
-    void OpenGLImGuiOverhead::ImGuiOverheadData::KeyModsToString(UtilityBox::Logger::LogMessage &message, int keyMods) {
-        std::bitset<sizeof(int)> bitField (keyMods);
-        bool shiftKey = bitField.test(0);    // GLFW_MOD_SHIFT = 0x0001 -> 0b1 (first bit)
-        bool controlKey = bitField.test(1);  // GLFW_MOD_CONTROL = 0x0002 -> 0b10 (second bit)
-        bool altKey = bitField.test(2);      // GLFW_MOD_ALT = 0x0004 -> 0b100 (third bit)
-        bool superKey = bitField.test(3);    // GLFW_MOD_SUPER = 0x0008 -> 0b1000 (fourth bit)
-
-        if (shiftKey) {
-            message.Supply("Modifier: GLFW_MOD_SHIFT ('Shift' key) held down.");
-        }
-
-        if (controlKey) {
-            message.Supply("Modifier: GLFW_MOD_CONTROL ('Ctrl' key) held down.");
-        }
-
-        if (altKey) {
-            message.Supply("Modifier: GLFW_MOD_ALT ('Alt' key) held down.");
-        }
-
-        if (superKey) {
-            // TODO: operating system based
-            message.Supply("Modifier: GLFW_MOD_SUPER ('Windows/Command' key) held down.");
-        }
-    }
-
     void OpenGLImGuiOverhead::ImGuiOverheadData::UpdateMousePosition() {
         // Update mouse button state.
         ImGuiIO& io = ImGui::GetIO();
@@ -783,8 +764,7 @@ namespace Spark::Platform::OpenGL {
         io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
 
         // Update the mouse position if the window is focused.
-        bool focused = glfwGetWindowAttrib(_window, GLFW_FOCUSED) != 0;
-        if (focused) {
+        if (glfwGetWindowAttrib(_window, GLFW_FOCUSED)) {
             glfwGetCursorPos(_window, &_mousePosition.first, &_mousePosition.second);
             io.MousePos = ImVec2((float)_mousePosition.first, (float)_mousePosition.second);
         }

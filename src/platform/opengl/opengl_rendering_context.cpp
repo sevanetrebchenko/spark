@@ -30,10 +30,9 @@ namespace Spark::Platform::OpenGL {
 
     OpenGLRenderingContext::OpenGLRenderingContextData::~OpenGLRenderingContextData() {
         delete _imGuiOverhead;
-        glfwTerminate();
-
-        // Window deletion is not handled here.
         delete _window;
+
+        glfwTerminate();
     }
 
     void OpenGLRenderingContext::OpenGLRenderingContextData::GLFWErrorCallback(int errorCode, const char* errorDescription) {

@@ -1,5 +1,5 @@
 
-#include <spark_pch.h>                   // std::setfill, std::setw
+#include <spark_pch.h>                   // std::setfill, std::setw, std::floor
 #include "utilitybox/timing/timestamp.h" // TimeStamp
 #include "utilitybox/logger/logger.h"    // GetLoggingInitializationTime
 
@@ -22,17 +22,21 @@ namespace Spark::UtilityBox::Timing {
 
     // Construct the back-end for timestamp processing.
     TimeStamp::TimeStampData::TimeStampData(const std::chrono::time_point<std::chrono::high_resolution_clock>& timestamp) : _raw(timestamp) {
-        // Get the total timestamp time in milliseconds.
-        unsigned long elapsed = (_raw - Logger::LoggingHub::GetInstance()->GetLoggingInitializationTime()).count() / 1000;
+        // Get the total timestamp time in seconds.
+        double elapsedSeconds = (std::chrono::duration_cast<std::chrono::duration<double>>(_raw - Logger::LoggingHub::GetInstance()->GetLoggingInitializationTime())).count();
+
+        // Get the fractional part of seconds
+        double whole = std::floor(elapsedSeconds);
+        double fraction = (elapsedSeconds - whole);
 
         // Get millisecond portion.
-        _milliseconds = elapsed % 1000;
+        _milliseconds = ((int)(fraction * 1000)) % 1000;
 
         // Get second portion.
-        _seconds = (elapsed / 1000) % 60;
+        _seconds = ((int)whole) % 60;
 
         // Get minute portion.
-        _minutes = (elapsed / 60000) % 60;
+        _minutes = ((int)(whole / 60.f));
     }
 
 
@@ -52,7 +56,7 @@ namespace Spark::UtilityBox::Timing {
         _data->_raw = other._data->_raw;
         _data->_milliseconds = other._data->_milliseconds;
         _data->_seconds = other._data->_seconds;
-        _data->_minutes = other._data->_seconds;
+        _data->_minutes = other._data->_minutes;
 
         // Set other to null.
         other._data = nullptr;
