@@ -9,8 +9,8 @@
 #include "core/core.h"
 #include "utilitybox/tools/compile_time_hash.h"
 
-#include "graphics/renderer/rendering_context.h"
-
+#include <graphics/context/window.h>
+#include <platform/opengl/opengl_window.h>
 #include <GLFW/glfw3.h>
 
 using namespace Spark::UtilityBox::Logger;
@@ -111,7 +111,7 @@ void mySystem::Shutdown() {
 
 int main() {
     Spark::UtilityBox::Logger::LoggingHub::Initialize();
-    auto *entitymanager = Spark::Core::GetInstance()->GetEntityManager();
+
     Spark::Core::GetInstance()->Initialize();
     Spark::Core::GetInstance()->Update();
     Spark::Core::GetInstance()->Shutdown();

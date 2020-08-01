@@ -8,12 +8,12 @@
 
 namespace Spark {
     namespace Graphics {
-        namespace Renderer {
+        namespace Context {
 
             class Window {
                 public:
                     /**
-                     * Construct a base window to use across all platforms.
+                     * Initialize a window based on the platform-specific rendering context being used.
                      * @param windowName - Name for the window to have upon creation.
                      * @param width      - Desired width of the window.
                      * @param height     - Desired height of the window.
@@ -23,16 +23,11 @@ namespace Spark {
                     /**
                      * Destructor.
                      */
-                    virtual ~Window() = 0;
-
-                    /**
-                     * Initialize a window to the platform it is running on.
-                     */
-                    virtual void Initialize() = 0;
+                    virtual ~Window();
 
                     /**
                      * Get the pointer to the underlying window object.
-                     * @return
+                     * @return Pointer to the base window.
                      */
                     _NODISCARD_ void* GetNativeWindow() const;
 
@@ -40,12 +35,12 @@ namespace Spark {
                     std::string _windowName; // Name of the window.
                     int _windowWidth;        // Window width.
                     int _windowHeight;       // Window height
-                    void* _window;           // Window.
+                    void* _window;           // Window object.
 
-                    UtilityBox::Logger::LoggingSystem _loggingSystem { std::string("Window: ") + _windowName };
+                    UtilityBox::Logger::LoggingSystem _loggingSystem { std::string("Window - ") + _windowName }; // Window logging system.
             };
 
-        } // namespace Renderer
+        } // namespace Context
     } // namespace Graphics
 } // namespace Spark
 

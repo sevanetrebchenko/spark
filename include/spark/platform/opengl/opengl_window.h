@@ -2,25 +2,28 @@
 #ifndef SPARK_OPENGL_WINDOW_H
 #define SPARK_OPENGL_WINDOW_H
 
-#include <graphics/renderer/window.h> // Window
-#include <GLFW/glfw3.h>
+#include <graphics/context/window.h> // Window
+#include <GLFW/glfw3.h>              // GLFWwindow
 
 namespace Spark {
     namespace Platform {
         namespace OpenGL {
 
-            class OpenGLWindow final : public Graphics::Renderer::Window {
+            class OpenGLWindow final : public Graphics::Context::Window {
                 public:
+                    /**
+                     * Creates a GLFW window. Function throws error on creation failure.
+                     */
                     OpenGLWindow();
 
+                    /**
+                     * Destroys created GLFW window.
+                     */
                     ~OpenGLWindow() override;
-                    void Initialize() override;
-
-                private:
             };
 
         } // namespace OpenGL
     } // namespace Platform
 } // namespace Spark
 
-#endif //SPARK_OPENGL_WINDOW_H
+#endif // SPARK_OPENGL_WINDOW_H

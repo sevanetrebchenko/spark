@@ -120,6 +120,7 @@ namespace Spark::UtilityBox::Logger {
             _calendarBuffer = new char[_calendarBufferSize]; // Throws exception, caught elsewhere.
         }
 
+        // Reset to get the most updated calendar time.
         _calendarTime = std::time(nullptr);
     }
 

@@ -1,9 +1,8 @@
 
-#include <platform/opengl/imgui_overhead.h>
-#include <examples/imgui_impl_opengl3.h>
-#include <examples/imgui_impl_glfw.h>
-#include <imgui.h>
-#include <platform/opengl/opengl_window.h>
+#include <platform/opengl/opengl_imgui_overhead.h> // OpenGLImGuiOverhead
+#include <platform/opengl/opengl_window.h>         // OpenGLWindow
+#include <examples/imgui_impl_opengl3.h>           // ImGui_ImplOpenGL3_Init, ImGui_ImplOpenGL3_NewFrame, ImGui_ImplOpenGL3_RenderDrawData
+#include <imgui.h>                                 // ImGui
 
 #define GLFW_VERSION_HAS_NEW_CURSORS (GLFW_VERSION_MAJOR * 1000 + GLFW_VERSION_MINOR * 100 >= 3400)
 
@@ -12,103 +11,245 @@ namespace Spark::Platform::OpenGL {
     class OpenGLImGuiOverhead::ImGuiOverheadData {
         public:
             /**
-             * Initialize ImGui for OpenGL given a fully initialized GLFW window.
+             * Initialize ImGui for OpenGL given a fully initialized GLFW window. Establish GLFW callbacks for mouse and
+             * keyboard input.
              * @param window      - Window to use to initialize ImGui.
-             *                      Note: Window must be in a fully initialized and valid state in order for
-             * @param glslVersion
+             *                      Note: Window must be in a fully initialized and valid state in order for ImGui to properly initialize.
+             * @param glslVersion - GLSL version to use.
              */
-            ImGuiOverheadData(GLFWwindow* window, const char* glslVersion);
+            ImGuiOverheadData(GLFWwindow* window, UtilityBox::Logger::LoggingSystem* loggingSystem);
+
+            /**
+             * Void GLFW callback functions and clean up ImGui state.
+             */
             ~ImGuiOverheadData();
 
+            /**
+             * Initialize OpenGL and GLFW for a new ImGui frame.
+             * Notice: This function should be called every frame before any ImGui code is called.
+             */
             void StartFrame();
+
+            /**
+             * Render ImGui data to the OpenGL context.
+             * Notice: This function should be called every frame:
+             *              - before EndFrame()
+             *              - after all ImGui code is called
+             */
             void RenderFrame();
+
+            /**
+             * Terminate the ImGui frame.
+             * Notice: This function should be called every frame after RenderFrame() is called.
+             */
             void EndFrame();
 
         private:
-            void SetupCallbacks();
-            void SetupKeyMap();
-            void SetupMouseCursors();
-
-            static void GLFWMouseButtonCallback(GLFWwindow* /* WINDOW UNUSED */, int mouseButton, int buttonAction, int /* MODS UNUSED */);
-            static void ButtonIDToString(UtilityBox::Logger::LogMessage& message, int mouseButton);
-            static void ButtonActionToString(UtilityBox::Logger::LogMessage& message, int buttonAction);
-
-            static void GLFWMouseScrollCallback(GLFWwindow* /* WINDOW UNUSED */, double xOffset, double yOffset);
-
-            static void GLFWKeyCallback(GLFWwindow* /* WINDOW UNUSED */, int keyCode, int /* SCANCODE UNUSED */, int keyAction, int /* MODS UNUSED */);
-            static void KeyStateToString(UtilityBox::Logger::LogMessage& message, int keyCode, int keyAction);
-            static void KeyButtonToString(UtilityBox::Logger::LogMessage& message, int keyCode, const char* actionString);
-
-            static const char* GLFWGetClipboardText(void* window);
-            static void GLFWSetClipboardText(void* window, const char* text);
-
-            void GLFWNewFrame(UtilityBox::Logger::LogMessage& message);
-            void UpdateWindowSize();
-            void UpdateMousePosition();
-            void UpdateMouseCursor();
-
+            /**
+             * Initialize back-end ImGui renderer and environment.
+             * @param message - Message to append to.
+             */
             void SetupImGuiOpenGLEnvironment(UtilityBox::Logger::LogMessage& message);
 
-            GLFWwindow* _window;
-            static GLFWcursor* _mouseCursors[ImGuiMouseCursor_COUNT];
-            UtilityBox::Logger::LoggingSystem _loggingSystem { "ImGui Overhead" };
-            const char* _glslVersion;
-            static bool _mouseButtonStates[ImGuiMouseButton_COUNT]; // Button input flags.
+            /**
+             * Initialize GLFW callbacks for errors and logging debug information.
+             * @param message - Message to append to.
+             */
+            void SetupCallbacks(UtilityBox::Logger::LogMessage& message);
+
+            /**
+             * Initialize ImGui keymap (KeysDown array).
+             * @param message - Message to append to.
+             */
+            void SetupKeyMap(UtilityBox::Logger::LogMessage& message);
+
+            /**
+             * Initialize various ImGui mouse cursors into the static mouse cursor storage.
+             * @param message - Message to append to.
+             */
+            void SetupMouseCursors(UtilityBox::Logger::LogMessage& message);
+
+            /**
+             * GLFW callback for when a mouse button gets pressed.
+             * @param mouseButton  - ID of the button pressed.
+             * @param buttonAction - ID of the button action.
+             */
+            static void GLFWMouseButtonCallback(GLFWwindow* /* WINDOW UNUSED */, int mouseButton, int buttonAction, int /* MODS UNUSED */);
+
+            /**
+             * Converts mouse button ID to a human-readable string for logging.
+             * @param message     - message to append to.
+             * @param mouseButton - ID of mouse button pressed.
+             */
+            static void ButtonIDToString(UtilityBox::Logger::LogMessage& message, int mouseButton);
+
+            /**
+             * Converts mouse action ID to a human-readable string for logging.
+             * @param message     - message to append to.
+             * @param mouseButton - ID of mouse action.
+             */
+            static void ButtonActionToString(UtilityBox::Logger::LogMessage& message, int buttonAction);
+
+            /**
+             * GLFW callback for when the mouse scrollwheel is used.
+             * @param xOffset - Offset of scroll in the horizontal direction.
+             * @param yOffset - Offset of scroll in the vertical direction.
+             */
+            static void GLFWMouseScrollCallback(GLFWwindow* /* WINDOW UNUSED */, double xOffset, double yOffset);
+
+            /**
+             * GLFW callback for when a keyboard button gets pressed.
+             * @param keyCode   - Code of the keyboard button pressed.
+             * @param keyAction - Action of the key.
+             */
+            static void GLFWKeyCallback(GLFWwindow* /* WINDOW UNUSED */, int keyCode, int /* SCANCODE UNUSED */, int keyAction, int /* MODS UNUSED */);
+
+            /**
+             * Converts key state to a human-readable string for logging.
+             * @param message   - message to append to.
+             * @param keyCode   - Code of the keyboard button pressed.
+             * @param keyAction - Action of the key.
+             */
+            static void KeyStateToString(UtilityBox::Logger::LogMessage& message, int keyCode, int keyAction);
+
+            /**
+             * Convert key code to GLFW human-readable string for logging.
+             * @param message      - Message to append to.
+             * @param keyCode      - Code of the keyboard button pressed.
+             * @param actionString - Human readable string of the action.
+             */
+            static void KeyButtonToString(UtilityBox::Logger::LogMessage& message, int keyCode, const char* actionString);
+
+            /**
+             * Retrieve text that was copied to the ImGui window's clipboard.
+             * @param window - Window to get clipboard text from.
+             * @return Text saved in window's clipboard.
+             */
+            static const char* GLFWGetClipboardText(void* window);
+
+            /**
+             * Set text in an ImGui window's clipboard.
+             * @param window - Window to set clipboard text in.
+             * @param text   - Clipboard text.
+             */
+            static void GLFWSetClipboardText(void* window, const char* text);
+
+            /**
+             * Initialize a new ImGui frame for GLFW. Function updates mouse details and scales window framebuffer in
+             * case the window was resized since the past frame.
+             * @param message - Message to append to.
+             */
+            void GLFWNewFrame();
+
+            /**
+             * Update window size and framebuffer in case window was resized since the last frame.
+             * @param message - Message to append debug information to.
+             */
+            void UpdateWindowSize();
+
+            /**
+             * Updates position of the mouse.
+             * @param message - Message to append debug information to.
+             */
+            void UpdateMouseState();
+
+            /**
+             * Update the mouse cursor based on the mouse position relative to the ImGui windows.
+             */
+            void UpdateMouseCursor();
+
+            GLFWwindow* _window;                // Window instance this ImGui overhead is tied to.
+            UtilityBox::Logger::LoggingSystem* _loggingSystem;
+
+            static GLFWcursor* _mouseCursors[ImGuiMouseCursor_COUNT]; // Various ImGui mouse cursors.
+            static bool _mouseButtonStates[ImGuiMouseButton_COUNT];   // Button input flags.
 
             std::pair<int, int> _displayDimensions;     // Display width and height values : (width, height)
             std::pair<int, int> _frameBufferDimensions; // Frame buffer width and height values : (width, height)
             std::pair<double, double> _mousePosition;   // Mouse position : (x, y)
     };
 
-    bool OpenGLImGuiOverhead::ImGuiOverheadData::_mouseButtonStates[ImGuiMouseButton_COUNT] {};
-    GLFWcursor* OpenGLImGuiOverhead::ImGuiOverheadData::_mouseCursors[ImGuiMouseCursor_COUNT] {};
+    // Static initializations.
+    bool OpenGLImGuiOverhead::ImGuiOverheadData::_mouseButtonStates[ImGuiMouseButton_COUNT] { false };
+    GLFWcursor* OpenGLImGuiOverhead::ImGuiOverheadData::_mouseCursors[ImGuiMouseCursor_COUNT] { nullptr };
 
-    OpenGLImGuiOverhead::ImGuiOverheadData::ImGuiOverheadData(GLFWwindow *window, const char *glslVersion) : _window(window),
-                                                                                                             _glslVersion(glslVersion) {
+    // Initialize ImGui for OpenGL given a fully initialized GLFW window. Establish GLFW callbacks for mouse and keyboard input.
+    OpenGLImGuiOverhead::ImGuiOverheadData::ImGuiOverheadData(GLFWwindow* window, UtilityBox::Logger::LoggingSystem* loggingSystem) : _window(window),
+                                                                                                                                      _loggingSystem(loggingSystem)
+                                                                                                                                      {
         UtilityBox::Logger::LogMessage message {};
+        message.Supply("Entered ImGui overhead initialization.");
         IMGUI_CHECKVERSION();
 
+        // Context settings and preferences.
         ImGui::CreateContext();
-
         ImGuiIO& io = ImGui::GetIO();
         io.BackendPlatformName = "GLFW";
         ImGui::StyleColorsDark();
+        message.Supply("Successfully created ImGui context.");
 
         SetupImGuiOpenGLEnvironment(message);
 
+        SetupCallbacks(message);
+        SetupKeyMap(message);
+        SetupMouseCursors(message);
+
+        _loggingSystem->Log(message);
+    }
+
+    // Void GLFW callback functions and clean up ImGui state.
+    OpenGLImGuiOverhead::ImGuiOverheadData::~ImGuiOverheadData() {
+        UtilityBox::Logger::LogMessage message {};
+        message.Supply("Entering destructor for OpenGL ImGui overhead.");
+
+        message.Supply("Shutting down back-end ImGui renderer.");
+        ImGui_ImplOpenGL3_Shutdown();
+
+        message.Supply("GLFW callbacks set to null.");
+        glfwSetMouseButtonCallback(_window, nullptr);
+        glfwSetScrollCallback(_window, nullptr);
+        glfwSetKeyCallback(_window, nullptr);
+
+        ImGuiIO& io = ImGui::GetIO();
+        io.SetClipboardTextFn = nullptr;
+        io.GetClipboardTextFn = nullptr;
+        io.ClipboardUserData = nullptr;
+
         for (auto& _mouseCursor : _mouseCursors) {
+            glfwDestroyCursor(_mouseCursor);
             _mouseCursor = nullptr;
         }
 
-        for (auto& _mouseButtonState : _mouseButtonStates) {
-            _mouseButtonState = false;
-        }
+        // Window deletion is not handled here.
+        _window = nullptr;
 
-        SetupCallbacks();
-        SetupKeyMap();
-        SetupMouseCursors();
+        message.Supply("Deleting ImGui context.");
+        ImGui::DestroyContext();
+
+        _loggingSystem->Log(message);
     }
 
+    // Initialize OpenGL and GLFW for a new ImGui frame.
     void OpenGLImGuiOverhead::ImGuiOverheadData::StartFrame() {
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entering function StartFrame for OpenGL ImGui overhead.");
-
-        GLFWNewFrame(message);
+        GLFWNewFrame();
         ImGui::NewFrame();
     }
 
+    // Render ImGui data to the OpenGL context.
     void OpenGLImGuiOverhead::ImGuiOverheadData::RenderFrame() {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
+    // Terminate the ImGui frame.
     void OpenGLImGuiOverhead::ImGuiOverheadData::EndFrame() {
         // Nothing to do here.
     }
 
+    // Initialize back-end ImGui renderer and environment.
     void OpenGLImGuiOverhead::ImGuiOverheadData::SetupImGuiOpenGLEnvironment(UtilityBox::Logger::LogMessage& message) {
         message.Supply("Initializing OpenGL environment for ImGui.");
-        ImGui_ImplOpenGL3_Init(_glslVersion);
+        ImGui_ImplOpenGL3_Init();
         ImGui_ImplOpenGL3_NewFrame();
 
         // Taken from ImGui_ImplGlfw_NewFrame(); in file imgui_impl_glfw.cpp (imgui example for GLFW).
@@ -116,44 +257,43 @@ namespace Spark::Platform::OpenGL {
         if (!io.Fonts->IsBuilt()) {
             message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
             message.Supply("Exception thrown: ImGui font atlas not built - missing/failed call to ImGui_ImplOpenGL3_NewFrame() (renderer back-end).");
-            _loggingSystem.Log(message);
+            _loggingSystem->Log(message);
 
             throw std::runtime_error("ImGui font atlas not built - missing call to ImGui_ImplOpenGL3_NewFrame() (renderer back-end).");
         }
-    }
 
-    void OpenGLImGuiOverhead::ImGuiOverheadData::GLFWNewFrame(UtilityBox::Logger::LogMessage &message) {
-        // Update display / framebuffer size every frame to accommodate for changing window sizes.
-        UpdateWindowSize();
-
-        // Update mouse details.
-        UpdateMousePosition();
-        UpdateMouseCursor();
-    }
-
-    void OpenGLImGuiOverhead::ImGuiOverheadData::UpdateWindowSize() {
-        ImGuiIO& io = ImGui::GetIO();
-        glfwGetWindowSize(_window, &_displayDimensions.first, &_displayDimensions.second);
-        glfwGetFramebufferSize(_window, &_frameBufferDimensions.first, &_frameBufferDimensions.second);
-
-        io.DisplaySize = ImVec2((float)_displayDimensions.first, (float)_displayDimensions.second);
-        if (_displayDimensions.first > 0 && _displayDimensions.second > 0) {
-            io.DisplayFramebufferScale = ImVec2((float)_frameBufferDimensions.first / (float)_displayDimensions.first, (float)_frameBufferDimensions.second / (float)_displayDimensions.second);
+        // Initialize mouse cursors to null.
+        for (auto& _mouseCursor : _mouseCursors) {
+            _mouseCursor = nullptr;
         }
+
+        // Initialize mouse button states to default.
+        for (auto& _mouseButtonState : _mouseButtonStates) {
+            _mouseButtonState = false;
+        }
+        message.Supply("Finished initializing ImGui OpenGL environment.");
     }
 
-    void OpenGLImGuiOverhead::ImGuiOverheadData::SetupCallbacks() {
+    // Initialize GLFW callbacks for errors and logging debug information.
+    void OpenGLImGuiOverhead::ImGuiOverheadData::SetupCallbacks(UtilityBox::Logger::LogMessage& message) {
         glfwSetMouseButtonCallback(_window, GLFWMouseButtonCallback);
+        message.Supply("Registered GLFW mouse button callback function: GLFWMouseButtonCallback.");
         glfwSetScrollCallback(_window, GLFWMouseScrollCallback);
+        message.Supply("Registered GLFW mouse scroll callback function: GLFWMouseScrollCallback.");
         glfwSetKeyCallback(_window, GLFWKeyCallback);
+        message.Supply("Registered GLFW keyboard button callback function: GLFWKeyCallback.");
 
         ImGuiIO& io = ImGui::GetIO();
         io.SetClipboardTextFn = GLFWSetClipboardText;
         io.GetClipboardTextFn = GLFWGetClipboardText;
         io.ClipboardUserData = _window;
+
+        message.Supply("Registered GLFW window clipboard callback function: GLFWGetClipboardText / GLFWSetClipboardText.");
     }
 
-    void OpenGLImGuiOverhead::ImGuiOverheadData::SetupKeyMap() {
+    // Initialize ImGui keymap (KeysDown array).
+    void OpenGLImGuiOverhead::ImGuiOverheadData::SetupKeyMap(UtilityBox::Logger::LogMessage& message) {
+        message.Supply("Initializing ImGui key map.");
         ImGuiIO& io = ImGui::GetIO();
 
         // Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array.
@@ -181,28 +321,36 @@ namespace Spark::Platform::OpenGL {
         io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
         io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
         io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
+
+        message.Supply("Finished ImGui key map initialization.");
     }
 
-    void OpenGLImGuiOverhead::ImGuiOverheadData::SetupMouseCursors() {
+    // Initialize various ImGui mouse cursors into the static mouse cursor storage.
+    void OpenGLImGuiOverhead::ImGuiOverheadData::SetupMouseCursors(UtilityBox::Logger::LogMessage& message) {
+        message.Supply("Initializing ImGui mouse cursors.");
+
         _mouseCursors[ImGuiMouseCursor_Arrow] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
         _mouseCursors[ImGuiMouseCursor_TextInput] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
         _mouseCursors[ImGuiMouseCursor_ResizeNS] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
         _mouseCursors[ImGuiMouseCursor_ResizeEW] = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
         _mouseCursors[ImGuiMouseCursor_Hand] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
 
-    #if GLFW_VERSION_HAS_NEW_CURSORS
+#if GLFW_VERSION_HAS_NEW_CURSORS
         _mouseCursors[ImGuiMouseCursor_ResizeAll] = glfwCreateStandardCursor(GLFW_RESIZE_ALL_CURSOR);
         _mouseCursors[ImGuiMouseCursor_ResizeNESW] = glfwCreateStandardCursor(GLFW_RESIZE_NESW_CURSOR);
         _mouseCursors[ImGuiMouseCursor_ResizeNWSE] = glfwCreateStandardCursor(GLFW_RESIZE_NWSE_CURSOR);
         _mouseCursors[ImGuiMouseCursor_NotAllowed] = glfwCreateStandardCursor(GLFW_NOT_ALLOWED_CURSOR);
-    #else
+#else
         _mouseCursors[ImGuiMouseCursor_ResizeAll] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
         _mouseCursors[ImGuiMouseCursor_ResizeNESW] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
         _mouseCursors[ImGuiMouseCursor_ResizeNWSE] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
         _mouseCursors[ImGuiMouseCursor_NotAllowed] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
-    #endif
+#endif
+
+        message.Supply("Finished mouse cursor initialization.");
     }
 
+    // GLFW callback for when a mouse button gets pressed.
     void OpenGLImGuiOverhead::ImGuiOverheadData::GLFWMouseButtonCallback(GLFWwindow* /* WINDOW UNUSED */, int mouseButton, int buttonAction, int /* MODS UNUSED */) {
         static UtilityBox::Logger::LoggingSystem mouseButtonCallbackLoggingSystem { "GLFW Mouse Callback" }; // Static logging system.
 
@@ -236,96 +384,18 @@ namespace Spark::Platform::OpenGL {
         mouseButtonCallbackLoggingSystem.Log(message);
     }
 
-    void OpenGLImGuiOverhead::ImGuiOverheadData::GLFWMouseScrollCallback(GLFWwindow* /* WINDOW UNUSED */, double xOffset, double yOffset) {
-        static UtilityBox::Logger::LoggingSystem mouseScrollCallbackLoggingSystem { "GLFW Key Callback" };
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entered GLFW mouse scroll callback function.");
-        message.Supply("Scroll wheel usage detected: horizontal: %f, vertical: %f.", xOffset, yOffset);
-
-        ImGuiIO& io = ImGui::GetIO();
-        io.MouseWheelH += (float) xOffset;
-        io.MouseWheel += (float) yOffset;
-
-        mouseScrollCallbackLoggingSystem.Log(message);
-    }
-
-    void OpenGLImGuiOverhead::ImGuiOverheadData::GLFWKeyCallback(GLFWwindow* /* WINDOW UNUSED */, int keyCode, int /* SCANCODE UNUSED */, int keyAction, int /* MODS UNUSED */) {
-        static UtilityBox::Logger::LoggingSystem keyCallbackLoggingSystem { "GLFW Key Callback" };
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entering function GLFWKeyCallback.");
-        KeyStateToString(message, keyCode, keyAction);
-
-        ImGuiIO& io = ImGui::GetIO();
-        switch (keyAction) {
-            case GLFW_PRESS:
-            case GLFW_REPEAT:
-                io.KeysDown[keyCode] = true;
-                break;
-            case GLFW_RELEASE:
-                io.KeysDown[keyCode] = false;
-                break;
-            // Default case has already been handled in message processing - no need to supply extra information to message.
-            default:
-                break;
-        }
-
-        keyCallbackLoggingSystem.Log(message);
-    }
-
-    const char *OpenGLImGuiOverhead::ImGuiOverheadData::GLFWGetClipboardText(void *window) {
-        static UtilityBox::Logger::LoggingSystem clipboardCallbackLoggingSystem { "GLFW CLipboard Get Text Callback" };
-        UtilityBox::Logger::LogMessage message {};
-
-        const char* text = glfwGetClipboardString(static_cast<GLFWwindow*>(window));
-        message.Supply("Retrieved string: '%s' from clipboard.", text);
-        clipboardCallbackLoggingSystem.Log(message);
-
-        return text;
-    }
-
-    void OpenGLImGuiOverhead::ImGuiOverheadData::GLFWSetClipboardText(void *window, const char *text) {
-        static UtilityBox::Logger::LoggingSystem clipboardCallbackLoggingSystem { "GLFW CLipboard Set Text Callback" };
-        UtilityBox::Logger::LogMessage message {};
-
-        message.Supply("Copied string: '%s' to clipboard.", text);
-        glfwSetClipboardString(static_cast<GLFWwindow*>(window), text);
-        clipboardCallbackLoggingSystem.Log(message);
-    }
-
-    OpenGLImGuiOverhead::ImGuiOverheadData::~ImGuiOverheadData() {
-        ImGui_ImplOpenGL3_Shutdown();
-
-        glfwSetMouseButtonCallback(_window, nullptr);
-        glfwSetScrollCallback(_window, nullptr);
-        glfwSetKeyCallback(_window, nullptr);
-
-        ImGuiIO& io = ImGui::GetIO();
-        io.SetClipboardTextFn = nullptr;
-        io.GetClipboardTextFn = nullptr;
-        io.ClipboardUserData = nullptr;
-
-        for (auto& _mouseCursor : _mouseCursors) {
-            glfwDestroyCursor(_mouseCursor);
-            _mouseCursor = nullptr;
-        }
-
-        // Window deletion is not handled here.
-        _window = nullptr;
-
-        ImGui::DestroyContext();
-    }
-
+    // Converts mouse button ID to a human-readable string for logging.
     void OpenGLImGuiOverhead::ImGuiOverheadData::ButtonIDToString(UtilityBox::Logger::LogMessage& message, int mouseButton) {
         switch (mouseButton) {
             // Left mouse button.
             case GLFW_MOUSE_BUTTON_1:
                 message.Supply("Mouse button %i pressed. (GLFW_MOUSE_BUTTON_LEFT)", mouseButton);
                 break;
-            // Right mouse button.
+                // Right mouse button.
             case GLFW_MOUSE_BUTTON_2:
                 message.Supply("Mouse button %i pressed. (GLFW_MOUSE_BUTTON_RIGHT)", mouseButton);
                 break;
-            // Middle mouse button/
+                // Middle mouse button/
             case GLFW_MOUSE_BUTTON_3:
                 message.Supply("Mouse button %i pressed. (GLFW_MOUSE_BUTTON_MIDDLE)", mouseButton);
                 break;
@@ -344,7 +414,7 @@ namespace Spark::Platform::OpenGL {
             case GLFW_MOUSE_BUTTON_8:
                 message.Supply("Mouse button %i pressed. (GLFW_MOUSE_BUTTON_8)", mouseButton);
                 break;
-            // Should never happen.
+                // Should never happen.
             default:
                 message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::WARNING);
                 message.Supply("Unknown mouse button pressed. Button ID: %i", mouseButton);
@@ -352,6 +422,7 @@ namespace Spark::Platform::OpenGL {
         }
     }
 
+    // Converts mouse action ID to a human-readable string for logging.
     void OpenGLImGuiOverhead::ImGuiOverheadData::ButtonActionToString(UtilityBox::Logger::LogMessage& message, int buttonAction) {
         // Action can either be GLFW_PRESS or GLFW_RELEASE.
         switch (buttonAction) {
@@ -361,7 +432,7 @@ namespace Spark::Platform::OpenGL {
             case GLFW_RELEASE:
                 message.Supply("Button action: GLFW_RELEASE (numerical code: %i).", buttonAction);
                 break;
-            // Should never happen.
+                // Should never happen.
             default:
                 message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::WARNING);
                 message.Supply("Unknown mouse button action. Action ID: %i", buttonAction);
@@ -369,6 +440,45 @@ namespace Spark::Platform::OpenGL {
         }
     }
 
+    // GLFW callback for when the mouse scrollwheel is used.
+    void OpenGLImGuiOverhead::ImGuiOverheadData::GLFWMouseScrollCallback(GLFWwindow* /* WINDOW UNUSED */, double xOffset, double yOffset) {
+        static UtilityBox::Logger::LoggingSystem mouseScrollCallbackLoggingSystem { "GLFW Key Callback" };
+        UtilityBox::Logger::LogMessage message {};
+        message.Supply("Entered GLFW mouse scroll callback function.");
+        message.Supply("Scroll wheel usage detected: horizontal: %f, vertical: %f.", xOffset, yOffset);
+
+        ImGuiIO& io = ImGui::GetIO();
+        io.MouseWheelH += (float) xOffset;
+        io.MouseWheel += (float) yOffset;
+
+        mouseScrollCallbackLoggingSystem.Log(message);
+    }
+
+    // GLFW callback for when a keyboard button gets pressed.
+    void OpenGLImGuiOverhead::ImGuiOverheadData::GLFWKeyCallback(GLFWwindow* /* WINDOW UNUSED */, int keyCode, int /* SCANCODE UNUSED */, int keyAction, int /* MODS UNUSED */) {
+        static UtilityBox::Logger::LoggingSystem keyCallbackLoggingSystem { "GLFW Key Callback" };
+        UtilityBox::Logger::LogMessage message {};
+        message.Supply("Entering function GLFWKeyCallback.");
+        KeyStateToString(message, keyCode, keyAction);
+
+        ImGuiIO& io = ImGui::GetIO();
+        switch (keyAction) {
+            case GLFW_PRESS:
+            case GLFW_REPEAT:
+                io.KeysDown[keyCode] = true;
+                break;
+            case GLFW_RELEASE:
+                io.KeysDown[keyCode] = false;
+                break;
+                // Default case has already been handled in message processing - no need to supply extra information to message.
+            default:
+                break;
+        }
+
+        keyCallbackLoggingSystem.Log(message);
+    }
+
+    // Converts key state to a human-readable string for logging.
     void OpenGLImGuiOverhead::ImGuiOverheadData::KeyStateToString(UtilityBox::Logger::LogMessage &message, int keyCode, int keyAction) {
         switch (keyAction) {
             case GLFW_PRESS:
@@ -388,6 +498,7 @@ namespace Spark::Platform::OpenGL {
         }
     }
 
+    // Convert key code to GLFW human-readable string for logging.
     void OpenGLImGuiOverhead::ImGuiOverheadData::KeyButtonToString(UtilityBox::Logger::LogMessage &message, int keyCode, const char *actionString) {
         switch (keyCode) {
             case GLFW_KEY_SPACE:
@@ -750,7 +861,53 @@ namespace Spark::Platform::OpenGL {
         }
     }
 
-    void OpenGLImGuiOverhead::ImGuiOverheadData::UpdateMousePosition() {
+    // Retrieve text that was copied to the ImGui window's clipboard.
+    const char *OpenGLImGuiOverhead::ImGuiOverheadData::GLFWGetClipboardText(void *window) {
+        static UtilityBox::Logger::LoggingSystem clipboardCallbackLoggingSystem { "GLFW CLipboard Get Text Callback" };
+        UtilityBox::Logger::LogMessage message {};
+
+        const char* text = glfwGetClipboardString(static_cast<GLFWwindow*>(window));
+        message.Supply("Retrieved string: '%s' from clipboard.", text);
+        clipboardCallbackLoggingSystem.Log(message);
+
+        return text;
+    }
+
+    // Set text in an ImGui window's clipboard.
+    void OpenGLImGuiOverhead::ImGuiOverheadData::GLFWSetClipboardText(void *window, const char *text) {
+        static UtilityBox::Logger::LoggingSystem clipboardCallbackLoggingSystem { "GLFW CLipboard Set Text Callback" };
+        UtilityBox::Logger::LogMessage message {};
+
+        message.Supply("Copied string: '%s' to clipboard.", text);
+        glfwSetClipboardString(static_cast<GLFWwindow*>(window), text);
+        clipboardCallbackLoggingSystem.Log(message);
+    }
+
+    // Initialize a new ImGui frame for GLFW. Function updates mouse details and scales window framebuffer in case the
+    // window was resized since the past frame.
+    void OpenGLImGuiOverhead::ImGuiOverheadData::GLFWNewFrame() {
+        // Update display / framebuffer size every frame to accommodate for changing window sizes.
+        UpdateWindowSize();
+
+        // Update mouse details.
+        UpdateMouseState();
+        UpdateMouseCursor();
+    }
+
+    // Update window size and framebuffer in case window was resized since the last frame.
+    void OpenGLImGuiOverhead::ImGuiOverheadData::UpdateWindowSize() {
+        ImGuiIO& io = ImGui::GetIO();
+        glfwGetWindowSize(_window, &_displayDimensions.first, &_displayDimensions.second);
+        glfwGetFramebufferSize(_window, &_frameBufferDimensions.first, &_frameBufferDimensions.second);
+
+        io.DisplaySize = ImVec2((float)_displayDimensions.first, (float)_displayDimensions.second);
+        if (_displayDimensions.first > 0 && _displayDimensions.second > 0) {
+            io.DisplayFramebufferScale = ImVec2((float)_frameBufferDimensions.first / (float)_displayDimensions.first, (float)_frameBufferDimensions.second / (float)_displayDimensions.second);
+        }
+    }
+
+    // Updates position of the mouse.
+    void OpenGLImGuiOverhead::ImGuiOverheadData::UpdateMouseState() {
         // Update mouse button state.
         ImGuiIO& io = ImGui::GetIO();
         for (int i = 0; i < ImGuiMouseButton_COUNT; i++) {
@@ -759,17 +916,20 @@ namespace Spark::Platform::OpenGL {
             _mouseButtonStates[i] = false;
         }
 
-        // Update mouse position
-        ImVec2 previousMousePosition = io.MousePos;
-        io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
-
         // Update the mouse position if the window is focused.
         if (glfwGetWindowAttrib(_window, GLFW_FOCUSED)) {
-            glfwGetCursorPos(_window, &_mousePosition.first, &_mousePosition.second);
-            io.MousePos = ImVec2((float)_mousePosition.first, (float)_mousePosition.second);
+            double currentMouseX, currentMouseY;
+            glfwGetCursorPos(_window, &currentMouseX, &currentMouseY);
+
+            if (currentMouseX != _mousePosition.first || currentMouseY != _mousePosition.second) {
+                _mousePosition.first = currentMouseX;
+                _mousePosition.second = currentMouseY;
+                io.MousePos = ImVec2((float)_mousePosition.first, (float)_mousePosition.second);
+            }
         }
     }
 
+    // Update the mouse cursor based on the mouse position relative to the ImGui windows.
     void OpenGLImGuiOverhead::ImGuiOverheadData::UpdateMouseCursor() {
         ImGuiIO& io = ImGui::GetIO();
         // If mouse cursor is explicitly set to not change or if the cursor is disabled, don't do any updates.
@@ -789,24 +949,34 @@ namespace Spark::Platform::OpenGL {
         }
     }
 
-    OpenGLImGuiOverhead::OpenGLImGuiOverhead(GLFWwindow* window, const char* glslVersion) : _data(new ImGuiOverheadData(window, glslVersion)),
-                                                                                            Graphics::Renderer::ImGuiOverhead()
-                                                                                            {
+
+    //------------------------------------------------------------------------------------------------------------------
+    // OPENGL IMGUI OVERHEAD
+    //------------------------------------------------------------------------------------------------------------------
+    // Initialize ImGui for OpenGL given a fully initialized window.
+    OpenGLImGuiOverhead::OpenGLImGuiOverhead(Graphics::Context::Window* window) : Graphics::Context::ImGuiOverhead(Graphics::Context::RenderingAPI::OPENGL),
+                                                                                  _data(new ImGuiOverheadData(static_cast<GLFWwindow*>(window->GetNativeWindow()), &_loggingSystem))
+                                                                                  {
         // Nothing to do here.
     }
 
+    // Cleans up memory associated with OpenGL implementation of ImGui overhead.
     OpenGLImGuiOverhead::~OpenGLImGuiOverhead() {
         delete _data;
     }
 
+    // Gets called once at the start of every frame before any ImGui code gets executed. Function updates ImGui mouse
+    // buttons and position and updates ImGui framebuffer in case the underlying window was resized.
     void OpenGLImGuiOverhead::StartFrame() {
         _data->StartFrame();
     }
 
+    // Gets called once at the end of the frame's ImGui segment of code. Functions draws all ImGui-related data to the screen.
     void OpenGLImGuiOverhead::RenderFrame() {
         _data->RenderFrame();
     }
 
+    // Terminate the ImGui frame.
     void OpenGLImGuiOverhead::EndFrame() {
         _data->EndFrame();
     }

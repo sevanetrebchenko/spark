@@ -1,38 +1,128 @@
 
 #include <platform/opengl/opengl_rendering_context.h> // OpenGLRenderingContext
 #include <platform/opengl/opengl_window.h>
-#include <platform/opengl/imgui_overhead.h>
+#include <platform/opengl/opengl_imgui_overhead.h>
 #include <utilitybox/logger/logging_system.h>
+#include <graphics/context/rendering_api.h>
 
 namespace Spark::Platform::OpenGL {
 
+    //------------------------------------------------------------------------------------------------------------------
+    // OPENGL RENDERING CONTEXT DATA
+    //------------------------------------------------------------------------------------------------------------------
     class OpenGLRenderingContext::OpenGLRenderingContextData {
         public:
-            explicit OpenGLRenderingContextData();
+            /**
+             * Back-end initialization for managing the OpenGL context. Takes double pointers to both window and ImGui
+             * overhead objects that are owned by the base RenderingContext class for initialization.
+             * @param window        - Window (owned by base RenderingContext) to initialize to an OpenGL window.
+             * @param imGuiOverhead - ImGui overhead (owned by base RenderingContext) to initialize to be OpenGL specific.
+             */
+            explicit OpenGLRenderingContextData(Graphics::Context::Window** window, Graphics::Context::ImGuiOverhead** imGuiOverhead, UtilityBox::Logger::LoggingSystem* loggingSystem);
+
+            /**
+             * Cleans up memory associated with OpenGL rendering context overhead. Calls destructors on the OpenGL portion
+             * on objects shared with the base RenderingContext to prevent memory leaks.
+             */
             ~OpenGLRenderingContextData();
-            void Initialize();
-            _NODISCARD_ const Graphics::Renderer::Window* GetWindow() const;
-            _NODISCARD_ Graphics::Renderer::ImGuiOverhead* GetImGui() const;
 
         private:
+            /**
+             * Callback on GLFW error.
+             * @param errorCode        - Error code.
+             * @param errorDescription - Error description.
+             */
             static void GLFWErrorCallback(int errorCode, const char* errorDescription);
+
+            /**
+             * Helper function to parse error code and log it through the system's logging system.
+             * @param message   - Message to use while logging.
+             * @param errorCode - Error code.
+             */
             static void ParseErrorCode(UtilityBox::Logger::LogMessage& message, int errorCode);
 
-            OpenGLWindow* _window;
-            OpenGLImGuiOverhead* _imGuiOverhead;
-            std::string _glslVersion;
-            UtilityBox::Logger::LoggingSystem _loggingSystem;
+            void InitializeGLFW(UtilityBox::Logger::LogMessage& message);
+            void InitializeGlad(UtilityBox::Logger::LogMessage& message);
+            void InitializeOpenGLWindow(UtilityBox::Logger::LogMessage& message, Graphics::Context::Window** window);
+            void InitializeOpenGLContext(UtilityBox::Logger::LogMessage& message);
+            void InitializeImGui(UtilityBox::Logger::LogMessage& message, Graphics::Context::ImGuiOverhead** imGuiOverhead);
+
+            OpenGLWindow* _window;               // Window object (not owned by this class).
+            OpenGLImGuiOverhead* _imGuiOverhead; // ImGui overhead object (not owned by this class).
+
+            UtilityBox::Logger::LoggingSystem* _loggingSystem; // Logging system.
     };
 
-    OpenGLRenderingContext::OpenGLRenderingContextData::OpenGLRenderingContextData() : _window(new OpenGLWindow()), _imGuiOverhead(nullptr) {
-        // Nothing to do here.
+    OpenGLRenderingContext::OpenGLRenderingContextData::OpenGLRenderingContextData(Graphics::Context::Window** window, Graphics::Context::ImGuiOverhead** imGuiOverhead, UtilityBox::Logger::LoggingSystem* loggingSystem) : _loggingSystem(loggingSystem) {
+        UtilityBox::Logger::LogMessage message {};
+        message.Supply("Entering function Initialize.");
+        glfwSetErrorCallback(GLFWErrorCallback);
+        message.Supply("Registered GLFW error callback function.");
+
+        // Initialize GLFW.
+        InitializeGLFW(message); // Exception not caught on purpose.
+
+        // Initialize window.
+        try {
+            InitializeOpenGLWindow(message, window);
+        }
+        // Need to terminate GLFW before returning from function.
+        catch (std::runtime_error& runtimeError) {
+            glfwTerminate();
+
+            // Message has already been logged.
+            throw runtimeError;
+        }
+        catch (std::bad_alloc& badAlloc) {
+            glfwTerminate();
+
+            // Message has already been logged.
+            throw badAlloc;
+        }
+
+        InitializeOpenGLContext(message);
+
+        // Load Glad OpenGL extension (sets up OpenGL function pointers).
+        try {
+            InitializeGlad(message);
+        }
+            // Need to terminate GLFW before returning from function.
+        catch (std::runtime_error& runtimeError) {
+            glfwTerminate();
+
+            // Message has already been logged.
+            throw runtimeError;
+        }
+
+        // Initialize ImGui.
+        try {
+            InitializeImGui(message, imGuiOverhead);
+        }
+        catch (std::bad_alloc& badAlloc) {
+            // Destroy OpenGL portion of window. Base destructor cleans up the remaining window data.
+            _window->~OpenGLWindow();
+
+            // Terminate GLFW processing.
+            glfwTerminate();
+
+            // Message has already been logged.
+            throw badAlloc;
+        }
+
+        glfwSwapInterval(1);
     }
 
     OpenGLRenderingContext::OpenGLRenderingContextData::~OpenGLRenderingContextData() {
-        delete _imGuiOverhead;
-        delete _window;
+        UtilityBox::Logger::LogMessage message {};
+        message.Supply("Entering destructor for OpenGLContext.");
 
+        delete _window;
+        delete _imGuiOverhead;
         glfwTerminate();
+
+        message.Supply("Destructor finished.");
+
+        _loggingSystem->Log(message);
     }
 
     void OpenGLRenderingContext::OpenGLRenderingContextData::GLFWErrorCallback(int errorCode, const char* errorDescription) {
@@ -44,79 +134,6 @@ namespace Spark::Platform::OpenGL {
         ParseErrorCode(message, errorCode);
         message.Supply("Provided error description: %s.", errorDescription);
         glfwErrorLoggingSystem.Log(message);
-    }
-
-    void OpenGLRenderingContext::OpenGLRenderingContextData::Initialize() {
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entering function Initialize.");
-        message.Supply("Registering error callback function.");
-        glfwSetErrorCallback(GLFWErrorCallback);
-
-        // Initialize GLFW.
-        int initializationCode = glfwInit();
-        if (!initializationCode) {
-            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
-            message.Supply("GLFW initialization failed with error code: %i.", initializationCode);
-            _loggingSystem.Log(message);
-        }
-
-        // TODO: Support higher version of OpenGL
-        _glslVersion = "#version 130";
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-//        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-        // Initialize GLFW window.
-        try {
-            _window->Initialize();
-        }
-        catch (std::runtime_error& exception) {
-            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
-            message.Supply("Exception thrown: failed to initialize GLFW window.");
-            _loggingSystem.Log(message);
-
-            // Close GLFW.
-            glfwTerminate();
-
-            throw exception;
-        }
-        message.Supply("Successfully initialized GLFW window.");
-
-        // Set current OpenGL context to this window.
-        message.Supply("Current OpenGL context successfully set to this window.");
-        glfwMakeContextCurrent(static_cast<GLFWwindow*>(_window->GetNativeWindow()));
-
-        // Load Glad OpenGL extension (sets up OpenGL function pointers).
-        int gladInitializationCode = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-
-        // Failed to initialize Glad.
-        if (!gladInitializationCode) {
-            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
-            message.Supply("Exception thrown: failed to initialize Glad. Error code: %i", gladInitializationCode);
-            _loggingSystem.Log(message);
-
-            delete _imGuiOverhead;
-            glfwTerminate();
-        }
-        else {
-            message.Supply("Successfully loaded and initialized Glad.");
-        }
-
-        // Initialize ImGui.
-        // ImGui overhead requires an initialized window to be passed in.
-        try {
-            _imGuiOverhead = new OpenGLImGuiOverhead(static_cast<GLFWwindow*>(_window->GetNativeWindow()), _glslVersion.c_str());
-        }
-        catch (std::bad_alloc& exception) {
-            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
-            message.Supply("Exception thrown: failed to initialize ImGui overhead - program is out of memory.");
-            _loggingSystem.Log(message);
-
-            throw exception;
-        }
-        message.Supply("Successfully initialized ImGui overhead.");
-
-        glfwSwapInterval(1);
     }
 
     void OpenGLRenderingContext::OpenGLRenderingContextData::ParseErrorCode(UtilityBox::Logger::LogMessage &message, int errorCode) {
@@ -159,31 +176,95 @@ namespace Spark::Platform::OpenGL {
         }
     }
 
-    const Graphics::Renderer::Window *OpenGLRenderingContext::OpenGLRenderingContextData::GetWindow() const {
-        return _window;
+    void OpenGLRenderingContext::OpenGLRenderingContextData::InitializeGLFW(UtilityBox::Logger::LogMessage &message) {
+        int initializationCode = glfwInit();
+        // Failed to initialize GLFW
+        if (!initializationCode) {
+            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
+            message.Supply("GLFW initialization failed with error code: %i.", initializationCode);
+            _loggingSystem->Log(message);
+
+            throw std::runtime_error("GLFW initialization failed.");
+        }
+        else {
+            message.Supply("GLFW successfully initialized.");
+        }
     }
 
-    Graphics::Renderer::ImGuiOverhead *OpenGLRenderingContext::OpenGLRenderingContextData::GetImGui() const {
-        return _imGuiOverhead;
+    void OpenGLRenderingContext::OpenGLRenderingContextData::InitializeGlad(UtilityBox::Logger::LogMessage &message) {
+        int initializationCode = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+        // Failed to initialize Glad.
+        if (!initializationCode) {
+            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
+            message.Supply("Exception thrown: failed to initialize Glad. Error code: %i", initializationCode);
+            _loggingSystem->Log(message);
+
+            throw std::runtime_error("Glad initialization failed.");
+        }
+        else {
+            message.Supply("Successfully loaded and initialized Glad.");
+        }
     }
 
-    OpenGLRenderingContext::OpenGLRenderingContext() : RenderingContext(RenderingAPI::OPENGL), _data(new OpenGLRenderingContextData()) {
+    void OpenGLRenderingContext::OpenGLRenderingContextData::InitializeOpenGLWindow(UtilityBox::Logger::LogMessage &message, Graphics::Context::Window **window) {
+        // TODO: Support higher version of OpenGL
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+        // Initialize GLFW window.
+        try {
+            *window = new OpenGLWindow();
+        }
+        catch (std::runtime_error& runtimeError) {
+            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
+            message.Supply("Exception thrown: Failed to initialize OpenGL window. Provided error message: '%s'.", runtimeError.what());
+            _loggingSystem->Log(message);
+
+            throw runtimeError;
+        }
+        catch (std::bad_alloc& badAlloc) {
+            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
+            message.Supply("Exception thrown: Failed to allocate enough memory for OpenGL window.");
+            _loggingSystem->Log(message);
+
+            throw badAlloc;
+        }
+        message.Supply("OpenGL window successfully created.");
+
+        _window = dynamic_cast<OpenGLWindow*>(*window); // Should always succeed.
+    }
+
+    void OpenGLRenderingContext::OpenGLRenderingContextData::InitializeImGui(UtilityBox::Logger::LogMessage &message, Graphics::Context::ImGuiOverhead **imGuiOverhead) {
+        // ImGui overhead requires an initialized window to be passed in.
+        try {
+            *imGuiOverhead = new OpenGLImGuiOverhead(_window);
+        }
+        catch (std::bad_alloc& badAlloc) {
+            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
+            message.Supply("Exception thrown: Failed to allocate enough memory for OpenGL ImGui overhead.");
+            _loggingSystem->Log(message);
+
+            throw badAlloc;
+        }
+        _imGuiOverhead = dynamic_cast<OpenGLImGuiOverhead*>(*imGuiOverhead);
+        message.Supply("Successfully initialized ImGui overhead.");
+    }
+
+    void OpenGLRenderingContext::OpenGLRenderingContextData::InitializeOpenGLContext(UtilityBox::Logger::LogMessage &message) {
+        // Set current OpenGL context to this window.
+        glfwMakeContextCurrent(static_cast<GLFWwindow*>(_window->GetNativeWindow()));
+        message.Supply("Current OpenGL context successfully set to this window.");
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+    // OPENGL RENDERING CONTEXT
+    //------------------------------------------------------------------------------------------------------------------
+    OpenGLRenderingContext::OpenGLRenderingContext() : RenderingContext(Graphics::Context::RenderingAPI::OPENGL), _data(new OpenGLRenderingContextData(&_window, &_imGuiOverhead, &_loggingSystem)) {
         // Nothing to do here.
     }
 
     OpenGLRenderingContext::~OpenGLRenderingContext() {
         delete _data;
-    }
-
-    void OpenGLRenderingContext::Initialize() {
-        _data->Initialize();
-    }
-
-    const Graphics::Renderer::Window *OpenGLRenderingContext::GetWindow() const {
-        return _data->GetWindow();
-    }
-
-    Graphics::Renderer::ImGuiOverhead *OpenGLRenderingContext::GetImGui() const {
-        return _data->GetImGui();
     }
 }

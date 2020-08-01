@@ -1,7 +1,7 @@
 
 #include "core/core.h"
 #include <platform/opengl/opengl_rendering_context.h>
-#include <platform/opengl/imgui_overhead.h>
+#include <platform/opengl/opengl_imgui_overhead.h>
 #include <imgui.h>
 
 namespace Spark {
@@ -17,9 +17,9 @@ namespace Spark {
             Spark::ECS::Entities::EntityManager* GetEntityManager();
 
         private:
-            Spark::ECS::Entities::EntityManager _entityManager {};
-            std::vector<Spark::ECS::Systems::BaseComponentSystemInterface*> _systems;
-            Graphics::Renderer::RenderingContext* _context;
+            ECS::Entities::EntityManager _entityManager {};
+            std::vector<ECS::Systems::BaseComponentSystemInterface*> _systems;
+            Graphics::Context::RenderingContext* _context;
     };
 
     Core* Core::_world = nullptr;
@@ -70,7 +70,6 @@ namespace Spark {
     }
 
     void Core::CoreData::Initialize() {
-        dynamic_cast<Platform::OpenGL::OpenGLRenderingContext*>(_context)->Initialize();
     }
 
     void Core::CoreData::Update() {
@@ -78,6 +77,9 @@ namespace Spark {
         bool show_demo_window = true;
         bool show_another_window = false;
         ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+        Platform::OpenGL::OpenGLWindow* windoww = dynamic_cast<Platform::OpenGL::OpenGLWindow*>(_context->GetWindow());
+        //windoww->~OpenGLWindow();
+
         GLFWwindow* window = static_cast<GLFWwindow *>(_context->GetWindow()->GetNativeWindow());
         Platform::OpenGL::OpenGLImGuiOverhead* imGuiOverhead = dynamic_cast<Platform::OpenGL::OpenGLImGuiOverhead*>(_context->GetImGui());
 
