@@ -22,13 +22,25 @@ namespace Spark {
                     ~LoggingSystem() = default;
 
                     /**
-                    * Log a message through this LoggingSystem. Note: Resources associated with the passed message are
-                    * automatically cleaned up.
+                    * Log a message through this LoggingSystem.
+                    * Note: Resources associated with the passed message are automatically cleaned up.
                     * @param message - Message to log.
                     */
                     void Log(LogMessage* message) const;
 
+                    /**
+                     * Log a message through this LoggingSystem.
+                     * @param message - Message to log.
+                     */
                     void Log(LogMessage& message) const;
+
+                    /**
+                     * Log a message directly through this LoggingSystem.
+                     * @param messageSeverity - Severity of the message.
+                     * @param formatString    - Printf-like formatting string for the message and additional parameters
+                     * @param ...             - Printf-like list of variadic arguments.
+                     */
+                    void Log(LogMessageSeverity messageSeverity, const char* formatString, ...) const;
 
                 private:
                     std::string _name; // Logging system's name.
