@@ -2,8 +2,8 @@
 #ifndef SPARK_ADAPTER_CONFIG_H
 #define SPARK_ADAPTER_CONFIG_H
 
-#include "log_message.h" // LogMessage
-#include <spark_pch.h>   // std::queue
+#include <utilitybox/logger/log_message.h> // LogMessage
+#include <spark_pch.h>                     // std::queue
 
 #define TAB_SPACE "    "
 

@@ -2,7 +2,7 @@
 #ifndef SPARK_SEGMENTED_POOL_ALLOCATOR_H
 #define SPARK_SEGMENTED_POOL_ALLOCATOR_H
 
-#include "../tools/global_defines.h" // _NODISCARD_
+#include <utilitybox/tools/global_defines.h> // _NODISCARD_
 
 namespace Spark {
     namespace UtilityBox {

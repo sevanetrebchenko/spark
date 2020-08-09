@@ -2,8 +2,8 @@
 #ifndef SPARK_CORE_H
 #define SPARK_CORE_H
 
-#include "ecs/entities/entity_manager.h"
-#include "ecs/systems/base_component_system_interface.h"
+#include <ecs/entities/entity_manager.h>
+#include <ecs/systems/base_component_system_interface.h>
 #include <spark_pch.h> // vector
 
 namespace Spark {

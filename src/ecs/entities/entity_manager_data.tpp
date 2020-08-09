@@ -2,9 +2,9 @@
 #ifndef SPARK_ENTITY_MANAGER_DATA_TPP
 #define SPARK_ENTITY_MANAGER_DATA_TPP
 
-#include "core/all_components.h"                         // ALL_COMPONENTS
-#include "utilitybox/tools/compile_time_hash.h"          // STRINGHASH
-#include "ecs/components/component_manager_collection.h" // ComponentManagerCollection
+#include <core/all_components.h>                         // ALL_COMPONENTS
+#include <utilitybox/tools/compile_time_hash.h>          // STRINGHASH
+#include <ecs/components/component_manager_collection.h> // ComponentManagerCollection
 
 namespace Spark::ECS::Entities {
     // Function to capture a class member function to convert it to a standard callback function callable from within

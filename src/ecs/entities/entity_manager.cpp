@@ -1,5 +1,5 @@
 
-#include "ecs/entities/entity_manager.h" // EntityManager
+#include <ecs/entities/entity_manager.h> // EntityManager
 
 namespace Spark::ECS::Entities {
     EntityManager::EntityManager() : _data(new EntityManagerData()) /* Throws on error, caught elsewhere. */ {

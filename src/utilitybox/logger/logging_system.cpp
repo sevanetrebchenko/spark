@@ -1,7 +1,7 @@
 
-#include "utilitybox/logger/logging_system.h" // LoggingSystem functions
-#include "utilitybox/logger/logger.h"         // SendMessage
-#include <spark_pch.h>
+#include <spark_pch.h>                        // std::va_list, va_start, va_end
+#include <utilitybox/logger/logging_system.h> // LoggingSystem functions
+#include <utilitybox/logger/logger.h>         // SendMessage
 
 namespace Spark::UtilityBox::Logger {
     // Construct a LoggingSystem instance with a desired name.

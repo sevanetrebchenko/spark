@@ -2,10 +2,10 @@
 #ifndef SPARK_BASE_COMPONENT_SYSTEM_TPP
 #define SPARK_BASE_COMPONENT_SYSTEM_TPP
 
-#include "core/core.h"                         // World
-#include "ecs/components/base_component.h"     // BaseComponent
-#include "ecs/entities/entity_manager.h"       // EntityManager
-#include "ecs/entities/entity_callback_type.h" // CallbackType
+#include <core/core.h>                         // World
+#include <ecs/components/base_component.h>     // BaseComponent
+#include <ecs/entities/entity_manager.h>       // EntityManager
+#include <ecs/entities/entity_callback_type.h> // CallbackType
 
 namespace Spark::ECS::Systems {
     //------------------------------------------------------------------------------------------------------------------

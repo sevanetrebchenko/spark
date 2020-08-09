@@ -2,9 +2,9 @@
 #ifndef SPARK_LOG_MESSAGE_H
 #define SPARK_LOG_MESSAGE_H
 
-#include <spark_pch.h>               // strrchr, std::vector
-#include "../timing/timestamp.h"     // TimeStamp
-#include "../tools/global_defines.h" // _NODISCARD_
+#include <spark_pch.h>                       // strrchr, std::vector
+#include <utilitybox/timing/timestamp.h>     // TimeStamp
+#include <utilitybox/tools/global_defines.h> // _NODISCARD_
 
 namespace Spark {
     namespace UtilityBox {
@@ -68,7 +68,7 @@ namespace Spark {
                     */
                     void SetMessageSeverity(LogMessageSeverity messageSeverity);
 
-                protected:
+                private:
                     // Allow LoggingSystem to access Supply() overload.
                     friend class LoggingSystem;
 
@@ -79,8 +79,6 @@ namespace Spark {
                     * @param argList      - Printf-like variadic arguments.
                     */
                     void Supply(const char* formatString, std::va_list argList);
-
-                private:
 
                     // Storage for LogMessage data, back-end functionality, and helper functions.
                     class LogMessageData;

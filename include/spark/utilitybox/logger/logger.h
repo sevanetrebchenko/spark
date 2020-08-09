@@ -2,11 +2,11 @@
 #ifndef SPARK_LOGGER_H
 #define SPARK_LOGGER_H
 
-#include "log_message.h"             // LogMessage
-#include "logging_system.h"          // LoggingSystem
-#include "adapter.h"                 // Adapter
-#include "../tools/global_defines.h" // _NODISCARD_
-#include <spark_pch.h>               // std::chrono
+#include <spark_pch.h>                        // std::chrono
+#include <utilitybox/logger/log_message.h>    // LogMessage
+#include <utilitybox/logger/logging_system.h> // LoggingSystem
+#include <utilitybox/logger/adapter.h>        // Adapter
+#include <utilitybox/tools/global_defines.h>  // _NODISCARD_
 
 namespace Spark {
     namespace UtilityBox {

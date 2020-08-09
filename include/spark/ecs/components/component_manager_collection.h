@@ -2,7 +2,7 @@
 #ifndef SPARK_COMPONENT_MANAGER_COLLECTION_H
 #define SPARK_COMPONENT_MANAGER_COLLECTION_H
 
-#include "component_manager.h" // ComponentManager
+#include <ecs/components/component_manager.h> // ComponentManager
 
 namespace Spark {
     namespace ECS {

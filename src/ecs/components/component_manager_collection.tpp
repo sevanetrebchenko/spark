@@ -5,11 +5,11 @@
 #define PARAMETER_PACK_EXPAND(function, args, ...) ((void)function<args>(__VA_ARGS__), ...);
 
 #include <spark_pch.h>                                  // std::unordered_map
-#include "core/all_components.h"                        // ALL_COMPONENTS
-#include "ecs/components/component_manager_interface.h" // ComponentManagerInterface
-#include "ecs/ecs_typedefs.h"                           // ComponentTypeID
-#include "ecs/components/base_component.h"              // BaseComponent
-#include "utilitybox/logger/logging_system.h"           // LoggingSystem
+#include <core/all_components.h>                        // ALL_COMPONENTS
+#include <ecs/components/component_manager_interface.h> // ComponentManagerInterface
+#include <ecs/ecs_typedefs.h>                           // ComponentTypeID
+#include <ecs/components/base_component.h>              // BaseComponent
+#include <utilitybox/logger/logging_system.h>           // LoggingSystem
 
 namespace Spark::ECS::Components {
     //------------------------------------------------------------------------------------------------------------------

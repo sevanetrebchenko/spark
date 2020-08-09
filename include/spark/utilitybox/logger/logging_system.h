@@ -2,7 +2,8 @@
 #ifndef SPARK_LOGGING_SYSTEM_H
 #define SPARK_LOGGING_SYSTEM_H
 
-#include "log_message.h" // LogMessage
+#include <spark_pch.h>                     // std::string
+#include <utilitybox/logger/log_message.h> // LogMessage
 
 namespace Spark {
     namespace UtilityBox {

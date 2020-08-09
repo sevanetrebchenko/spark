@@ -2,11 +2,11 @@
 #ifndef SPARK_COMPONENT_MANAGER_TPP
 #define SPARK_COMPONENT_MANAGER_TPP
 
-#include "utilitybox/memory/segmented_pool_allocator.h" // SegmentedPoolAllocator
-#include "utilitybox/logger/logging_system.h"           // LoggingSystem
-#include "utilitybox/logger/log_message.h"              // LogMessage, LogMessageSeverity
-#include "utilitybox/tools/global_defines.h"            // _NODISCARD_
-#include "ecs/components/base_component.h"              // BaseComponent
+#include <utilitybox/memory/segmented_pool_allocator.h> // SegmentedPoolAllocator
+#include <utilitybox/logger/logging_system.h>           // LoggingSystem
+#include <utilitybox/logger/log_message.h>              // LogMessage, LogMessageSeverity
+#include <utilitybox/tools/global_defines.h>            // _NODISCARD_
+#include <ecs/components/base_component.h>              // BaseComponent
 
 namespace Spark::ECS::Components {
     //------------------------------------------------------------------------------------------------------------------

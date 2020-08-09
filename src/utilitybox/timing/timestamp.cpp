@@ -1,7 +1,7 @@
 
 #include <spark_pch.h>                   // std::setfill, std::setw, std::floor
-#include "utilitybox/timing/timestamp.h" // TimeStamp
-#include "utilitybox/logger/logger.h"    // GetLoggingInitializationTime
+#include <utilitybox/timing/timestamp.h> // TimeStamp
+#include <utilitybox/logger/logger.h>    // GetLoggingInitializationTime
 
 namespace Spark::UtilityBox::Timing {
     //------------------------------------------------------------------------------------------------------------------
