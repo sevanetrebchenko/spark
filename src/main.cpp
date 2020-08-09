@@ -20,10 +20,30 @@ class myAdapter : public Adapter {
         myAdapter();
         void ProcessMessage(void* messageAddress) override;
         void OutputMessage() override;
+
     private:
+
 };
 
 myAdapter::myAdapter() : Adapter("myAdapter") {
+    std::queue<HeaderFormatElement> headerFormat;
+    headerFormat.push(HeaderFormatElement::SEPARATOR);
+    headerFormat.push(HeaderFormatElement::NEWLINE);
+    headerFormat.push(HeaderFormatElement::DATE);
+    headerFormat.push(HeaderFormatElement::NEWLINE);
+    headerFormat.push(HeaderFormatElement::SEPARATOR);
+    headerFormat.push(HeaderFormatElement::NEWLINE);
+    _config.PushHeaderFormat(headerFormat);
+
+    std::queue<MessageFormatElement> messageFormat;
+    messageFormat.push(MessageFormatElement::TAB);
+    messageFormat.push(MessageFormatElement::TIMESTAMP);
+    messageFormat.push(MessageFormatElement::SPACE);
+    messageFormat.push(MessageFormatElement::SPACE);
+    messageFormat.push(MessageFormatElement::SPACE);
+    messageFormat.push(MessageFormatElement::MESSAGE);
+    messageFormat.push(MessageFormatElement::NEWLINE);
+    _config.PushMessageFormat(messageFormat);
 }
 
 void myAdapter::ProcessMessage(void *messageAddress) {
@@ -41,7 +61,7 @@ void myAdapter::ProcessMessage(void *messageAddress) {
 
 void myAdapter::OutputMessage() {
     while (!_formattedMessages.empty()) {
-        std::cout << _formattedMessages.front();
+        std::cerr << _formattedMessages.front();
         _formattedMessages.pop();
     }
 }
@@ -111,6 +131,8 @@ void mySystem::Shutdown() {
 
 int main() {
     Spark::UtilityBox::Logger::LoggingHub::Initialize();
+    myAdapter* a = new myAdapter();
+    LoggingHub::GetInstance()->AttachCustomAdapter(a);
 
     Spark::Core::GetInstance()->Initialize();
     Spark::Core::GetInstance()->Update();

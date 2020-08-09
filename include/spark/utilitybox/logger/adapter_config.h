@@ -30,9 +30,9 @@ namespace Spark {
                 NEWLINE,
                 TIMESTAMP,
                 MESSAGE,
-                DEBUGINFO,
                 TAB,
                 DASH,
+                SPACE,
                 BAR
             };
 

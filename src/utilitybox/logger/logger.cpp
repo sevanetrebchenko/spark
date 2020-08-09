@@ -67,7 +67,7 @@ namespace Spark::UtilityBox::Logger {
              * Construct an adapter for intermittent message processing.
              * @param name - Name of the adapter.
              */
-            explicit ProcessingAdapter(std::string&& name);
+            explicit ProcessingAdapter(std::string name);
 
             /**
              * Required overload from base class - does nothing.
@@ -93,7 +93,7 @@ namespace Spark::UtilityBox::Logger {
     };
 
     // Construct an adapter for intermittent message processing.
-    ProcessingAdapter::ProcessingAdapter(std::string&& name) : Adapter(std::move(name)) {
+    ProcessingAdapter::ProcessingAdapter(std::string name) : Adapter(std::move(name)) {
         // Nothing to do here.
     }
 
@@ -520,36 +520,10 @@ namespace Spark::UtilityBox::Logger {
         auto* processedMessageStorage = new LogMessageStorage(errorMessage->GetLogRecords(), errorMessage->GetMessageSeverity(), "LoggingHub error processing.");
         _currentMessageAddress = static_cast<void*>(processedMessageStorage);
 
-        // Message header will follow the following format:
-        //---------------------------------------------------------------------------------
-        // [0000 0000] | [ DAY_OF_WEEK 00, MONTH 0000] | [ SEVERITY ]
-        //      - EXCEPTION -
-        //---------------------------------------------------------------------------------
-        std::queue<HeaderFormatElement> headerFormat;
-
-        // Formatting for section: ---------------------------------------------------------------------------------
-        headerFormat.push(HeaderFormatElement::SEPARATOR);
-        headerFormat.push(HeaderFormatElement::NEWLINE);
-
-        // Formatting for section: [0000 0000] | [ DAY_OF_WEEK 00, MONTH 0000] | [ SEVERITY ]
-        headerFormat.push(HeaderFormatElement::LOGCOUNT);
-        headerFormat.push(HeaderFormatElement::BAR);
-        headerFormat.push(HeaderFormatElement::DATE);
-        headerFormat.push(HeaderFormatElement::BAR);
-        headerFormat.push(HeaderFormatElement::SEVERITY);
-        headerFormat.push(HeaderFormatElement::NEWLINE);
-
-        // Formatting for section: - EXCEPTION -
-        headerFormat.push(HeaderFormatElement::TAB);
-        headerFormat.push(HeaderFormatElement::DASH);
-        headerFormat.push(HeaderFormatElement::EXCEPTION);
-        headerFormat.push(HeaderFormatElement::DASH);
-        headerFormat.push(HeaderFormatElement::NEWLINE);
-
-        // Formatting for section: ---------------------------------------------------------------------------------
-        headerFormat.push(HeaderFormatElement::SEPARATOR);
-        headerFormat.push(HeaderFormatElement::NEWLINE);
-
+        // Log with the standard header format.
+        // Format doesn't change (since it's controlled from within the logging system) so getting the header format will
+        // always return the default.
+        std::queue<HeaderFormatElement> headerFormat = _cerr->GetConfiguration().GetHeaderFormat();
         ConstructErrorMessageHeader(headerFormat);
         while (!headerFormat.empty()) {
             headerFormat.pop();
@@ -578,7 +552,6 @@ namespace Spark::UtilityBox::Logger {
 
         // Message peek will follow the following format:
         //            [000m 00s 0000ms] - MESSAGE
-        //                : supplied from (FUNCTION, FILE:LINE_NUMBER)
 
         // Formatting for section: [000m 00s 0000ms] - MESSAGE
         messageFormat.push(MessageFormatElement::TAB);
@@ -587,18 +560,6 @@ namespace Spark::UtilityBox::Logger {
         messageFormat.push(MessageFormatElement::TIMESTAMP);
         messageFormat.push(MessageFormatElement::DASH);
         messageFormat.push(MessageFormatElement::MESSAGE);
-        messageFormat.push(MessageFormatElement::NEWLINE);
-
-#ifdef DEBUG_MESSAGES
-        // Formatting for section: : supplied from (FUNCTION, FILE:LINE_NUMBER)
-        messageFormat.push(MessageFormatElement::TAB);
-        messageFormat.push(MessageFormatElement::TAB);
-        messageFormat.push(MessageFormatElement::TAB);
-        messageFormat.push(MessageFormatElement::TAB);
-        messageFormat.push(MessageFormatElement::DEBUGINFO);
-        messageFormat.push(MessageFormatElement::NEWLINE);
-#endif
-
         messageFormat.push(MessageFormatElement::NEWLINE);
 
         ConstructErrorMessagePeek(headerFormat, messageFormat);
@@ -610,6 +571,7 @@ namespace Spark::UtilityBox::Logger {
         errorMessage->Supply("...");
         processedMessageStorage->_records = std::move(errorMessage->GetLogRecords());
 
+        messageFormat.push(MessageFormatElement::TAB);
         messageFormat.push(MessageFormatElement::TAB);
         messageFormat.push(MessageFormatElement::TAB);
         messageFormat.push(MessageFormatElement::TAB);
@@ -630,50 +592,17 @@ namespace Spark::UtilityBox::Logger {
         auto* processedMessageStorage = new LogMessageStorage(errorMessage->GetLogRecords(), errorMessage->GetMessageSeverity(), "LoggingHub error processing.");
         _currentMessageAddress = static_cast<void*>(processedMessageStorage);
 
-        // Message header will follow the following format:
-        //---------------------------------------------------------------------------------
-        // [0000 0000] | [ DAY_OF_WEEK 00, MONTH 0000] | [ SEVERITY ]
-        //      - EXCEPTION -
-        //---------------------------------------------------------------------------------
-        std::queue<HeaderFormatElement> headerFormat;
-
-        // Formatting for section: ---------------------------------------------------------------------------------
-        headerFormat.push(HeaderFormatElement::SEPARATOR);
-        headerFormat.push(HeaderFormatElement::NEWLINE);
-
-        // Formatting for section: [0000 0000] | [ DAY_OF_WEEK 00, MONTH 0000] | [ SEVERITY ]
-        headerFormat.push(HeaderFormatElement::LOGCOUNT);
-        headerFormat.push(HeaderFormatElement::BAR);
-        headerFormat.push(HeaderFormatElement::DATE);
-        headerFormat.push(HeaderFormatElement::BAR);
-        headerFormat.push(HeaderFormatElement::SEVERITY);
-        headerFormat.push(HeaderFormatElement::NEWLINE);
-
-        // Formatting for section: - EXCEPTION -
-        headerFormat.push(HeaderFormatElement::TAB);
-        headerFormat.push(HeaderFormatElement::DASH);
-        headerFormat.push(HeaderFormatElement::EXCEPTION);
-        headerFormat.push(HeaderFormatElement::DASH);
-        headerFormat.push(HeaderFormatElement::NEWLINE);
-
-        // Formatting for section: ---------------------------------------------------------------------------------
-        headerFormat.push(HeaderFormatElement::SEPARATOR);
-        headerFormat.push(HeaderFormatElement::NEWLINE);
+        // Format header using the custom adapter's formatting style.
+        Adapter* customAdapter = GetAdapter(adapterName);
+        std::queue<HeaderFormatElement> headerFormat = customAdapter->GetConfiguration().GetHeaderFormat();
         ConstructErrorMessageHeader(headerFormat);
-
 
         errorMessage->Supply("An exception occurred during message processing - see standard error output for details.");
         errorMessage->Supply("The custom adapter with name '%s' will be removed from the LoggingHub adapter list.\n", adapterName);
         processedMessageStorage->_records = std::move(errorMessage->GetLogRecords());
 
-        // Message body will follow the following format:
-        //    An exception occurred during message processing - see standard error output for details.
-        //    The custom adapter with name 'myAdapter' will be removed from the LoggingHub adapter list.
-        std::queue<MessageFormatElement> messageFormat;
-        messageFormat.push(MessageFormatElement::TAB);
-        messageFormat.push(MessageFormatElement::MESSAGE);
-        messageFormat.push(MessageFormatElement::NEWLINE);
-
+        // Format message using the custom adapter's formatting style.
+        std::queue<MessageFormatElement> messageFormat = customAdapter->GetConfiguration().GetMessageFormat();
         ConstructErrorMessageBody(messageFormat);
     }
 
@@ -730,7 +659,7 @@ namespace Spark::UtilityBox::Logger {
         std::queue<std::string>& processedMessages = _errorMessageProcessing->GetFormattedMessages();
         for (int i = 0; i < 3; ++i) {
             std::string& processedMessage = processedMessages.front();
-            if (processedMessage == "\n") {
+            if (processedMessage == "\n" || processedMessage.empty()) {
                 break;
             }
 

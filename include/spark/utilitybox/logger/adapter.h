@@ -120,15 +120,6 @@ namespace Spark {
                     */
                     _NODISCARD_ virtual std::string FormatTimestamp(const Timing::TimeStamp& timeStamp);
 
-                    #ifdef DEBUG_MESSAGES
-                    /**
-                    * Format the debug information (file, function, and line number where Supply provided the message).
-                    * @param debugLogRecord - Message's debug data store.
-                    * @return String containing formatted debug information.
-                    */
-                    _NODISCARD_ virtual std::string FormatDebugInformation(const LogMessage::DBG_LOG_RECORD& debugLogRecord);
-                    #endif
-
                     /**
                     * Format a line of dashes of a given length.
                     * @param lineLength - Desired line length.

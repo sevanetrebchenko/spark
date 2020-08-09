@@ -76,8 +76,7 @@ namespace Spark {
                      * Get the initialization timestamp of the LoggingHub.
                      * @return Timestamp of when the LoggingHub was initialized.
                      */
-                    _NODISCARD_ const std::chrono::time_point<std::chrono::high_resolution_clock>&
-                    GetLoggingInitializationTime();
+                    _NODISCARD_ const std::chrono::time_point<std::chrono::high_resolution_clock>& GetLoggingInitializationTime();
 
                 private:
                     // Allow logging systems to access SendMessage()

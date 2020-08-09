@@ -296,18 +296,6 @@ namespace Spark::UtilityBox::Logger {
         return line;
     }
 
-#ifdef DEBUG_MESSAGES
-    // Formats log message debug information.
-    std::string Adapter::AdapterData::DefaultDebugInformationFormat(const DBG_LOG_MESSAGE::DBG_LOG_RECORD& debugLogRecord) {
-        // Default format:   : supplied from (FUNCTION, FILE_NAME:LINE_NUMBER)
-        _format << ": supplied from (" << debugLogRecord._fileName << ", " << debugLogRecord._functionName << ':' << debugLogRecord._lineNumber << ')';
-        std::string debugInformationString = _format.str();
-        _format.str(std::string());
-
-        return debugInformationString;
-    }
-#endif
-
 
     //------------------------------------------------------------------------------------------------------------------
     // ADAPTER
@@ -463,13 +451,6 @@ namespace Spark::UtilityBox::Logger {
                         }
                         break;
 
-                    // Append debug information of the log message.
-                    case MessageFormatElement::DEBUGINFO:
-#ifdef DEBUG_MESSAGES
-                        _format << FormatDebugInformation(record._calleeInformation);
-#endif
-                        break;
-
                     // Append a tab formatting character.
                     case MessageFormatElement::TAB:
                         _format << TAB_SPACE;
@@ -478,6 +459,11 @@ namespace Spark::UtilityBox::Logger {
                     // Append a dash formatting character.
                     case MessageFormatElement::DASH:
                         _format << " - ";
+                        break;
+
+                    // Append a space formatting character.
+                    case MessageFormatElement::SPACE:
+                        _format << " ";
                         break;
 
                     // Append a bar formatting character.
@@ -515,13 +501,6 @@ namespace Spark::UtilityBox::Logger {
     std::string Adapter::FormatTimestamp(const Timing::TimeStamp& timeStamp) {
         return _data->DefaultTimestampFormat(timeStamp);
     }
-
-#ifdef DEBUG_MESSAGES
-    // Format the debug information (file, function, and line number where Supply provided the message).
-    std::string Adapter::FormatDebugInformation(const DBG_LOG_MESSAGE::DBG_LOG_RECORD &debugLogRecord) {
-        return _data->DefaultDebugInformationFormat(debugLogRecord);
-    }
-#endif
 
     // Format a line of dashes of a given length.
     std::string Adapter::FormatLine(const int& lineLength) {

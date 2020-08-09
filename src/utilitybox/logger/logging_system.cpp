@@ -3,8 +3,6 @@
 #include "utilitybox/logger/logger.h"         // SendMessage
 #include <spark_pch.h>
 
-#define MESSAGE_SUPPLY message.Supply(formatString, __VA_ARGS__)
-
 namespace Spark::UtilityBox::Logger {
     // Construct a LoggingSystem instance with a desired name.
     LoggingSystem::LoggingSystem(std::string name) : _name(std::move(name)) {

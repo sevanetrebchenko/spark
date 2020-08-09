@@ -240,16 +240,6 @@ namespace Spark::UtilityBox::Logger {
         defaultMessageFormat.push(MessageFormatElement::DASH);
         defaultMessageFormat.push(MessageFormatElement::MESSAGE);
         defaultMessageFormat.push(MessageFormatElement::NEWLINE);
-
-        // Formatting for section:  : supplied from (FILE, FUNCTION:LINE_NUMBER)
-    #ifdef DEBUG_MESSAGES
-        defaultMessageFormat.push(MessageFormatElement::TAB);
-        defaultMessageFormat.push(MessageFormatElement::TAB);
-        defaultMessageFormat.push(MessageFormatElement::DEBUGINFO);
-        defaultMessageFormat.push(MessageFormatElement::NEWLINE);
-    #endif
-        defaultMessageFormat.push(MessageFormatElement::NEWLINE);
-
         _messageFormats.emplace(std::move(defaultMessageFormat));
     }
 
