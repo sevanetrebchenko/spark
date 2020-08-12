@@ -1,6 +1,6 @@
 
-#include <platform/opengl/opengl_imgui_overhead.h> // OpenGLImGuiOverhead
-#include <platform/opengl/opengl_window.h>         // OpenGLWindow
+#include "../platform/opengl/opengl_imgui_overhead.h"
+#include "../platform/opengl/opengl_window.h"
 #include <examples/imgui_impl_opengl3.h>           // ImGui_ImplOpenGL3_Init, ImGui_ImplOpenGL3_NewFrame, ImGui_ImplOpenGL3_RenderDrawData
 #include <imgui.h>                                 // ImGui
 

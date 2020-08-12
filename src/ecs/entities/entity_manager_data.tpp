@@ -2,7 +2,7 @@
 #ifndef SPARK_ENTITY_MANAGER_DATA_TPP
 #define SPARK_ENTITY_MANAGER_DATA_TPP
 
-#include <core/all_components.h>                         // ALL_COMPONENTS
+#include <ecs/all_components.h>                         // ALL_COMPONENTS
 #include <utilitybox/tools/compile_time_hash.h>          // STRINGHASH
 #include <ecs/components/component_manager_collection.h> // ComponentManagerCollection
 

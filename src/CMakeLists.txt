@@ -7,10 +7,16 @@
 set(CORE_SOURCE_FILES
         # Core
         "${PROJECT_SOURCE_DIR}/src/core/core.cpp"
+        "${PROJECT_SOURCE_DIR}/src/core/entry_point.cpp"
         # ECS
         "${PROJECT_SOURCE_DIR}/src/ecs/entities/entity_manager.cpp"
         "${PROJECT_SOURCE_DIR}/src/ecs/entities/entity_manager_data.cpp"
-        # Graphics - Context
+        # Messaging
+        "${PROJECT_SOURCE_DIR}/src/events/event_hub.cpp"
+        "${PROJECT_SOURCE_DIR}/src/events/event_listener.tpp"
+        "${PROJECT_SOURCE_DIR}/src/events/application_events.cpp"
+        "${PROJECT_SOURCE_DIR}/src/events/event.cpp"
+        # Graphics
         "${PROJECT_SOURCE_DIR}/src/graphics/context/imgui_overhead.cpp"
         "${PROJECT_SOURCE_DIR}/src/graphics/context/rendering_api.cpp"
         "${PROJECT_SOURCE_DIR}/src/graphics/context/rendering_context.cpp"

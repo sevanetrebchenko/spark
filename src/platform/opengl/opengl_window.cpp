@@ -1,5 +1,5 @@
 
-#include <platform/opengl/opengl_window.h> // OpenGLWindow, Window
+#include "../platform/opengl/opengl_window.h"
 
 namespace Spark::Platform::OpenGL {
 

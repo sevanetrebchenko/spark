@@ -1,7 +1,9 @@
 
-#include <platform/opengl/opengl_rendering_context.h> // OpenGLRenderingContext
-#include <platform/opengl/opengl_window.h>
-#include <platform/opengl/opengl_imgui_overhead.h>
+#include <glad/glad.h>                       // Glad
+
+#include "../platform/opengl/opengl_imgui_overhead.h"
+#include "../platform/opengl/opengl_window.h"
+#include "../platform/opengl/opengl_rendering_context.h"
 #include <utilitybox/logger/logging_system.h>
 #include <graphics/context/rendering_api.h>
 

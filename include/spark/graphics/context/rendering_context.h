@@ -2,7 +2,7 @@
 #ifndef SPARK_RENDERING_CONTEXT_H
 #define SPARK_RENDERING_CONTEXT_H
 
-#include <glad/glad.h>                       // Glad
+//#include <glad/glad.h>                       // Glad
 #include <GLFW/glfw3.h>                      // GLFWwindow
 #include <utilitybox/tools/global_defines.h> // _NODISCARD_
 #include <graphics/context/window.h>         // Window

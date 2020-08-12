@@ -4,7 +4,7 @@
 
 #include <graphics/context/rendering_context.h>
 #include <spark_pch.h>
-#include <platform/opengl/opengl_window.h>
+#include "opengl_window.h"
 #include <graphics/context/imgui_overhead.h>
 
 namespace Spark {
