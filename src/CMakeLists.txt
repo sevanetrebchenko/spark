@@ -8,23 +8,26 @@ set(CORE_SOURCE_FILES
         # Core
         "${PROJECT_SOURCE_DIR}/src/core/core.cpp"
         "${PROJECT_SOURCE_DIR}/src/core/entry_point.cpp"
+        "${PROJECT_SOURCE_DIR}/src/core/application.cpp"
+        "${PROJECT_SOURCE_DIR}/src/utilitybox/servicelocator/service_locator.cpp"
         # ECS
         "${PROJECT_SOURCE_DIR}/src/ecs/entities/entity_manager.cpp"
         "${PROJECT_SOURCE_DIR}/src/ecs/entities/entity_manager_data.cpp"
-        # Messaging
+        # Events
         "${PROJECT_SOURCE_DIR}/src/events/event_hub.cpp"
+        "${PROJECT_SOURCE_DIR}/src/events/null_event_hub.cpp"
         "${PROJECT_SOURCE_DIR}/src/events/event_listener.tpp"
         "${PROJECT_SOURCE_DIR}/src/events/application_events.cpp"
+        "${PROJECT_SOURCE_DIR}/src/events/key_events.cpp"
+        "${PROJECT_SOURCE_DIR}/src/events/mouse_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/events/event.cpp"
         # Graphics
-        "${PROJECT_SOURCE_DIR}/src/graphics/context/imgui_overhead.cpp"
-        "${PROJECT_SOURCE_DIR}/src/graphics/context/rendering_api.cpp"
+        "${PROJECT_SOURCE_DIR}/src/graphics/window/window.cpp"
         "${PROJECT_SOURCE_DIR}/src/graphics/context/rendering_context.cpp"
-        "${PROJECT_SOURCE_DIR}/src/graphics/context/window.cpp"
-        # OpenGL
-        "${PROJECT_SOURCE_DIR}/src/platform/opengl/opengl_imgui_overhead.cpp"
-        "${PROJECT_SOURCE_DIR}/src/platform/opengl/opengl_rendering_context.cpp"
+        # Platform
         "${PROJECT_SOURCE_DIR}/src/platform/opengl/opengl_window.cpp"
+        "${PROJECT_SOURCE_DIR}/src/platform/opengl/opengl_rendering_context.cpp"
+        "${PROJECT_SOURCE_DIR}/src/platform/opengl/opengl_imgui_overhead.cpp"
         # Logger
         "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/adapter.cpp"
         "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/adapter_config.cpp"

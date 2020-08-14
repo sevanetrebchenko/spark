@@ -3,17 +3,17 @@
 #define SPARK_EVENT_HUB_H
 
 #include "event_listener_interface.h"
+#include "event_hub_interface.h"
 
 namespace Spark {
     namespace Events {
 
-            class EventHub {
+            class EventHub : public IEventHub {
                 public:
                     static EventHub* GetInstance();
-                    void AttachEventListener(EventListenerInterface* eventListener);
-                    void DetachEventListener(EventListenerInterface* eventListener);
-
-                    void Dispatch(Event* event);
+                    void AttachEventListener(IEventListener* eventListener) override;
+                    void DetachEventListener(IEventListener* eventListener) override;
+                    void Dispatch(Event* event) override;
 
                 private:
                     EventHub();

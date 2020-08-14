@@ -8,14 +8,15 @@
 namespace Spark {
     namespace Events {
 
-        class EventListenerInterface {
+        // Interface for making EventListeners polymorphic at runtime.
+        class IEventListener {
             public:
                 /**
                  * Send an event to this function. Function adequately handles if the given eventType is not handled by
                  * the attached EventListener.
                  * @param eventPointer - Shared pointer to the dispatched event.
                  */
-                virtual void OnEventReceived(std::shared_ptr<Event*> eventPointer) = 0;
+                virtual void OnEventReceived(std::shared_ptr<const Event*> eventPointer) = 0;
         };
 
     }

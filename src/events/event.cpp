@@ -5,9 +5,18 @@ namespace Spark::Events {
         // Nothing to do here.
     }
 
-    EventType Event::GetEventType() {
+    const EventType& Event::GetEventType() const {
         return _eventType;
     }
+
+    const EventCategory& Event::GetEventCategory() const {
+        return _eventCategory;
+    }
+
+    bool Event::IsInEventCategory(EventCategory eventCategory) const {
+        return _eventCategory & eventCategory;
+    }
+
 }
 
 

@@ -10,11 +10,10 @@ namespace Spark {
 
         class WindowResizeEvent : public Event {
             public:
-                static EventType GetStaticEventType() {
-                    return EventType::WindowResized;
-                };
+                static inline constexpr EventType GetStaticEventType() { return EventType::WindowResized; }
                 WindowResizeEvent(unsigned width, unsigned height);
 
+                _NODISCARD_ std::string ToString() const override;
                 _NODISCARD_ unsigned GetWidth() const;
                 _NODISCARD_ unsigned GetHeight() const;
 
@@ -25,9 +24,8 @@ namespace Spark {
 
         class WindowCloseEvent : public Event {
             public:
-                static EventType GetStaticEventType() {
-                    return EventType::WindowCloseRequested;
-                };
+                static inline constexpr EventType GetStaticEventType() { return EventType::WindowCloseRequested; }
+                _NODISCARD_ std::string ToString() const override;
                 WindowCloseEvent();
         };
 

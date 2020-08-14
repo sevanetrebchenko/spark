@@ -8,13 +8,14 @@
 namespace Spark {
     namespace Events {
 
+        // Template parameters for EventListener registration must derive from base Event class.
         template <class ...EventTypes>
-        class EventListener : public EventListenerInterface {
+        class EventListener : public IEventListener {
             public:
                 EventListener();
                 ~EventListener();
 
-                void OnEventReceived(std::shared_ptr<Event*> eventPointer) override;
+                void OnEventReceived(std::shared_ptr<const Event*> eventPointer) override;
 
             private:
                 class EventListenerData;

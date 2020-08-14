@@ -1,12 +1,45 @@
 
-#include "../platform/opengl/opengl_window.h"
+#include <platform/opengl/opengl_window.h>
+#include <utilitybox/logger/logging_system.h>
+#include <GLFW/glfw3.h>
 
-namespace Spark::Platform::OpenGL {
+namespace Spark::Graphics {
+    //------------------------------------------------------------------------------------------------------------------
+    // WINDOW DATA
+    //------------------------------------------------------------------------------------------------------------------
+    class OpenGLWindow::OpenGLWindowData {
+        public:
+            OpenGLWindowData(std::string windowName, int width, int height);
+            ~OpenGLWindowData();
 
-    // Creates a GLFW window. Function throws error on creation failure.
-    OpenGLWindow::OpenGLWindow() : Graphics::Context::Window("OpenGL", 1920, 1080) {
+            _NODISCARD_ int GetWidth() const;
+            _NODISCARD_ int GetHeight() const;
+            _NODISCARD_ GLFWwindow* GetNativeWindow() const;
+
+        private:
+            void InitializeGLFW();
+
+            std::string _windowName;
+            int _windowWidth, _windowHeight;
+
+            GLFWwindow* _window;
+            UtilityBox::Logger::LoggingSystem _loggingSystem;
+    };
+
+    OpenGLWindow::OpenGLWindowData::OpenGLWindowData(std::string windowName, int width, int height) : _windowName(std::move(windowName)),
+                                                                                                      _windowWidth(width),
+                                                                                                      _windowHeight(height) {
         UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entering constructor for OpenGL window.");
+        message.Supply("Entering window constructor.");
+        message.Supply("Provided window name: '%s'.", _windowName.c_str());
+        message.Supply("Window width: %i.", _windowWidth);
+        message.Supply("Window height: %i.", _windowHeight);
+
+        // TODO: Support higher version of OpenGL
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        InitializeGLFW();
 
         // Create window.
         _window = glfwCreateWindow(_windowWidth, _windowHeight, _windowName.c_str(), nullptr, nullptr);
@@ -22,8 +55,7 @@ namespace Spark::Platform::OpenGL {
         _loggingSystem.Log(message);
     }
 
-    // Destroys created GLFW window.
-    OpenGLWindow::~OpenGLWindow() {
+    OpenGLWindow::OpenGLWindowData::~OpenGLWindowData() {
         UtilityBox::Logger::LogMessage message {};
         message.Supply("Entering destructor for OpenGL window.");
 
@@ -31,5 +63,99 @@ namespace Spark::Platform::OpenGL {
         message.Supply("GLFW window successfully destroyed.");
 
         _loggingSystem.Log(message);
+    }
+
+    int OpenGLWindow::OpenGLWindowData::GetWidth() const {
+        return _windowWidth;
+    }
+
+    int OpenGLWindow::OpenGLWindowData::GetHeight() const {
+        return _windowHeight;
+    }
+
+    GLFWwindow *OpenGLWindow::OpenGLWindowData::GetNativeWindow() const {
+        return _window;
+    }
+
+    void OpenGLWindow::OpenGLWindowData::InitializeGLFW() {
+        int initializationCode = glfwInit();
+        // Failed to initialize GLFW
+        if (!initializationCode) {
+            _loggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW initialization failed with error code: %i.", initializationCode);
+            throw std::runtime_error("GLFW initialization failed.");
+        }
+        else {
+            _loggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::DEBUG, "GLFW successfully initialized.");
+        }
+
+        // Register error callback function.
+        glfwSetErrorCallback([](int errorCode, const char *errorDescription) {
+            static UtilityBox::Logger::LoggingSystem errorLoggingSystem("GLFW Error");
+            errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred.");
+
+            switch (errorCode) {
+                case GLFW_NO_ERROR:
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_NO_ERROR (error code: %i).", errorCode);
+                    break;
+                case GLFW_NOT_INITIALIZED:
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_NOT_INITIALIZED (error code: %i).", errorCode);
+                    break;
+                case GLFW_NO_CURRENT_CONTEXT:
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_NO_CURRENT_CONTEXT (error code: %i).", errorCode);
+                    break;
+                case GLFW_INVALID_ENUM:
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_INVALID_ENUM (error code: %i).", errorCode);
+                    break;
+                case GLFW_INVALID_VALUE:
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_INVALID_VALUE (error code: %i).", errorCode);
+                    break;
+                case GLFW_OUT_OF_MEMORY:
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_OUT_OF_MEMORY (error code: %i).", errorCode);
+                    break;
+                case GLFW_API_UNAVAILABLE:
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_API_UNAVAILABLE (error code: %i).", errorCode);
+                    break;
+                case GLFW_VERSION_UNAVAILABLE:
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_VERSION_UNAVAILABLE (error code: %i).", errorCode);
+                    break;
+                case GLFW_PLATFORM_ERROR:
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_PLATFORM_ERROR (error code: %i).", errorCode);
+                    break;
+                case GLFW_FORMAT_UNAVAILABLE:
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_FORMAT_UNAVAILABLE (error code: %i).", errorCode);
+                    break;
+                case GLFW_NO_WINDOW_CONTEXT:
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_NO_WINDOW_CONTEXT (error code: %i).", errorCode);
+                    break;
+                default:
+                    break;
+            }
+
+            errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "Provided error description: %s.", errorDescription);
+        });
+    }
+
+
+    //------------------------------------------------------------------------------------------------------------------
+    // WINDOW
+    //------------------------------------------------------------------------------------------------------------------
+    OpenGLWindow::OpenGLWindow(std::string windowName, int width, int height) : _data(new OpenGLWindowData(std::move(windowName), width, height)) {
+        // Nothing to do here.
+    }
+
+    OpenGLWindow::~OpenGLWindow() {
+        delete _data;
+    }
+
+    int OpenGLWindow::GetWidth() const {
+        return _data->GetWidth();
+    }
+
+    int OpenGLWindow::GetHeight() const {
+        return _data->GetHeight();
+    }
+
+    void* OpenGLWindow::GetNativeWindow() const {
+        return _data->GetNativeWindow();
     }
 }
