@@ -116,31 +116,6 @@ namespace Spark::Graphics {
     }
 
     void OpenGLImGuiOverhead::OpenGLImGuiOverheadData::SetupGLFWCallbacks() {
-        // Mouse button callback.
-        glfwSetMouseButtonCallback(_window, [](GLFWwindow* window, int mouseButton, int buttonAction, int /* MODS UNUSED */) {
-            if (buttonAction == GLFW_PRESS) {
-                ServiceLocator::GetEventHub()->Dispatch(new Events::MouseButtonPressedEvent(mouseButton));
-            }
-            else if (buttonAction == GLFW_RELEASE) {
-                ServiceLocator::GetEventHub()->Dispatch(new Events::MouseButtonReleasedEvent(mouseButton));
-            }
-        });
-
-        // Mouse scroll wheel callback.
-        glfwSetScrollCallback(_window, [](GLFWwindow* /* WINDOW UNUSED */, double xOffset, double yOffset) {
-            ServiceLocator::GetEventHub()->Dispatch(new Events::MouseScrolledEvent(xOffset, yOffset));
-        });
-
-        // Key callback.
-        glfwSetKeyCallback(_window, [](GLFWwindow* /* WINDOW UNUSED */, int keyCode, int /* SCANCODE UNUSED */, int keyAction, int /* MODS UNUSED */) {
-            if (keyAction == GLFW_PRESS) {
-                ServiceLocator::GetEventHub()->Dispatch(new Events::KeyPressEvent(keyCode));
-            }
-            else if (keyAction == GLFW_RELEASE) {
-                ServiceLocator::GetEventHub()->Dispatch(new Events::KeyReleaseEvent(keyCode));
-            }
-        });
-
         // Clipboard get/set functions.
         ImGuiIO& io = ImGui::GetIO();
         io.SetClipboardTextFn = [](void* window, const char* text) {

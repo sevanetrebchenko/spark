@@ -1,5 +1,9 @@
 
 #include <platform/opengl/opengl_window.h>
+#include <platform/opengl/opengl_rendering_context.h>
+#include <core/service_locator.h>
+#include <events/key_events.h>
+#include <events/mouse_events.h>
 #include <utilitybox/logger/logging_system.h>
 #include <GLFW/glfw3.h>
 
@@ -18,12 +22,14 @@ namespace Spark::Graphics {
 
         private:
             void InitializeGLFW();
+            void SetupGLFWCallbacks();
 
             std::string _windowName;
             int _windowWidth, _windowHeight;
 
             GLFWwindow* _window;
-            UtilityBox::Logger::LoggingSystem _loggingSystem;
+            Graphics::RenderingContext* _context;
+            UtilityBox::Logger::LoggingSystem _loggingSystem { "OpenGL Window" };
     };
 
     OpenGLWindow::OpenGLWindowData::OpenGLWindowData(std::string windowName, int width, int height) : _windowName(std::move(windowName)),
@@ -50,6 +56,12 @@ namespace Spark::Graphics {
 
             throw std::runtime_error("GLFW window creation failed.");
         }
+
+        // Create rendering context.
+        _context = Graphics::RenderingContext::Create(_window);
+        // TODO: assert
+
+        SetupGLFWCallbacks();
 
         message.Supply("Window was successfully created.");
         _loggingSystem.Log(message);
@@ -132,6 +144,33 @@ namespace Spark::Graphics {
             }
 
             errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "Provided error description: %s.", errorDescription);
+        });
+    }
+
+    void OpenGLWindow::OpenGLWindowData::SetupGLFWCallbacks() {
+        // Mouse button callback.
+        glfwSetMouseButtonCallback(_window, [](GLFWwindow* window, int mouseButton, int buttonAction, int /* MODS UNUSED */) {
+            if (buttonAction == GLFW_PRESS) {
+                ServiceLocator::GetEventHub()->Dispatch(new Events::MouseButtonPressedEvent(mouseButton));
+            }
+            else if (buttonAction == GLFW_RELEASE) {
+                ServiceLocator::GetEventHub()->Dispatch(new Events::MouseButtonReleasedEvent(mouseButton));
+            }
+        });
+
+        // Mouse scroll wheel callback.
+        glfwSetScrollCallback(_window, [](GLFWwindow* /* WINDOW UNUSED */, double xOffset, double yOffset) {
+            ServiceLocator::GetEventHub()->Dispatch(new Events::MouseScrolledEvent(xOffset, yOffset));
+        });
+
+        // Key callback.
+        glfwSetKeyCallback(_window, [](GLFWwindow* /* WINDOW UNUSED */, int keyCode, int /* SCANCODE UNUSED */, int keyAction, int /* MODS UNUSED */) {
+            if (keyAction == GLFW_PRESS) {
+                ServiceLocator::GetEventHub()->Dispatch(new Events::KeyPressEvent(keyCode));
+            }
+            else if (keyAction == GLFW_RELEASE) {
+                ServiceLocator::GetEventHub()->Dispatch(new Events::KeyReleaseEvent(keyCode));
+            }
         });
     }
 

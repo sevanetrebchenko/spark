@@ -1,7 +1,6 @@
 
 #include <core/application.h>
 #include <graphics/window/window.h>
-#include <graphics/context/rendering_context.h>
 
 namespace Spark {
     //------------------------------------------------------------------------------------------------------------------
@@ -16,11 +15,11 @@ namespace Spark {
 
         private:
             Graphics::Window* _window;
+
     };
 
     Application::ApplicationData::ApplicationData() : _window(Graphics::Window::Create()) {
         // Nothing to do here.
-        //Graphics::RenderingContext::Create(_window);
     }
 
     Application::ApplicationData::~ApplicationData() {
@@ -28,10 +27,8 @@ namespace Spark {
     }
 
     void Application::ApplicationData::Run() {
-        while (true) {
-
-        }
     }
+
 
     //------------------------------------------------------------------------------------------------------------------
     // APPLICATION
