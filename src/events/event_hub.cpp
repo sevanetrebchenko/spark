@@ -10,7 +10,6 @@ namespace Spark::Events {
             void AttachEventListener(IEventListener* eventListener);
             void DetachEventListener(IEventListener* eventListener);
             void Dispatch(Event* event);
-            void Dispatch(const Event& event);
 
         private:
             std::vector<IEventListener*> _eventListeners;
@@ -54,23 +53,13 @@ namespace Spark::Events {
     }
 
     void EventHub::EventHubData::Dispatch(Event* event) {
-        std::shared_ptr<const Event*> sharedPointer = std::make_shared<const Event*>(event);
+        std::shared_ptr<Event*> sharedPointer = std::make_shared<Event*>(event);
 
         // Dispatch event to all the listeners.
         for (auto* eventListener : _eventListeners) {
             eventListener->OnEventReceived(sharedPointer);
         }
     }
-
-    void EventHub::EventHubData::Dispatch(const Event& event) {
-        std::shared_ptr<const Event*> sharedPointer = std::make_shared<const Event*>(&event);
-
-        // Dispatch event to all the listeners.
-        for (auto* eventListener : _eventListeners) {
-            eventListener->OnEventReceived(sharedPointer);
-        }
-    }
-
 
     EventHub *EventHub::GetInstance() {
         if (!_instance) {

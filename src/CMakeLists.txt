@@ -21,9 +21,11 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/events/key_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/events/mouse_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/events/event.cpp"
+        "${PROJECT_SOURCE_DIR}/src/events/event_interactable.cpp"
         # Graphics
         "${PROJECT_SOURCE_DIR}/src/graphics/window/window.cpp"
         "${PROJECT_SOURCE_DIR}/src/graphics/context/rendering_context.cpp"
+        "${PROJECT_SOURCE_DIR}/src/graphics/context/imgui_overhead.cpp"
         # Platform
         "${PROJECT_SOURCE_DIR}/src/platform/opengl/opengl_window.cpp"
         "${PROJECT_SOURCE_DIR}/src/platform/opengl/opengl_rendering_context.cpp"

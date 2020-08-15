@@ -11,10 +11,11 @@ namespace Spark::Events {
     template <class ...EventTypes>
     class EventListener<EventTypes...>::EventListenerData {
         public:
-            EventListenerData() = default;
+            EventListenerData(std::function<void(std::queue<std::shared_ptr<Event*>>&)> eventProcessingFunction);
             ~EventListenerData();
 
-            void OnEventReceived(std::shared_ptr<const Event*> eventPointer);
+            void OnEventReceived(std::shared_ptr<Event*> eventPointer);
+            void OnUpdate();
 
         private:
             /**
@@ -29,8 +30,14 @@ namespace Spark::Events {
             template<unsigned>
             bool ManagesEventType(const EventType& eventType);
 
-            std::queue<const Event*> _eventQueue;
+            std::function<void(std::queue<std::shared_ptr<Event*>>&)> _processingFunction;
+            std::queue<std::shared_ptr<Event*>> _eventQueue;
     };
+
+    template<class... EventTypes>
+    EventListener<EventTypes...>::EventListenerData::EventListenerData(std::function<void(std::queue<std::shared_ptr<Event*>>&)> eventProcessingFunction) : _processingFunction(eventProcessingFunction) {
+        // Nothing to do here.
+    }
 
     template<class... EventTypes>
     EventListener<EventTypes...>::EventListenerData::~EventListenerData() {
@@ -40,11 +47,11 @@ namespace Spark::Events {
     }
 
     template<class... EventTypes>
-    void EventListener<EventTypes...>::EventListenerData::OnEventReceived(std::shared_ptr<const Event*> eventPointer) {
+    void EventListener<EventTypes...>::EventListenerData::OnEventReceived(std::shared_ptr<Event*> eventPointer) {
         const Event* event = *eventPointer;
         if (ManagesEventType<0u, EventTypes...>(event->GetEventType())) {
             std::cout << "found type" << std::endl;
-            _eventQueue.push(event);
+            _eventQueue.push(eventPointer);
         }
     }
 
@@ -60,6 +67,11 @@ namespace Spark::Events {
     }
 
     template<class... EventTypes>
+    void EventListener<EventTypes...>::EventListenerData::OnUpdate() {
+        _processingFunction(_eventQueue);
+    }
+
+    template<class... EventTypes>
     template <unsigned>
     bool EventListener<EventTypes...>::EventListenerData::ManagesEventType(const EventType &eventType) {
         return false;
@@ -70,7 +82,7 @@ namespace Spark::Events {
     // EVENT LISTENER
     //------------------------------------------------------------------------------------------------------------------
     template<class... EventTypes>
-    EventListener<EventTypes...>::EventListener() : _data(new EventListenerData()) {
+    EventListener<EventTypes...>::EventListener(std::function<void(std::queue<std::shared_ptr<Event*>>&)> eventProcessingFunction) : _data(new EventListenerData(eventProcessingFunction)) {
         static_assert((std::is_base_of_v<Event, EventTypes> && ...), "Invalid template parameter passed to EventListener constructor - provided event type does not derive from 'Event' and is therefore not a valid event.");
     }
 
@@ -80,8 +92,13 @@ namespace Spark::Events {
     }
 
     template<class... EventTypes>
-    void EventListener<EventTypes...>::OnEventReceived(std::shared_ptr<const Event*> eventPointer) {
+    void EventListener<EventTypes...>::OnEventReceived(std::shared_ptr<Event*> eventPointer) {
         _data->OnEventReceived(eventPointer);
+    }
+
+    template<class... EventTypes>
+    void EventListener<EventTypes...>::OnUpdate() {
+        _data->OnUpdate();
     }
 }
 

@@ -35,25 +35,17 @@ namespace Spark::Graphics {
     OpenGLWindow::OpenGLWindowData::OpenGLWindowData(std::string windowName, int width, int height) : _windowName(std::move(windowName)),
                                                                                                       _windowWidth(width),
                                                                                                       _windowHeight(height) {
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entering window constructor.");
-        message.Supply("Provided window name: '%s'.", _windowName.c_str());
-        message.Supply("Window width: %i.", _windowWidth);
-        message.Supply("Window height: %i.", _windowHeight);
+        // GLFW needs to be initialized before creating a GLFW window.
+        InitializeGLFW();
 
         // TODO: Support higher version of OpenGL
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        InitializeGLFW();
 
         // Create window.
         _window = glfwCreateWindow(_windowWidth, _windowHeight, _windowName.c_str(), nullptr, nullptr);
         if (!_window) {
-            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
-            message.Supply("Exception thrown: GLFW window creation failed.");
-            _loggingSystem.Log(message);
-
             throw std::runtime_error("GLFW window creation failed.");
         }
 
@@ -62,19 +54,10 @@ namespace Spark::Graphics {
         // TODO: assert
 
         SetupGLFWCallbacks();
-
-        message.Supply("Window was successfully created.");
-        _loggingSystem.Log(message);
     }
 
     OpenGLWindow::OpenGLWindowData::~OpenGLWindowData() {
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entering destructor for OpenGL window.");
-
         glfwDestroyWindow(static_cast<GLFWwindow*>(_window));
-        message.Supply("GLFW window successfully destroyed.");
-
-        _loggingSystem.Log(message);
     }
 
     int OpenGLWindow::OpenGLWindowData::GetWidth() const {

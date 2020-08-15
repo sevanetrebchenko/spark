@@ -12,10 +12,11 @@ namespace Spark {
         template <class ...EventTypes>
         class EventListener : public IEventListener {
             public:
-                EventListener();
+                explicit EventListener(std::function<void(std::queue<std::shared_ptr<Event*>>&)> eventProcessingFunction);
                 ~EventListener();
 
-                void OnEventReceived(std::shared_ptr<const Event*> eventPointer) override;
+                void OnEventReceived(std::shared_ptr<Event*> eventPointer) override;
+                void OnUpdate();
 
             private:
                 class EventListenerData;

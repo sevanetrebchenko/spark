@@ -16,7 +16,7 @@ namespace Spark {
                  * the attached EventListener.
                  * @param eventPointer - Shared pointer to the dispatched event.
                  */
-                virtual void OnEventReceived(std::shared_ptr<const Event*> eventPointer) = 0;
+                virtual void OnEventReceived(std::shared_ptr<Event*> eventPointer) = 0;
         };
 
     }
