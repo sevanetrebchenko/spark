@@ -103,16 +103,6 @@ namespace Spark::Graphics {
             _loggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "Exception thrown: ImGui font atlas not built - missing/failed call to ImGui_ImplOpenGL3_NewFrame() (renderer back-end).");
             throw std::runtime_error("ImGui font atlas not built - missing call to ImGui_ImplOpenGL3_NewFrame() (renderer back-end).");
         }
-
-        // Initialize mouse cursors to null.
-        for (auto& _mouseCursor : _mouseCursors) {
-            _mouseCursor = nullptr;
-        }
-
-        // Initialize mouse button states to default.
-        for (auto& _mouseButtonState : _mouseButtonStates) {
-            _mouseButtonState = false;
-        }
     }
 
     void OpenGLImGuiOverhead::OpenGLImGuiOverheadData::SetupGLFWCallbacks() {
@@ -167,17 +157,17 @@ namespace Spark::Graphics {
         _mouseCursors[ImGuiMouseCursor_ResizeEW] = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
         _mouseCursors[ImGuiMouseCursor_Hand] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
 
-#if GLFW_VERSION_HAS_NEW_CURSORS
+    #ifdef GLFW_VERSION_HAS_NEW_CURSORS
         _mouseCursors[ImGuiMouseCursor_ResizeAll] = glfwCreateStandardCursor(GLFW_RESIZE_ALL_CURSOR);
         _mouseCursors[ImGuiMouseCursor_ResizeNESW] = glfwCreateStandardCursor(GLFW_RESIZE_NESW_CURSOR);
         _mouseCursors[ImGuiMouseCursor_ResizeNWSE] = glfwCreateStandardCursor(GLFW_RESIZE_NWSE_CURSOR);
         _mouseCursors[ImGuiMouseCursor_NotAllowed] = glfwCreateStandardCursor(GLFW_NOT_ALLOWED_CURSOR);
-#else
+    #else
         _mouseCursors[ImGuiMouseCursor_ResizeAll] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
         _mouseCursors[ImGuiMouseCursor_ResizeNESW] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
         _mouseCursors[ImGuiMouseCursor_ResizeNWSE] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
         _mouseCursors[ImGuiMouseCursor_NotAllowed] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
-#endif
+    #endif
     }
 
     // Initialize a new ImGui frame for GLFW. Function updates mouse details and scales window framebuffer in case the

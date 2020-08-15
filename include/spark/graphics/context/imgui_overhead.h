@@ -12,10 +12,9 @@ namespace Spark {
                 virtual ~ImGuiOverhead() = default;
                 virtual void BeginFrame() = 0;
                 virtual void EndFrame() = 0;
-
         };
 
     }
 }
 
-#endif //SPARK_OPENGL_IMGUI_H
+#endif // SPARK_OPENGL_IMGUI_H

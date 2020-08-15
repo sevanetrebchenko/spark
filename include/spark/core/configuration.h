@@ -54,7 +54,7 @@
         #include <signal.h>
         #define SP_DEBUGBREAK() raise(SIGTRAP)
     #else
-        #error "Desired platform does not support debug breaks."
+        #error "Debug breaks are not suppported on the current platform."
     #endif
     #define SP_ENABLE_ASSERTS
 #else
