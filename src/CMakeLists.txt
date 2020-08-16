@@ -6,9 +6,9 @@
 
 set(CORE_SOURCE_FILES
         # Core
-        "${PROJECT_SOURCE_DIR}/src/core/core.cpp"
         "${PROJECT_SOURCE_DIR}/src/core/entry_point.cpp"
         "${PROJECT_SOURCE_DIR}/src/core/application.cpp"
+        "${PROJECT_SOURCE_DIR}/src/core/layer.cpp"
         "${PROJECT_SOURCE_DIR}/src/utilitybox/servicelocator/service_locator.cpp"
         # ECS
         "${PROJECT_SOURCE_DIR}/src/ecs/entities/entity_manager.cpp"
@@ -32,6 +32,7 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/platform/opengl/opengl_rendering_context.cpp"
         "${PROJECT_SOURCE_DIR}/src/platform/opengl/opengl_imgui_overhead.cpp"
         "${PROJECT_SOURCE_DIR}/src/platform/opengl/opengl_renderer_api.cpp"
+        "${PROJECT_SOURCE_DIR}/src/platform/opengl/opengl_imgui_layer.cpp"
         # Logger
         "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/adapter.cpp"
         "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/adapter_config.cpp"

@@ -17,9 +17,15 @@ namespace Spark {
             ~ApplicationData();
             void Run();
 
-        private:
-            void ProcessEvents(std::queue<std::shared_ptr<Events::Event*>>& eventData) override;
-            void ProcessEvent(Events::Event* event);
+        public:
+            // Event processing.
+            void OnEvent(Events::WindowCloseEvent* event) override {
+                std::cout << event->ToString() << std::endl;
+            }
+
+            void OnEvent(Events::WindowResizeEvent* event) override {
+                std::cout << event->ToString() << std::endl;
+            }
 
             bool _running;
             Graphics::Window* _window;
@@ -36,25 +42,6 @@ namespace Spark {
     void Application::ApplicationData::Run() {
         while(_running) {
             IEventReceivable::OnUpdate();
-        }
-    }
-
-    void Application::ApplicationData::ProcessEvents(std::queue<std::shared_ptr<Events::Event*>>& eventData) {
-        while (!eventData.empty()) {
-            Events::Event* eventPtr = *eventData.front();
-            std::cout << eventPtr->ToString() << std::endl;
-
-            ProcessEvent(eventPtr);
-            eventData.pop();
-        }
-    }
-
-    void Application::ApplicationData::ProcessEvent(Events::Event* event) {
-        if (Events::WindowCloseEvent* windowCloseEvent = dynamic_cast<Events::WindowCloseEvent*>(event)) {
-            _running = false;
-        }
-
-        if (Events::WindowResizeEvent* windowResizeEvent = dynamic_cast<Events::WindowResizeEvent*>(event) ) {
         }
     }
 

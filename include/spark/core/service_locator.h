@@ -11,6 +11,7 @@ namespace Spark {
             static void Initialize();
             static void ProvideEventService(Events::IEventHub* eventHubInterface);
             static Events::IEventHub* GetEventHub();
+
         private:
             class ServiceLocatorData;
             static ServiceLocatorData* _data;
