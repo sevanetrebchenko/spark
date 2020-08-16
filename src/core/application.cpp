@@ -11,7 +11,7 @@ namespace Spark {
     //------------------------------------------------------------------------------------------------------------------
     // APPLICATION DATA
     //------------------------------------------------------------------------------------------------------------------
-    class Application::ApplicationData : public Events::IEventReceivable<Events::WindowCloseEvent, Events::WindowResizeEvent> {
+    class Application::ApplicationData : public Events::IEventReceivable<Application::ApplicationData, Events::WindowCloseEvent, Events::WindowResizeEvent> {
         public:
             ApplicationData();
             ~ApplicationData();

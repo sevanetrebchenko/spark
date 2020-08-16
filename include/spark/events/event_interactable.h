@@ -7,8 +7,7 @@
 #include <core/service_locator.h>
 #include <utilitybox/tools/utility_functions.h>
 
-//#define PARAMETER_PACK_EXPAND(function, args, ...) ((void)function<args>(__VA_ARGS__), ...);
-#define PACK_EXPAND(function, args, a...) (int[]) {0, (function<args>(a), 0)...}
+#define PARAMETER_PACK_EXPAND(function, args, ...) ((void)function<args>(__VA_ARGS__), ...);
 
 namespace Spark {
     namespace Events {
@@ -23,7 +22,7 @@ namespace Spark {
             virtual void OnEvent(First* param) = 0;
         };
 
-        template <class ...EventTypes>
+        template<class ChildClass, class ...EventTypes>
         class IEventReceivable : public RequireTypes<EventTypes...> {
             public:
                 void OnUpdate();
@@ -43,39 +42,37 @@ namespace Spark {
                 Events::EventListener<EventTypes...> _eventListener { CallbackFromMemberFn(this, &IEventReceivable::ProcessEvents) };
         };
 
-        template<class ...EventTypes>
-        void IEventReceivable<EventTypes...>::ProcessEvents(std::queue<std::shared_ptr<Event *>> &eventData) {
+        template<class ChildClass, class ...EventTypes>
+        void IEventReceivable<ChildClass, EventTypes...>::ProcessEvents(std::queue<std::shared_ptr<Event *>> &eventData) {
             while (!eventData.empty()) {
                 std::shared_ptr<Event*> eventPtr = eventData.front();
                 GetEventOfType<EventTypes...>(*eventPtr);
             }
         }
 
-        template<class ...EventTypes>
+        template<class ChildClass, class ...EventTypes>
         template<class... AdditionalEventTypes>
-        void IEventReceivable<EventTypes...>::GetEventOfType(Event* baseEvent) {
-            PACK_EXPAND(GetEventOfTypeHelper, AdditionalEventTypes, baseEvent);
+        void IEventReceivable<ChildClass, EventTypes...>::GetEventOfType(Event* baseEvent) {
+            PARAMETER_PACK_EXPAND(GetEventOfTypeHelper, AdditionalEventTypes, baseEvent);
         }
 
-        template<class... EventTypes>
+        template<class ChildClass, class ...EventTypes>
         template<class CurrentEventType>
-        void IEventReceivable<EventTypes...>::GetEventOfTypeHelper(Event *baseEvent) {
-            if (auto* derivedEvent = dynamic_cast<CurrentEventType*>(baseEvent)) {
-                IEventReceivable::OnEvent(derivedEvent);
+        void IEventReceivable<ChildClass, EventTypes...>::GetEventOfTypeHelper(Event *baseEvent) {
+            if (auto derivedEvent = dynamic_cast<CurrentEventType*>(baseEvent)) {
+                dynamic_cast<ChildClass*>(this)->OnEvent(derivedEvent);
             }
         }
 
-        template<class... EventTypes>
-        IEventReceivable<EventTypes...>::IEventReceivable() {
+        template<class ChildClass, class ...EventTypes>
+        IEventReceivable<ChildClass, EventTypes...>::IEventReceivable() {
             ServiceLocator::GetEventHub()->AttachEventListener(&_eventListener);
         }
 
-        template<class... EventTypes>
-        void IEventReceivable<EventTypes...>::OnUpdate() {
+        template<class ChildClass, class ...EventTypes>
+        void IEventReceivable<ChildClass, EventTypes...>::OnUpdate() {
             _eventListener.OnUpdate();
         }
-
-
 
     }
 }
