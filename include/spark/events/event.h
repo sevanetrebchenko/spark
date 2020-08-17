@@ -34,7 +34,9 @@ namespace Spark {
                 /**
                  * Destructor.
                  */
-                virtual ~Event() = default;
+                virtual ~Event() {
+                    std::cout << "event destructor" << std::endl;
+                }
 
                 /**
                  * Convert the event to a human-readable string.

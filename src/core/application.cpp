@@ -1,11 +1,11 @@
 
 #include <core/application.h>
 #include <events/event.h>
-#include <events/event_listener.h>
 #include <events/application_events.h>
 #include <events/event_interactable.h>
 #include <graphics/window/window.h>
-#include <utilitybox/tools/utility_functions.h>
+#include <core/layer_stack.h>
+#include <graphics/context/imgui_layer.h>
 
 namespace Spark {
     //------------------------------------------------------------------------------------------------------------------
@@ -17,21 +17,28 @@ namespace Spark {
             ~ApplicationData();
             void Run();
 
-        public:
-            // Event processing.
             void OnEvent(Events::WindowCloseEvent* event) override {
-                std::cout << event->ToString() << std::endl;
+                if (IEventReceivable::CheckEventPointer(event)) {
+                    std::cout << "success" << std::endl;
+                }
+                else {
+                    std::cout << "nop" << std::endl;
+                }
             }
-
             void OnEvent(Events::WindowResizeEvent* event) override {
-                std::cout << event->ToString() << std::endl;
+
             }
 
+        private:
             bool _running;
             Graphics::Window* _window;
+            Graphics::ImGuiLayer* _imGuiLayer;
+            LayerStack _layerStack;
     };
 
-    Application::ApplicationData::ApplicationData() : _window(Graphics::Window::Create()) {
+    Application::ApplicationData::ApplicationData() : _window(Graphics::Window::Create()), _imGuiLayer(Graphics::ImGuiLayer::Create(_window->GetNativeWindow())) {
+        // Attach ImGui as an overlay.
+        _layerStack.PushOverlay(_imGuiLayer);
         _running = true;
     }
 
@@ -51,6 +58,7 @@ namespace Spark {
     //------------------------------------------------------------------------------------------------------------------
     Application::Application() : _data(new ApplicationData()) {
         // Nothing to do here.
+        _data->OnEvent(new Events::WindowCloseEvent());
     }
 
     Application::~Application() {

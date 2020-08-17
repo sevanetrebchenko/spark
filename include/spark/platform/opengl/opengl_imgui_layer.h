@@ -1,23 +1,26 @@
 
-#ifndef SPARK_IMGUI_LAYER_H
-#define SPARK_IMGUI_LAYER_H
+#ifndef SPARK_OPENGL_IMGUI_LAYER_H
+#define SPARK_OPENGL_IMGUI_LAYER_H
 
-#include <core/layer.h>
 #include <GLFW/glfw3.h>
+#include <graphics/window/window.h>
+#include <graphics/context/imgui_layer.h>
 
 namespace Spark {
     namespace Graphics {
 
-        class OpenGLImGuiLayer : public Layer {
+        class OpenGLImGuiLayer : public ImGuiLayer {
             public:
                 explicit OpenGLImGuiLayer(GLFWwindow* window);
                 ~OpenGLImGuiLayer() override;
 
                 void OnAttach() override;
                 void OnDetach() override;
+                void OnUpdate(float dt) override;
+                void OnImGuiRender() override;
 
-                void BeginFrame();
-                void EndFrame();
+                void BeginFrame() override;
+                void EndFrame() override;
 
             private:
                 class OpenGLImGuiLayerData;
@@ -27,4 +30,4 @@ namespace Spark {
     }
 }
 
-#endif //SPARK_IMGUI_LAYER_H
+#endif // SPARK_OPENGL_IMGUI_LAYER_H

@@ -27,6 +27,9 @@ namespace Spark {
             public:
                 void OnUpdate();
 
+                template <class EventType>
+                bool CheckEventPointer(EventType* eventPointer);
+
             protected:
                 IEventReceivable(); // Make this class abstract.
 
@@ -40,6 +43,7 @@ namespace Spark {
                 void GetEventOfTypeHelper(Event* baseEvent);
 
                 Events::EventListener<EventTypes...> _eventListener { CallbackFromMemberFn(this, &IEventReceivable::ProcessEvents) };
+                Event* _currentEvent;
         };
 
         template<class ChildClass, class ...EventTypes>
@@ -47,6 +51,8 @@ namespace Spark {
             while (!eventData.empty()) {
                 std::shared_ptr<Event*> eventPtr = eventData.front();
                 GetEventOfType<EventTypes...>(*eventPtr);
+                eventPtr.reset();
+                eventData.pop();
             }
         }
 
@@ -60,7 +66,9 @@ namespace Spark {
         template<class CurrentEventType>
         void IEventReceivable<ChildClass, EventTypes...>::GetEventOfTypeHelper(Event *baseEvent) {
             if (auto derivedEvent = dynamic_cast<CurrentEventType*>(baseEvent)) {
-                dynamic_cast<ChildClass*>(this)->OnEvent(derivedEvent);
+                _currentEvent = baseEvent;
+                static_cast<ChildClass*>(this)->OnEvent(derivedEvent);
+                _currentEvent = nullptr;
             }
         }
 
@@ -72,6 +80,12 @@ namespace Spark {
         template<class ChildClass, class ...EventTypes>
         void IEventReceivable<ChildClass, EventTypes...>::OnUpdate() {
             _eventListener.OnUpdate();
+        }
+
+        template<class ChildClass, class... EventTypes>
+        template<class EventType>
+        bool IEventReceivable<ChildClass, EventTypes...>::CheckEventPointer(EventType *eventPointer) {
+            return dynamic_cast<EventType*>(_currentEvent) == eventPointer;
         }
 
     }
