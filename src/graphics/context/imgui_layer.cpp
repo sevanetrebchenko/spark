@@ -12,5 +12,7 @@ namespace Spark::Graphics {
             case RendererAPI::API::OPENGL:
                 return new OpenGLImGuiLayer(static_cast<GLFWwindow*>(window));
         }
+
+        return nullptr;
     }
 }

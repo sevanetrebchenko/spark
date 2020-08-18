@@ -13,6 +13,7 @@ namespace Spark {
                 virtual void AttachEventListener(IEventListener* eventListener) = 0;
                 virtual void DetachEventListener(IEventListener* eventListener) = 0;
                 virtual void Dispatch(Event* event) = 0;
+                virtual void OnUpdate() = 0;
         };
 
     }

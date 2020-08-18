@@ -58,7 +58,7 @@ namespace Spark::UtilityBox::Logger {
             _NODISCARD_ const int& GetMessageWrapLimit() const;
 
             /**
-             * Update the maximum number of characters a log line can have. Leaves old/already logged messages
+             * OnUpdate the maximum number of characters a log line can have. Leaves old/already logged messages
              * unchanged.
              * @param newLimit - New maximum number of characters a log line can have.
              */
@@ -83,7 +83,7 @@ namespace Spark::UtilityBox::Logger {
             _NODISCARD_ const std::string& GetCalendarFormatString() const;
 
             /**
-             * Update the current calendar format string to use a new format in formatting calendar information
+             * OnUpdate the current calendar format string to use a new format in formatting calendar information
              * in log messages.
              * @param newFormat - Updated format string.
              */
@@ -174,7 +174,7 @@ namespace Spark::UtilityBox::Logger {
         return _messageWrapLimit;
     }
 
-    // Update the maximum number of characters a log line can have. Leaves old/already logged messages unchanged.
+    // OnUpdate the maximum number of characters a log line can have. Leaves old/already logged messages unchanged.
     void AdapterConfiguration::AdapterConfigurationData::SetMessageWrapLimit(const int& newLimit) {
         _messageWrapLimit = newLimit;
     }
@@ -194,7 +194,7 @@ namespace Spark::UtilityBox::Logger {
         return _calendarFormat;
     }
 
-    // Update the current calendar format string to use a new format in formatting calendar information in log messages.
+    // OnUpdate the current calendar format string to use a new format in formatting calendar information in log messages.
     void AdapterConfiguration::AdapterConfigurationData::SetCalendarFormatString(const std::string& newFormat) {
         if (_calendarFormat != newFormat) {
             _calendarFormat = newFormat;
@@ -292,7 +292,7 @@ namespace Spark::UtilityBox::Logger {
         return _data->GetMessageWrapLimit();
     }
 
-    // Update the maximum number of characters a log line can have. Leaves old/already logged messages unchanged.
+    // OnUpdate the maximum number of characters a log line can have. Leaves old/already logged messages unchanged.
     void AdapterConfiguration::SetMessageWrapLimit(const int &newLimit) {
         _data->SetMessageWrapLimit(newLimit);
     }
@@ -312,7 +312,7 @@ namespace Spark::UtilityBox::Logger {
         return _data->GetCalendarFormatString();
     }
 
-    // Update the current calendar format string to use a new format in formatting calendar information in log messages.
+    // OnUpdate the current calendar format string to use a new format in formatting calendar information in log messages.
     void AdapterConfiguration::SetCalendarFormatString(const std::string &newFormat) {
         _data->SetCalendarFormatString(newFormat);
     }

@@ -2,31 +2,40 @@
 #ifndef SPARK_EVENT_INTERACTABLE_H
 #define SPARK_EVENT_INTERACTABLE_H
 
-#include <events/event_listener.h>
-#include <events/application_events.h>
-#include <core/service_locator.h>
-#include <utilitybox/tools/utility_functions.h>
-
-#define PARAMETER_PACK_EXPAND(function, args, ...) ((void)function<args>(__VA_ARGS__), ...);
-
 namespace Spark {
     namespace Events {
 
-        template<class First, class ...Rest>
-        struct RequireTypes : RequireTypes<First>, RequireTypes<Rest...> {
-            using RequireTypes<First>::OnEvent;
+        template <class EventType, class ...AdditionalEventTypes>
+        struct RequireOnEventFunctionForTypes : RequireOnEventFunctionForTypes<EventType>, RequireOnEventFunctionForTypes<AdditionalEventTypes...> {
+            using RequireOnEventFunctionForTypes<EventType>::OnEvent;
         };
 
-        template<class First>
-        struct RequireTypes<First> {
-            virtual void OnEvent(First* param) = 0;
+        template <class EventType>
+        struct RequireOnEventFunctionForTypes<EventType> {
+            /**
+             * Required overload generated. Takes in an event pointer of the provided EventType.
+             * @param eventPointer - Event pointer of the provided EventType.
+             */
+            virtual void OnEvent(EventType* eventPointer) = 0;
         };
 
-        template<class ChildClass, class ...EventTypes>
-        class IEventReceivable : public RequireTypes<EventTypes...> {
+        template <class ChildClass, class ...EventTypes>
+        class IEventReceivable : public RequireOnEventFunctionForTypes<EventTypes...> {
             public:
-                void OnUpdate();
-
+                /**
+                 * If 'friend' behavior for the IEventReceivable interface is not desired, overwritten 'OnEvent' functions
+                 * must be public in the client implementation. This helper function exists to ensure only events that have
+                 * gone through the attached event listener are processed by the client. This function's intended use is
+                 * to validate the event pointers received in the client's override of 'OnEvent'.
+                 *
+                 * Note: if the client implementation of the IEventReceivable interface uses 'friend', this function is
+                 * not necessary and the 'OnEvent' functions should be declared private.
+                 *
+                 * @tparam EventType   - Event type of the provided event pointer.
+                 * @param eventPointer - Provided pointer to the event.
+                 * @return True  - Given event matches the one passed by this interface (valid event, should be processed accordingly).
+                 *         False - Given event does not match the one passed by this interface (invalid event, should not be processed).
+                 */
                 template <class EventType>
                 bool CheckEventPointer(EventType* eventPointer);
 
@@ -34,61 +43,12 @@ namespace Spark {
                 IEventReceivable(); // Make this class abstract.
 
             private:
-                void ProcessEvents(std::queue<std::shared_ptr<Event*>>& eventData);
-
-                template<class ...AdditionalEventTypes>
-                void GetEventOfType(Event* baseEvent);
-
-                template<class CurrentEventType>
-                void GetEventOfTypeHelper(Event* baseEvent);
-
-                Events::EventListener<EventTypes...> _eventListener { CallbackFromMemberFn(this, &IEventReceivable::ProcessEvents) };
-                Event* _currentEvent;
+                class IEventReceivableData;
+                IEventReceivableData* _data;
         };
-
-        template<class ChildClass, class ...EventTypes>
-        void IEventReceivable<ChildClass, EventTypes...>::ProcessEvents(std::queue<std::shared_ptr<Event *>> &eventData) {
-            while (!eventData.empty()) {
-                std::shared_ptr<Event*> eventPtr = eventData.front();
-                GetEventOfType<EventTypes...>(*eventPtr);
-                eventPtr.reset();
-                eventData.pop();
-            }
-        }
-
-        template<class ChildClass, class ...EventTypes>
-        template<class... AdditionalEventTypes>
-        void IEventReceivable<ChildClass, EventTypes...>::GetEventOfType(Event* baseEvent) {
-            PARAMETER_PACK_EXPAND(GetEventOfTypeHelper, AdditionalEventTypes, baseEvent);
-        }
-
-        template<class ChildClass, class ...EventTypes>
-        template<class CurrentEventType>
-        void IEventReceivable<ChildClass, EventTypes...>::GetEventOfTypeHelper(Event *baseEvent) {
-            if (auto derivedEvent = dynamic_cast<CurrentEventType*>(baseEvent)) {
-                _currentEvent = baseEvent;
-                static_cast<ChildClass*>(this)->OnEvent(derivedEvent);
-                _currentEvent = nullptr;
-            }
-        }
-
-        template<class ChildClass, class ...EventTypes>
-        IEventReceivable<ChildClass, EventTypes...>::IEventReceivable() {
-            ServiceLocator::GetEventHub()->AttachEventListener(&_eventListener);
-        }
-
-        template<class ChildClass, class ...EventTypes>
-        void IEventReceivable<ChildClass, EventTypes...>::OnUpdate() {
-            _eventListener.OnUpdate();
-        }
-
-        template<class ChildClass, class... EventTypes>
-        template<class EventType>
-        bool IEventReceivable<ChildClass, EventTypes...>::CheckEventPointer(EventType *eventPointer) {
-            return dynamic_cast<EventType*>(_currentEvent) == eventPointer;
-        }
-
     }
 }
+
+#include "../../../src/events/event_interactable.tpp" // Template function includes.
 
 #endif //SPARK_EVENT_INTERACTABLE_H

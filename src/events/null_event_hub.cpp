@@ -14,4 +14,8 @@ namespace Spark::Events {
     void NullEventHub::Dispatch(Event*) {
         // Do nothing.
     }
+
+    void NullEventHub::OnUpdate() {
+        // Do nothing.
+    }
 }

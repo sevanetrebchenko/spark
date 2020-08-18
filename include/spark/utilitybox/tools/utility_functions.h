@@ -2,6 +2,8 @@
 #ifndef SPARK_UTILITY_FUNCTIONS_H
 #define SPARK_UTILITY_FUNCTIONS_H
 
+#define PARAMETER_PACK_EXPAND(function, args, ...) ((void)function<args>(__VA_ARGS__), ...);
+
 namespace Spark {
 
     template <class Class, typename ReturnType, typename ...FunctionArguments>

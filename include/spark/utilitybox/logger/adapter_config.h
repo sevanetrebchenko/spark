@@ -89,7 +89,7 @@ namespace Spark {
                     _NODISCARD_ const int& GetMessageWrapLimit() const;
 
                     /**
-                    * Update the maximum number of characters a log line can have. Leaves old/already logged messages
+                    * OnUpdate the maximum number of characters a log line can have. Leaves old/already logged messages
                     * unchanged.
                     * @param newLimit - New maximum number of characters a log line can have.
                     */
@@ -114,7 +114,7 @@ namespace Spark {
                     _NODISCARD_ const std::string& GetCalendarFormatString() const;
 
                     /**
-                    * Update the current calendar format string to use a new format in formatting calendar information
+                    * OnUpdate the current calendar format string to use a new format in formatting calendar information
                     * in log messages.
                     * @param newFormat - Updated format string.
                     */

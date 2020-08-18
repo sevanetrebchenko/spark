@@ -121,11 +121,11 @@ namespace Spark::UtilityBox::Memory {
         // Get the next free block from the free list.
         void* blockAddress = _freeList;
 
-        // Update the block's header to reflect it being in use.
+        // OnUpdate the block's header to reflect it being in use.
         auto* blockHeader = reinterpret_cast<PageHeader*>(reinterpret_cast<GenericObject*>(static_cast<char*>(blockAddress) - sizeof(void*) - _numPaddingBytes)->_next);
         ++blockHeader->_numInUse;
 
-        // Update free list.
+        // OnUpdate free list.
         _freeList = _freeList->_next;
 
         _formatter.SetBlockDataSignature(blockAddress, _formatter.ALLOCATED);
@@ -145,7 +145,7 @@ namespace Spark::UtilityBox::Memory {
         // Offset the pointer to gain access to the header
         auto* blockHeader = reinterpret_cast<PageHeader*>(reinterpret_cast<GenericObject*>(static_cast<char*>(blockAddress) - sizeof(void*) - _numPaddingBytes)->_next);
 
-        // Update header to reflect freed block.
+        // OnUpdate header to reflect freed block.
         --blockHeader->_numInUse;
 
         // Add block to free list.

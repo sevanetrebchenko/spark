@@ -28,7 +28,6 @@ namespace Spark::Graphics {
             void SetupKeyMap();
             void SetupMouseCursors();
 
-            void GLFWNewFrame();
             void UpdateWindowSize();
             void UpdateMouseState();
             void UpdateMouseCursor();
@@ -44,48 +43,22 @@ namespace Spark::Graphics {
     };
 
     OpenGLImGuiLayer::OpenGLImGuiLayerData::OpenGLImGuiLayerData(GLFWwindow* window) : _window(window) {
-        IMGUI_CHECKVERSION();
-
-        // Context settings and preferences.
-        ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO();
-        io.BackendPlatformName = "GLFW";
-        ImGui::StyleColorsDark();
-
-        SetupImGuiOpenGLEnvironment();
-        SetupGLFWCallbacks();
-        SetupKeyMap();
-        SetupMouseCursors();
+        // todo : check window is not null
     }
 
     // Void GLFW callback functions and clean up ImGui state.
     OpenGLImGuiLayer::OpenGLImGuiLayerData::~OpenGLImGuiLayerData() {
-        ImGui_ImplOpenGL3_Shutdown();
 
-        // Clear callbacks.
-        glfwSetMouseButtonCallback(_window, nullptr);
-        glfwSetScrollCallback(_window, nullptr);
-        glfwSetKeyCallback(_window, nullptr);
-
-        ImGuiIO& io = ImGui::GetIO();
-        io.SetClipboardTextFn = nullptr;
-        io.GetClipboardTextFn = nullptr;
-        io.ClipboardUserData = nullptr;
-
-        // Destroy cursors.
-        for (auto& _mouseCursor : _mouseCursors) {
-            glfwDestroyCursor(_mouseCursor);
-            _mouseCursor = nullptr;
-        }
-
-        // Window deletion is not handled here.
-        _window = nullptr;
-
-        ImGui::DestroyContext();
     }
 
     void OpenGLImGuiLayer::OpenGLImGuiLayerData::BeginFrame() {
-        GLFWNewFrame();
+        // OnUpdate display / framebuffer size every frame to accommodate for changing window sizes.
+        UpdateWindowSize();
+
+        // OnUpdate mouse details.
+        UpdateMouseState();
+        UpdateMouseCursor();
+
         ImGui::NewFrame();
     }
 
@@ -172,18 +145,7 @@ namespace Spark::Graphics {
 #endif
     }
 
-    // Initialize a new ImGui frame for GLFW. Function updates mouse details and scales window framebuffer in case the
-    // window was resized since the past frame.
-    void OpenGLImGuiLayer::OpenGLImGuiLayerData::GLFWNewFrame() {
-        // Update display / framebuffer size every frame to accommodate for changing window sizes.
-        UpdateWindowSize();
-
-        // Update mouse details.
-        UpdateMouseState();
-        UpdateMouseCursor();
-    }
-
-    // Update window size and framebuffer in case window was resized since the last frame.
+    // OnUpdate window size and framebuffer in case window was resized since the last frame.
     void OpenGLImGuiLayer::OpenGLImGuiLayerData::UpdateWindowSize() {
         ImGuiIO& io = ImGui::GetIO();
         glfwGetWindowSize(_window, &_displayDimensions.first, &_displayDimensions.second);
@@ -197,7 +159,7 @@ namespace Spark::Graphics {
 
     // Updates position of the mouse.
     void OpenGLImGuiLayer::OpenGLImGuiLayerData::UpdateMouseState() {
-        // Update mouse button state.
+        // OnUpdate mouse button state.
         ImGuiIO& io = ImGui::GetIO();
         for (int i = 0; i < ImGuiMouseButton_COUNT; i++) {
             // If a mouse press event came, always pass it as "mouse held this frame", so click-release events that are shorter than 1 frame are not missed.
@@ -205,7 +167,7 @@ namespace Spark::Graphics {
             _mouseButtonStates[i] = false;
         }
 
-        // Update the mouse position if the window is focused.
+        // OnUpdate the mouse position if the window is focused.
         if (glfwGetWindowAttrib(_window, GLFW_FOCUSED)) {
             double currentMouseX, currentMouseY;
             glfwGetCursorPos(_window, &currentMouseX, &currentMouseY);
@@ -221,7 +183,7 @@ namespace Spark::Graphics {
         }
     }
 
-    // Update the mouse cursor based on the mouse position relative to the ImGui windows.
+    // OnUpdate the mouse cursor based on the mouse position relative to the ImGui windows.
     void OpenGLImGuiLayer::OpenGLImGuiLayerData::UpdateMouseCursor() {
         ImGuiIO& io = ImGui::GetIO();
         // If mouse cursor is explicitly set to not change or if the cursor is disabled, don't do any updates.
@@ -242,14 +204,46 @@ namespace Spark::Graphics {
     }
 
     void OpenGLImGuiLayer::OpenGLImGuiLayerData::OnAttach() {
+        IMGUI_CHECKVERSION();
 
+        // Context settings and preferences.
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+        io.BackendPlatformName = "GLFW";
+        ImGui::StyleColorsDark();
+
+        SetupImGuiOpenGLEnvironment();
+        SetupGLFWCallbacks();
+        SetupKeyMap();
+        SetupMouseCursors();
     }
 
     void OpenGLImGuiLayer::OpenGLImGuiLayerData::OnDetach() {
+        ImGui_ImplOpenGL3_Shutdown();
 
+        // Clear callbacks.
+        glfwSetMouseButtonCallback(_window, nullptr);
+        glfwSetScrollCallback(_window, nullptr);
+        glfwSetKeyCallback(_window, nullptr);
+
+        ImGuiIO& io = ImGui::GetIO();
+        io.SetClipboardTextFn = nullptr;
+        io.GetClipboardTextFn = nullptr;
+        io.ClipboardUserData = nullptr;
+
+        // Destroy cursors.
+        for (auto& _mouseCursor : _mouseCursors) {
+            glfwDestroyCursor(_mouseCursor);
+            _mouseCursor = nullptr;
+        }
+
+        // Window deletion is not handled here.
+        _window = nullptr;
+
+        ImGui::DestroyContext();
     }
 
-    void OpenGLImGuiLayer::OpenGLImGuiLayerData::OnUpdate(float dt) {
+    void OpenGLImGuiLayer::OpenGLImGuiLayerData::OnUpdate(float) {
 
     }
 

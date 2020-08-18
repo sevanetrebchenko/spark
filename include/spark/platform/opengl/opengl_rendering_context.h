@@ -12,6 +12,8 @@ namespace Spark {
                 explicit OpenGLRenderingContext(GLFWwindow* window);
                 ~OpenGLRenderingContext() override;
 
+                void SwapBuffers() override;
+
             private:
                 class OpenGLRenderingContextData;
                 OpenGLRenderingContextData* _data;

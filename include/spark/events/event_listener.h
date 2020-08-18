@@ -16,9 +16,10 @@ namespace Spark {
                 ~EventListener();
 
                 void OnEventReceived(std::shared_ptr<Event*> eventPointer) override;
-                void OnUpdate();
 
             private:
+                void OnUpdate() override;
+
                 class EventListenerData;
                 EventListenerData* _data;
         };

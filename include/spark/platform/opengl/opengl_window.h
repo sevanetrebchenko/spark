@@ -13,6 +13,8 @@ namespace Spark {
                 OpenGLWindow(std::string windowName, int width, int height);
                 ~OpenGLWindow() override;
 
+                void OnUpdate() override;
+
                 _NODISCARD_ int GetWidth() const override;
                 _NODISCARD_ int GetHeight() const override;
                 _NODISCARD_ void* GetNativeWindow() const override;

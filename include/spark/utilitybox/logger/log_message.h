@@ -63,7 +63,7 @@ namespace Spark {
                     _NODISCARD_ LogMessageSeverity& GetMessageSeverity();
 
                     /**
-                    * Update the message severity. Can be used anytime before the message is logged.
+                    * OnUpdate the message severity. Can be used anytime before the message is logged.
                     * @param messageSeverity - New message severity.
                     */
                     void SetMessageSeverity(LogMessageSeverity messageSeverity);

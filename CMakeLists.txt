@@ -16,7 +16,7 @@ endif()
 # Set directory for .cmake includes.
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-# Update git submodules
+# OnUpdate git submodules
 include(submodule_setup
         RESULT_VARIABLE SUBMODULE_SETUP_RESULT)
 if(SUBMODULE_SETUP_RESULT STREQUAL "NOTFOUND")

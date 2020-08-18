@@ -17,6 +17,16 @@ namespace Spark {
             void PushLayer(Layer* layer);
             void PopLayer(Layer* layer);
 
+            _NODISCARD_ std::vector<Layer*>::iterator begin();
+            _NODISCARD_ std::vector<Layer*>::iterator end();
+            _NODISCARD_ std::vector<Layer*>::reverse_iterator rbegin();
+            _NODISCARD_ std::vector<Layer*>::reverse_iterator rend();
+
+            _NODISCARD_ std::vector<Layer*>::const_iterator cbegin() const;
+            _NODISCARD_ std::vector<Layer*>::const_iterator cend() const;
+            _NODISCARD_ std::vector<Layer*>::const_reverse_iterator crbegin() const;
+            _NODISCARD_ std::vector<Layer*>::const_reverse_iterator crend() const;
+
         private:
             // Layers first, overlays last
             // Ordered in reverse draw order (overlays get drawn on top).
@@ -67,6 +77,38 @@ namespace Spark {
         }
     }
 
+    std::vector<Layer *>::iterator LayerStack::LayerStackData::begin() {
+        return _layerStack.begin();
+    }
+
+    std::vector<Layer *>::iterator LayerStack::LayerStackData::end() {
+        return _layerStack.end();
+    }
+
+    std::vector<Layer *>::reverse_iterator LayerStack::LayerStackData::rbegin() {
+        return _layerStack.rbegin();
+    }
+
+    std::vector<Layer *>::reverse_iterator LayerStack::LayerStackData::rend() {
+        return _layerStack.rend();
+    }
+
+    std::vector<Layer *>::const_iterator LayerStack::LayerStackData::cbegin() const {
+        return _layerStack.cbegin();
+    }
+
+    std::vector<Layer *>::const_iterator LayerStack::LayerStackData::cend() const {
+        return _layerStack.cend();
+    }
+
+    std::vector<Layer *>::const_reverse_iterator LayerStack::LayerStackData::crbegin() const {
+        return _layerStack.crbegin();
+    }
+
+    std::vector<Layer *>::const_reverse_iterator LayerStack::LayerStackData::crend() const {
+        return _layerStack.crend();
+    }
+
     //------------------------------------------------------------------------------------------------------------------
     // LAYER STACK
     //------------------------------------------------------------------------------------------------------------------
@@ -92,6 +134,38 @@ namespace Spark {
 
     LayerStack::~LayerStack() {
         delete _data;
+    }
+
+    std::vector<Layer *>::iterator LayerStack::begin() {
+        return _data->begin();
+    }
+
+    std::vector<Layer *>::iterator LayerStack::end() {
+        return _data->end();
+    }
+
+    std::vector<Layer *>::reverse_iterator LayerStack::rbegin() {
+        return _data->rbegin();
+    }
+
+    std::vector<Layer *>::reverse_iterator LayerStack::rend() {
+        return _data->rend();
+    }
+
+    std::vector<Layer *>::const_iterator LayerStack::cbegin() const {
+        return _data->cbegin();
+    }
+
+    std::vector<Layer *>::const_iterator LayerStack::cend() const {
+        return _data->cend();
+    }
+
+    std::vector<Layer *>::const_reverse_iterator LayerStack::crbegin() const {
+        return _data->crbegin();
+    }
+
+    std::vector<Layer *>::const_reverse_iterator LayerStack::crend() const {
+        return _data->crend();
     }
 
 

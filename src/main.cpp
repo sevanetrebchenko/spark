@@ -103,7 +103,7 @@
 //        explicit mySystem(std::string&& name);
 //
 //        void Initialize() override;
-//        void Update(float dt) override;
+//        void OnUpdate(float dt) override;
 //        void Shutdown() override;
 //    private:
 //};
@@ -111,7 +111,7 @@
 //mySystem::mySystem(std::string &&name) : Spark::ECS::Systems::BaseComponentSystem<Data, Data2, Data3>(std::move(name)) {
 //}
 //
-//void mySystem::Update(float dt) {
+//void mySystem::OnUpdate(float dt) {
 //}
 //
 //void mySystem::Initialize() {
@@ -134,6 +134,6 @@
 ////    LoggingHub::GetInstance()->AttachCustomAdapter(a);
 ////
 ////    Spark::Core::GetInstance()->Initialize();
-////    Spark::Core::GetInstance()->Update();
+////    Spark::Core::GetInstance()->OnUpdate();
 ////    Spark::Core::GetInstance()->Shutdown();
 ////}

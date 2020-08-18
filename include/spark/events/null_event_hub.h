@@ -12,6 +12,7 @@ namespace Spark {
                 void AttachEventListener(IEventListener* eventListener) override;
                 void DetachEventListener(IEventListener* eventListener) override;
                 void Dispatch(Event* event) override;
+                void OnUpdate() override;
         };
 
     }

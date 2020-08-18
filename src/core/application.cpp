@@ -17,20 +17,15 @@ namespace Spark {
             ~ApplicationData();
             void Run();
 
-            void OnEvent(Events::WindowCloseEvent* event) override {
-                if (IEventReceivable::CheckEventPointer(event)) {
-                    std::cout << "success" << std::endl;
-                }
-                else {
-                    std::cout << "nop" << std::endl;
-                }
-            }
-            void OnEvent(Events::WindowResizeEvent* event) override {
-
-            }
-
         private:
+            // Allow attached IEventReceivable interface to access private OnEvent functions.
+            friend class Events::IEventReceivable<Application::ApplicationData, Events::WindowCloseEvent, Events::WindowResizeEvent>;
+            void OnEvent(Events::WindowCloseEvent* event) override;
+            void OnEvent(Events::WindowResizeEvent* event) override;
+
             bool _running;
+            float _deltaTime;
+
             Graphics::Window* _window;
             Graphics::ImGuiLayer* _imGuiLayer;
             LayerStack _layerStack;
@@ -39,7 +34,9 @@ namespace Spark {
     Application::ApplicationData::ApplicationData() : _window(Graphics::Window::Create()), _imGuiLayer(Graphics::ImGuiLayer::Create(_window->GetNativeWindow())) {
         // Attach ImGui as an overlay.
         _layerStack.PushOverlay(_imGuiLayer);
+
         _running = true;
+        _deltaTime = 0;
     }
 
     Application::ApplicationData::~ApplicationData() {
@@ -48,8 +45,28 @@ namespace Spark {
 
     void Application::ApplicationData::Run() {
         while(_running) {
-            IEventReceivable::OnUpdate();
+            ServiceLocator::GetEventHub()->OnUpdate();
+
+            // Call OnUpdate for all layers.
+            for (Layer* layer : _layerStack) {
+                layer->OnUpdate(_deltaTime);
+            }
+
+            // ImGui rendering.
+            _imGuiLayer->BeginFrame();
+            for (Layer* layer : _layerStack) {
+                layer->OnImGuiRender();
+            }
+            _imGuiLayer->EndFrame();
+
+            _window->OnUpdate();
         }
+    }
+
+    void Application::ApplicationData::OnEvent(Events::WindowCloseEvent *event) {
+    }
+
+    void Application::ApplicationData::OnEvent(Events::WindowResizeEvent *event) {
     }
 
 
@@ -58,7 +75,6 @@ namespace Spark {
     //------------------------------------------------------------------------------------------------------------------
     Application::Application() : _data(new ApplicationData()) {
         // Nothing to do here.
-        _data->OnEvent(new Events::WindowCloseEvent());
     }
 
     Application::~Application() {

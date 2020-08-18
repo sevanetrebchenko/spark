@@ -9,6 +9,8 @@ namespace Spark {
             public:
                 static RenderingContext* Create(void* window);
                 virtual ~RenderingContext() = default;
+
+                virtual void SwapBuffers() = 0;
         };
 
     }

@@ -12,6 +12,8 @@ namespace Spark::Graphics {
             explicit OpenGLRenderingContextData(GLFWwindow* window);
             ~OpenGLRenderingContextData();
 
+            void SwapBuffers();
+
         private:
             GLFWwindow* _window;
             UtilityBox::Logger::LoggingSystem _loggingSystem;
@@ -35,6 +37,10 @@ namespace Spark::Graphics {
         glfwTerminate();
     }
 
+    void OpenGLRenderingContext::OpenGLRenderingContextData::SwapBuffers() {
+        glfwSwapBuffers(_window);
+    }
+
 
     //------------------------------------------------------------------------------------------------------------------
     // OPENGL RENDERING CONTEXT
@@ -45,5 +51,9 @@ namespace Spark::Graphics {
 
     OpenGLRenderingContext::~OpenGLRenderingContext() {
         delete _data;
+    }
+
+    void OpenGLRenderingContext::SwapBuffers() {
+        _data->SwapBuffers();
     }
 }

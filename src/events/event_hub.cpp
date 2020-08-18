@@ -10,6 +10,7 @@ namespace Spark::Events {
             void AttachEventListener(IEventListener* eventListener);
             void DetachEventListener(IEventListener* eventListener);
             void Dispatch(Event* event);
+            void Update();
 
         private:
             std::vector<IEventListener*> _eventListeners;
@@ -61,6 +62,12 @@ namespace Spark::Events {
         }
     }
 
+    void EventHub::EventHubData::Update() {
+        for (auto& eventListener : _eventListeners) {
+            eventListener->OnUpdate();
+        }
+    }
+
     EventHub *EventHub::GetInstance() {
         if (!_instance) {
             _instance = new EventHub();
@@ -87,5 +94,9 @@ namespace Spark::Events {
 
     void EventHub::Dispatch(Event *event) {
         _data->Dispatch(event);
+    }
+
+    void EventHub::OnUpdate() {
+        _data->Update();
     }
 }

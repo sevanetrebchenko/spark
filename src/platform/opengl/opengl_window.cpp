@@ -16,6 +16,8 @@ namespace Spark::Graphics {
             OpenGLWindowData(std::string windowName, int width, int height);
             ~OpenGLWindowData();
 
+            void OnUpdate();
+
             _NODISCARD_ int GetWidth() const;
             _NODISCARD_ int GetHeight() const;
             _NODISCARD_ GLFWwindow* GetNativeWindow() const;
@@ -157,6 +159,11 @@ namespace Spark::Graphics {
         });
     }
 
+    void OpenGLWindow::OpenGLWindowData::OnUpdate() {
+        glfwPollEvents();
+        _context->SwapBuffers();
+    }
+
 
     //------------------------------------------------------------------------------------------------------------------
     // WINDOW
@@ -179,5 +186,9 @@ namespace Spark::Graphics {
 
     void* OpenGLWindow::GetNativeWindow() const {
         return _data->GetNativeWindow();
+    }
+
+    void OpenGLWindow::OnUpdate() {
+        _data->OnUpdate();
     }
 }

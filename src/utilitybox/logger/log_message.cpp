@@ -41,7 +41,7 @@ namespace Spark::UtilityBox::Logger {
             _NODISCARD_ LogMessageSeverity& GetMessageSeverity();
 
             /**
-             * Update the message severity. Can be used anytime before the message is logged.
+             * OnUpdate the message severity. Can be used anytime before the message is logged.
              * @param messageSeverity - New message severity.
              */
             void SetMessageSeverity(LogMessageSeverity& messageSeverity);
@@ -78,7 +78,7 @@ namespace Spark::UtilityBox::Logger {
         return _messageSeverity;
     }
 
-    // Update the message severity. Can be used anytime before the message is logged.
+    // OnUpdate the message severity. Can be used anytime before the message is logged.
     void LogMessage::LogMessageData::SetMessageSeverity(LogMessageSeverity &messageSeverity) {
         _messageSeverity = messageSeverity;
     }
@@ -107,7 +107,7 @@ namespace Spark::UtilityBox::Logger {
         return _data->GetMessageSeverity();
     }
 
-    // Update the message severity. Can be used anytime before the message is logged.
+    // OnUpdate the message severity. Can be used anytime before the message is logged.
     void LogMessage::SetMessageSeverity(LogMessageSeverity messageSeverity) {
         _data->SetMessageSeverity(messageSeverity);
     }
