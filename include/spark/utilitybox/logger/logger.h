@@ -16,7 +16,6 @@ namespace Spark {
             class LoggingHub : public ILoggingHub {
                 public:
                     static LoggingHub* GetInstance();
-                    static void Initialize();
 
                     void AttachCustomAdapter(Adapter *adapter) override;
                     _NODISCARD_ Adapter* GetCustomAdapter(const char* adapterName) override;

@@ -123,7 +123,7 @@ namespace Spark::UtilityBox::Logger {
             void SwitchBuffers();
 
 
-            void ProcessMessage(Adapter* adapter, std::vector<std::string>& formattedMessages);
+            std::vector<std::string> ProcessMessage(Adapter* adapter);
             _NODISCARD_ std::vector<std::string> FormatMessage(const std::string& message, int characterStart, int characterEnd);
             _NODISCARD_ std::string FormatCalendarInformation(const char* calendarFormatString);
             _NODISCARD_ std::string FormatLogCount(int logCount);
@@ -263,19 +263,16 @@ namespace Spark::UtilityBox::Logger {
 
                 // Process message for standard output and standard error.
                 static std::vector<std::string> formattedMessages;
-                ProcessMessage(_cout, formattedMessages);
-                _cout->OutputMessage(formattedMessages);
 
-                ProcessMessage(_cerr, formattedMessages);
-                _cerr->OutputMessage(formattedMessages);
+                _cout->OutputMessage(ProcessMessage(_cout));
+                _cerr->OutputMessage(ProcessMessage(_cerr));
 
                 // Process message for all custom adapters.
                 for (auto* adapter : _customAdapters) {
                     try {
-                        ProcessMessage(_cerr, formattedMessages);
-                        adapter->OutputMessage(formattedMessages);
+                        adapter->OutputMessage(ProcessMessage(adapter));
                     }
-                    // If the adapter failed to process safely and an exception was thrown from verifying the message pointer, it is caught here.
+                    // If the adapter's formatting string contains an invalid character, an exception is thrown and caught here.
                     catch (const std::invalid_argument& exception) {
 //
 //                        // Log a direct message to standard error about the exception.
@@ -299,7 +296,9 @@ namespace Spark::UtilityBox::Logger {
     }
 
 
-    void LoggingHub::LoggingHubData::ProcessMessage(Adapter* adapter, std::vector<std::string>& processedMessages) {
+    std::vector<std::string> LoggingHub::LoggingHubData::ProcessMessage(Adapter* adapter) {
+        static std::vector<std::string> processedMessages;
+
         if (_currentMessageAddress->messageSeverity >= adapter->GetConfiguration()->GetMessageSeverityCutoff()) {
             static std::stringstream format;
             const char* adapterFormattingString = adapter->GetConfiguration()->GetFormattingString();
@@ -308,10 +307,16 @@ namespace Spark::UtilityBox::Logger {
             for (const char* traversalIndex = adapterFormattingString; *traversalIndex != '\0'; ++traversalIndex) {
                 // Get to the character after the next '%'.
                 while (*traversalIndex != '%') {
+                    // Reached the end of the processing string.
+                    if (*traversalIndex == '\0') {
+                        return std::move(processedMessages);
+                    }
+
                     // Emplace finished sentence and clear formatting stringstream.
                     if (*traversalIndex == '\n') {
                         format << std::endl;
-                        processedMessages.emplace_back(std::move(format.str()));
+                        processedMessages.emplace_back(format.str());
+                        format.str(std::string(""));
                         currentCharacterCount = 0;
                     }
                     else {
@@ -370,11 +375,13 @@ namespace Spark::UtilityBox::Logger {
                         break;
                     // Unknown character.
                     default:
-                        // todo
+                        throw std::invalid_argument(traversalIndex);
                         break;
                 }
             }
         }
+
+        return std::move(processedMessages);
     }
 
     std::string LoggingHub::LoggingHubData::FormatCalendarInformation(const char* calendarFormatString) {
@@ -409,7 +416,9 @@ namespace Spark::UtilityBox::Logger {
                 break;
         }
 
-        return std::move(format.str());
+        std::string formattedMessage = format.str();
+        format.str(std::string("")); // Clear format.
+        return std::move(formattedMessage);
     }
 
     std::string LoggingHub::LoggingHubData::FormatLogCount(int logCount) {
@@ -423,7 +432,9 @@ namespace Spark::UtilityBox::Logger {
         format << std::setfill('0') << std::setw(4);
         format << logCount % 1000;
 
-        return std::move(format.str()); // Clear stream data.
+        std::string formattedMessage = format.str();
+        format.str(std::string("")); // Clear format.
+        return std::move(formattedMessage);
     }
 
     std::string LoggingHub::LoggingHubData::FormatTimestamp(const char* formattingString, const Timing::TimeStamp &timeStamp) {
@@ -432,8 +443,14 @@ namespace Spark::UtilityBox::Logger {
         for (const char* traversalIndex = formattingString; *traversalIndex != '\0'; ++traversalIndex) {
             // Get to the character after the next '%'.
             while (*traversalIndex != '%') {
-                format << *traversalIndex;
-                ++traversalIndex;
+                // Reached the end of the string.
+                if (*traversalIndex == '\0') {
+                    std::string formattedMessage = format.str();
+                    format.str(std::string("")); // Clear format.
+                    return std::move(formattedMessage);
+                }
+
+                format << *traversalIndex++;
             }
             ++traversalIndex;
 
@@ -458,13 +475,18 @@ namespace Spark::UtilityBox::Logger {
             }
         }
 
-        return std::move(format.str()); // Clear format.
+        std::string formattedMessage = format.str();
+        format.str(std::string("")); // Clear format.
+        return std::move(formattedMessage);
     }
 
     std::string LoggingHub::LoggingHubData::FormatSeparator(int lineLength) {
         static std::stringstream format;
         format << std::setw(lineLength) << std::setfill('-') << "";
-        return std::move(format.str());
+
+        std::string formattedMessage = format.str();
+        format.str(std::string("")); // Clear format.
+        return std::move(formattedMessage);
     }
 
     // Switch the 'printed-to' buffer to be able to safely distribute the other buffer of stored message data.
@@ -549,28 +571,10 @@ namespace Spark::UtilityBox::Logger {
     //------------------------------------------------------------------------------------------------------------------
     // Get a singleton LoggingHub instance.
     LoggingHub* Logger::LoggingHub::GetInstance() {
-        Initialize();
-        return _loggingHub;
-    }
-
-    // Direct call to initialize the necessary data for the LoggingHub to function properly.
-    void LoggingHub::Initialize() {
-        // Construct instance.
         if (!_loggingHub) {
-//            // Register destructor to be called on exit.
-//            int registrationValue = atexit(Reset);
-//            ASSERT(registrationValue == 0, "Registration of LogginHub Reset/Destructor function failed with code: %i", registrationValue);
-
-            // Construct singleton
-            try {
-                _loggingHub = new LoggingHub();
-            }
-            catch (std::bad_alloc& exception) {
-                // Issue exit status message.
-                std::cerr << "Failed to allocate resources for LoggingHub back-end - program is out of usable memory. Exiting program execution." << std::endl;
-                exit(1);
-            }
+            _loggingHub = new LoggingHub();
         }
+        return _loggingHub;
     }
 
     // Attach a custom adapter to process and receive messages through the LoggingHub.
