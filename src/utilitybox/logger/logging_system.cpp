@@ -1,34 +1,80 @@
 
 #include <spark_pch.h>                        // std::va_list, va_start, va_end
 #include <utilitybox/logger/logging_system.h> // LoggingSystem functions
-#include <utilitybox/logger/logger.h>         // SendMessage
+#include <core/service_locator.h>
 
 namespace Spark::UtilityBox::Logger {
+    class LoggingSystem::LoggingSystemData {
+        public:
+            explicit LoggingSystemData(const char* name);
+
+            _NODISCARD_ const char* ProcessMessage(const char* formatString, std::va_list argsList);
+            _NODISCARD_ const char* GetSystemName() const;
+
+        private:
+            const char* _systemName;
+
+            unsigned _processingBufferSize; // Size of the processing buffer.
+            char* _processingBuffer;        // Pointer to the processing buffer.
+    };
+
+    LoggingSystem::LoggingSystemData::LoggingSystemData(const char* name) : _systemName(name), _processingBufferSize(64u) {
+        _processingBuffer = new char[_processingBufferSize];
+    }
+
+    const char* LoggingSystem::LoggingSystemData::ProcessMessage(const char *formatString, std::va_list argsList) {
+        unsigned currentBufferSize = _processingBufferSize;
+
+        // Copy args list to not modify passed parameters (yet).
+        std::va_list argsCopy;
+        va_copy(argsCopy, argsList);
+
+        // If size of the buffer is zero, nothing is written and buffer may be a null pointer, however the return
+        // value (number of bytes that would be written not including the null terminator) is still calculated and returned.
+        int writeResult = vsnprintf(nullptr, 0, formatString, argsCopy);
+
+        // If buffer size is equal to write result, there will not be space for the null terminator for the string.
+        // Multiple buffer size by two to adequately house string in a new buffer.
+        while (_processingBufferSize <= writeResult) {
+            _processingBufferSize *= 2;
+        }
+
+        // Reallocate buffer.
+        if (currentBufferSize != _processingBufferSize) {
+            delete [] _processingBuffer;
+            _processingBuffer = new char[_processingBufferSize];
+        }
+
+        vsnprintf(_processingBuffer, _processingBufferSize, formatString, argsList);
+
+        return _processingBuffer;
+    }
+
+    const char *LoggingSystem::LoggingSystemData::GetSystemName() const {
+        return _systemName;
+    }
+
+
+    //------------------------------------------------------------------------------------------------------------------
+    // LOGGING SYSTEM
+    //------------------------------------------------------------------------------------------------------------------
     // Construct a LoggingSystem instance with a desired name.
-    LoggingSystem::LoggingSystem(std::string name) : _name(std::move(name)) {
+    LoggingSystem::LoggingSystem(const char* name) : _data(new LoggingSystemData(name)) {
         // Nothing to do here.
-    }
-
-    // Log a message through this LoggingSystem.
-    void LoggingSystem::Log(LogMessage* message) const {
-        LoggingHub::GetInstance()->SendMessage(message, _name);
-        delete message;
-    }
-
-    // Log a message through this LoggingSystem.
-    void LoggingSystem::Log(LogMessage& message) const {
-        LoggingHub::GetInstance()->SendMessage(&message, _name);
     }
 
     // Log a message directly through this LoggingSystem.
     void LoggingSystem::Log(LogMessageSeverity messageSeverity, const char *formatString, ...) const {
-        LogMessage message { messageSeverity };
+        LogRecord logRecord;
 
-        std::va_list args;
-        va_start(args, formatString);
-        message.Supply(formatString, args);
-        va_end(args);
+        std::va_list argsList;
+        va_start(argsList, formatString);
+        logRecord.message = _data->ProcessMessage(formatString, argsList);
+        va_end(argsList);
 
-        Log(message);
+        logRecord.messageSeverity = messageSeverity;
+        logRecord.loggingSystemName = _data->GetSystemName();
+
+        Spark::ServiceLocator::GetLoggingHub()->SendMessage(std::move(logRecord));
     }
 }

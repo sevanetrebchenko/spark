@@ -46,17 +46,17 @@ namespace Spark::ECS::Components {
     // Creates logging system memory allocator for components managed by this system.
     template<class ComponentType>
     ComponentManager<ComponentType>::ComponentManagerData::ComponentManagerData() {
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Constructing ComponentManager managing component type: '%s'.", ComponentType::Name);
-        _loggingSystem.Log(message);
+//        UtilityBox::Logger::LogMessage message {};
+//        message.Supply("Constructing ComponentManager managing component type: '%s'.", ComponentType::Name);
+//        _loggingSystem.Log(message);
     }
 
     // Cleans up allocator and logging system.
     template<class ComponentType>
     ComponentManager<ComponentType>::ComponentManagerData::~ComponentManagerData() {
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Destroying ComponentManager managing component type: '%s'.", ComponentType::Name);
-        _loggingSystem.Log(message);
+//        UtilityBox::Logger::LogMessage message {};
+//        message.Supply("Destroying ComponentManager managing component type: '%s'.", ComponentType::Name);
+//        _loggingSystem.Log(message);
     }
 
     // Uses the memory manager to retrieve a block of memory and default constructs a component in-place.
@@ -72,17 +72,17 @@ namespace Spark::ECS::Components {
             blockAddress = _allocator.RetrieveBlock();
         }
         catch (std::bad_alloc& e) {
-            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
-            message.Supply("Exception thrown: Allocator failed to reallocate new block page - program is out of memory.");
-            _loggingSystem.Log(message);
+//            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
+//            message.Supply("Exception thrown: Allocator failed to reallocate new block page - program is out of memory.");
+//            _loggingSystem.Log(message);
 
             throw e;
         }
 
         // Default construct the block in-place.
         new (blockAddress) ComponentType();
-        message.Supply("Free block retrieved, object successfully default-constructed in-place.");
-        _loggingSystem.Log(message);
+//        message.Supply("Free block retrieved, object successfully default-constructed in-place.");
+//        _loggingSystem.Log(message);
 
         return static_cast<ComponentType*>(blockAddress);
     }
@@ -90,23 +90,23 @@ namespace Spark::ECS::Components {
     // Returns a component pointed at by the provided pointer back to the memory manager. Calls destructor for the object.
     template<class ComponentType>
     inline void ComponentManager<ComponentType>::ComponentManagerData::DeleteComponent(ComponentType *component) {
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entering function DeleteComponent.");
+//        UtilityBox::Logger::LogMessage message {};
+//        message.Supply("Entering function DeleteComponent.");
 
         if (component) {
-            message.Supply("Valid component provided to DeleteComponent. Calling destructor on component.");
-            component->~ComponentType();
-
-            message.Supply("Returning component block back to Allocator.");
+//            message.Supply("Valid component provided to DeleteComponent. Calling destructor on component.");
+//            component->~ComponentType();
+//
+//            message.Supply("Returning component block back to Allocator.");
             _allocator.ReturnBlock(static_cast<void*>(component));
         }
         else {
-            // Issue warning message.
-            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::WARNING);
-            message.Supply("Pointer provided to DeleteComponent is null.");
+//            // Issue warning message.
+//            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::WARNING);
+//            message.Supply("Pointer provided to DeleteComponent is null.");
         }
 
-        _loggingSystem.Log(message);
+//        _loggingSystem.Log(message);
     }
 
 

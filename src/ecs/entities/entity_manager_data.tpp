@@ -36,7 +36,7 @@ namespace Spark::ECS::Entities {
         }
 
         message.Supply("Successfully enabled tracking for member callback function of type: '%s'.", callbackTypeToString);
-        _loggingSystem.Log(message);
+//        _loggingSystem.Log(message);
     }
 
     // Attach a component to an entity at the provided ID, given that it exists and the entity doesn't already have a
@@ -52,7 +52,7 @@ namespace Spark::ECS::Entities {
         if (entityIterator == _entityComponents.end()) {
             message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
             message.Supply("Entity location was not found in entity manager - no entity exists at ID: %i.", ID);
-            _loggingSystem.Log(message);
+//            _loggingSystem.Log(message);
 
             throw std::invalid_argument("In function AddComponent: Entity ID provided is invalid - no entity exists at the provided ID.");
         }
@@ -62,7 +62,7 @@ namespace Spark::ECS::Entities {
         if (entityComponentIterator != entityIterator->second.end()) {
             message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
             message.Supply("entities cannot hold multiple components of the same type. Entity at ID: %i already has a component with type: '%s'.", ID, ComponentType::Name);
-            _loggingSystem.Log(message);
+//            _loggingSystem.Log(message);
 
             throw std::invalid_argument("In function AddComponent: entities cannot hold multiple components of the same type. Entity at the provided ID already has an instance of the desired component type.");
         }
@@ -75,7 +75,7 @@ namespace Spark::ECS::Entities {
 
         // Call all callback functions to notify systems.
         message.Supply("Component system 'OnEntityComponentAdd' callback functions called.");
-        _loggingSystem.Log(message);
+//        _loggingSystem.Log(message);
 
         for (auto &componentAddCallbackFunction : _componentAddCallbackFunctions) {
             componentAddCallbackFunction(ID);
@@ -95,7 +95,7 @@ namespace Spark::ECS::Entities {
 
         // Hand off responsibility to overloaded function.
         message.Supply("Calling function AddComponent with hashed entity ID.");
-        _loggingSystem.Log(message);
+//        _loggingSystem.Log(message);
 
         AddComponent<ComponentType>(STRINGHASH(name.c_str()));
     }
@@ -125,7 +125,7 @@ namespace Spark::ECS::Entities {
 
             // Call all callback functions to notify systems.
             message.Supply("Component system 'OnEntityComponentRemove' callback functions called.");
-            _loggingSystem.Log(message);
+//            _loggingSystem.Log(message);
 
             for (auto &componentRemoveCallbackFunction : _componentRemoveCallbackFunctions) {
                 componentRemoveCallbackFunction(ID);
@@ -134,7 +134,7 @@ namespace Spark::ECS::Entities {
         else {
             message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::WARNING);
             message.Supply("Entity location was not found in entity manager - no entity exists at ID: %i.", ID);
-            _loggingSystem.Log(message);
+//            _loggingSystem.Log(message);
         }
     }
 
@@ -151,7 +151,7 @@ namespace Spark::ECS::Entities {
 
         // Hand off responsibility to overloaded function.
         message.Supply("Calling function DeleteComponent with hashed entity ID.");
-        _loggingSystem.Log(message);
+//        _loggingSystem.Log(message);
 
         DeleteComponent<ComponentType>(STRINGHASH(name.c_str()));
     }

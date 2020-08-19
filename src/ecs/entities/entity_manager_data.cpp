@@ -4,16 +4,16 @@
 namespace Spark::ECS::Entities {
     // Constructor.
     EntityManagerData::EntityManagerData() {
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Constructing EntityManager.");
-        _loggingSystem.Log(message);
+//        UtilityBox::Logger::LogMessage message {};
+//        message.Supply("Constructing EntityManager.");
+//        _loggingSystem.Log(message);
     }
 
     // Cleans up any resources associated with the Entity Manager helper class.
     EntityManagerData::~EntityManagerData() {
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Destroying EntityManager.");
-        _loggingSystem.Log(message);
+//        UtilityBox::Logger::LogMessage message {};
+//        message.Supply("Destroying EntityManager.");
+//        _loggingSystem.Log(message);
 
         // Clear entity components.
         for (auto entityComponentList : _entityComponents) {
@@ -34,43 +34,43 @@ namespace Spark::ECS::Entities {
     // Create an entity. Throws error if the provided entity name matches any of the the bin-in component type names
     // or any pre-existing entity names. Automatically notifies all fully registered component systems that a new entity has been created.
     void EntityManagerData::CreateEntity(std::string name) {
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entering function CreateEntity with entity name: '%s.'", name.c_str());
+//        UtilityBox::Logger::LogMessage message {};
+//        message.Supply("Entering function CreateEntity with entity name: '%s.'", name.c_str());
 
         ConvertToLowercase(name);
-        message.Supply("Entity name converted to lowercase: '%s.'", name.c_str());
+//        message.Supply("Entity name converted to lowercase: '%s.'", name.c_str());
 
         // Entity name cannot be a name of any component.
-        message.Supply("Checking name against the names of all bin-in component names.");
+//        message.Supply("Checking name against the names of all bin-in component names.");
 
         if (CheckEntityName<ALL_COMPONENTS>(name)) {
-            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
-            message.Supply("Exception thrown: Provided entity name: '%s' cannot match a built-in component name.", name.c_str());
-            _loggingSystem.Log(message);
+//            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
+//            message.Supply("Exception thrown: Provided entity name: '%s' cannot match a built-in component name.", name.c_str());
+//            _loggingSystem.Log(message);
 
             throw std::invalid_argument("In function CreateEntity: Provided entity name cannot match a built-in component name.");
         }
 
         EntityID hashedID = STRINGHASH(name.c_str());
-        message.Supply("Checking hashed entity ID against all other entities.");
+//        message.Supply("Checking hashed entity ID against all other entities.");
 
         // Newly created entity cannot have a matching ID to an already existing entity.
         if (_entityComponents.find(hashedID) != _entityComponents.end()) {
-            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
-            message.Supply("Exception thrown: Hashed entity ID matches with another entity: there already exists an entity with the same hashed ID under entity name: '%s'.", _entityNames.find(hashedID)->second.c_str());
-            _loggingSystem.Log(message);
+//            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
+//            message.Supply("Exception thrown: Hashed entity ID matches with another entity: there already exists an entity with the same hashed ID under entity name: '%s'.", _entityNames.find(hashedID)->second.c_str());
+//            _loggingSystem.Log(message);
 
             throw std::invalid_argument("In function CreateEntity: Provided entity name matches an already existing entity name.");
         }
 
-        message.Supply("Entity creation successful. Creating entries for entity component list and name.");
+//        message.Supply("Entity creation successful. Creating entries for entity component list and name.");
         // Index operator creates a new default constructed entry.
         _entityComponents[hashedID];
         _entityNames[hashedID] = name;
 
         // Notify systems of created entity.
-        message.Supply("Component system 'OnEntityCreate' callback functions called.");
-        _loggingSystem.Log(message);
+//        message.Supply("Component system 'OnEntityCreate' callback functions called.");
+//        _loggingSystem.Log(message);
 
         for (auto &entityCreateCallbackFunction : _entityCreateCallbackFunctions) {
             entityCreateCallbackFunction(hashedID);
@@ -90,7 +90,7 @@ namespace Spark::ECS::Entities {
 
             // Notify systems of deleted entity.
             message.Supply("Component system 'OnEntityDestroy' callback functions called.");
-            _loggingSystem.Log(message);
+//            _loggingSystem.Log(message);
 
             for (auto &entityDestroyCallbackFunction : _entityDestroyCallbackFunctions) {
                 entityDestroyCallbackFunction(ID);
@@ -99,7 +99,7 @@ namespace Spark::ECS::Entities {
         else {
             message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::WARNING);
             message.Supply("Entity location was not found in entity manager - no entity exists at ID: %i.", ID);
-            _loggingSystem.Log(message);
+//            _loggingSystem.Log(message);
         }
     }
 
@@ -114,7 +114,7 @@ namespace Spark::ECS::Entities {
 
         // Hand off responsibility to overloaded function.
         message.Supply("Calling function DestroyEntity with hashed entity ID.");
-        _loggingSystem.Log(message);
+//        _loggingSystem.Log(message);
 
         DestroyEntity(STRINGHASH(name.c_str()));
     }
@@ -128,13 +128,13 @@ namespace Spark::ECS::Entities {
         if (_entityComponents.find(ID) == _entityComponents.end()) {
             message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
             message.Supply("Exception thrown: Entity location was not found in entity manager - no entity exists at ID: %i.", ID);
-            _loggingSystem.Log(message);
+//            _loggingSystem.Log(message);
 
             throw std::out_of_range("In function GetComponents: Entity ID is invalid - no entity exists at the provided ID.");
         }
 
         message.Supply("Entity found, components accessed.");
-        _loggingSystem.Log(message);
+//        _loggingSystem.Log(message);
 
         return _entityComponents.at(ID);
     }
@@ -150,7 +150,7 @@ namespace Spark::ECS::Entities {
 
         // Hand off responsibility to overloaded function.
         message.Supply("Calling function GetComponents with hashed entity ID.");
-        _loggingSystem.Log(message);
+//        _loggingSystem.Log(message);
 
         return GetComponents(STRINGHASH(name.c_str()));
     }

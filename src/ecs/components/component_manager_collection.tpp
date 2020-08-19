@@ -71,7 +71,7 @@ namespace Spark::ECS::Components {
         PARAMETER_PACK_EXPAND(CreateComponentSystem, ComponentTypes, message);
 
         message.Supply("Finished constructing ComponentManagers.");
-        _loggingSystem.Log(message);
+//        _loggingSystem.Log(message);
     }
 
     // Cleans up all resources and unregisters all registered ComponentManager instances.
@@ -85,7 +85,7 @@ namespace Spark::ECS::Components {
         PARAMETER_PACK_EXPAND(DestroyComponentSystem, ComponentTypes, message);
         message.Supply("Finished destroying all ComponentManagers.");
 
-        _loggingSystem.Log(message);
+//        _loggingSystem.Log(message);
     }
 
     // Get a ComponentManager for a specific component type.
@@ -114,7 +114,7 @@ namespace Spark::ECS::Components {
             // Failure to allocate component manager is a fatal error.
             message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
             message.Supply("Exception thrown: Failed to allocate sufficient memory for back-end of ComponentManager with component type: '%s'.", ComponentType::Name);
-            _loggingSystem.Log(message);
+//            _loggingSystem.Log(message);
 
             throw e;
         }

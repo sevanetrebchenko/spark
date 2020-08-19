@@ -9,31 +9,25 @@ namespace Spark {
     namespace UtilityBox {
         namespace Logger {
 
+            struct LogRecord {
+                std::string loggingSystemName;
+                LogMessageSeverity messageSeverity;
+                Timing::TimeStamp timeStamp;
+                std::string message;
+            };
+
             class LoggingSystem {
                 public:
                     /**
                     * Construct a LoggingSystem instance with a desired name.
                     * @param name - Name for this LoggingSystem.
                     */
-                    explicit LoggingSystem(std::string name = "Not provided");
+                    explicit LoggingSystem(const char* name = "Not provided");
 
                     /**
                     * Destructor.
                     */
                     ~LoggingSystem() = default;
-
-                    /**
-                    * Log a message through this LoggingSystem.
-                    * Note: Resources associated with the passed message are automatically cleaned up.
-                    * @param message - Message to log.
-                    */
-                    void Log(LogMessage* message) const;
-
-                    /**
-                     * Log a message through this LoggingSystem.
-                     * @param message - Message to log.
-                     */
-                    void Log(LogMessage& message) const;
 
                     /**
                      * Log a message directly through this LoggingSystem.
@@ -44,7 +38,8 @@ namespace Spark {
                     void Log(LogMessageSeverity messageSeverity, const char* formatString, ...) const;
 
                 private:
-                    std::string _name; // Logging system's name.
+                    class LoggingSystemData;
+                    LoggingSystemData* _data;
             };
 
         } // namespace Logger

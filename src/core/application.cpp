@@ -6,6 +6,7 @@
 #include <graphics/window/window.h>
 #include <core/layer_stack.h>
 #include <graphics/context/imgui_layer.h>
+#include <utilitybox/logger/logger.h>
 
 namespace Spark {
     //------------------------------------------------------------------------------------------------------------------
@@ -46,18 +47,20 @@ namespace Spark {
     void Application::ApplicationData::Run() {
         while(_running) {
             ServiceLocator::GetEventHub()->OnUpdate();
+            static UtilityBox::Logger::LoggingSystem system {"lmao"};
+            system.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "testing");
 
             // Call OnUpdate for all layers.
             for (Layer* layer : _layerStack) {
                 layer->OnUpdate(_deltaTime);
             }
 
-            // ImGui rendering.
-            _imGuiLayer->BeginFrame();
-            for (Layer* layer : _layerStack) {
-                layer->OnImGuiRender();
-            }
-            _imGuiLayer->EndFrame();
+//            // ImGui rendering.
+//            _imGuiLayer->BeginFrame();
+//            for (Layer* layer : _layerStack) {
+//                layer->OnImGuiRender();
+//            }
+//            _imGuiLayer->EndFrame();
 
             _window->OnUpdate();
         }

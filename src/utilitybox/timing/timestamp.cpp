@@ -23,7 +23,7 @@ namespace Spark::UtilityBox::Timing {
     // Construct the back-end for timestamp processing.
     TimeStamp::TimeStampData::TimeStampData(const std::chrono::time_point<std::chrono::high_resolution_clock>& timestamp) : _raw(timestamp) {
         // Get the total timestamp time in seconds.
-        double elapsedSeconds = (std::chrono::duration_cast<std::chrono::duration<double>>(_raw - Logger::LoggingHub::GetInstance()->GetLoggingInitializationTime())).count();
+        double elapsedSeconds = (std::chrono::duration_cast<std::chrono::duration<double>>(_raw - Logger::LoggingHub::GetInstance()->GetInitializationTime())).count();
 
         // Get the fractional part of seconds
         double whole = std::floor(elapsedSeconds);
