@@ -2,6 +2,7 @@
 #include <spark_pch.h>                   // std::invalid_argument, std::mutex, std::thread, std::atomic, std::cout, std::cerr, std::find, atexit
 #include <utilitybox/logger/logger.h>    // LoggingHub
 #include <utilitybox/tools/assert_dev.h> // Asserts
+#include <utilitybox/logger/invalid_format_character_exception.h>
 
 namespace Spark::UtilityBox::Logger {
     //------------------------------------------------------------------------------------------------------------------
@@ -33,7 +34,8 @@ namespace Spark::UtilityBox::Logger {
 
     // Construct an adapter for a standard output stream.
     StandardOutputAdapter::StandardOutputAdapter(const char* name, std::ostream* stream) : Adapter(name), _stream(stream) {
-        // Nothing to do here.
+        GetConfiguration()->SetFormattingString("%x\n[%c] | %d | [ %s ]\n\tLogged through system: %n\n%x\n\t[ %t ] - %m\n");
+        GetConfiguration()->SetTimestampFormattingString("%mm %ss %lms");
     }
 
     // Print all messages in the formatted messages buffer to the stream. Separates concurrent messages with a newline to aid in clarity.
@@ -122,13 +124,12 @@ namespace Spark::UtilityBox::Logger {
              */
             void SwitchBuffers();
 
-
-            std::vector<std::string> ProcessMessage(Adapter* adapter);
-            _NODISCARD_ std::vector<std::string> FormatMessage(const std::string& message, int characterStart, int characterEnd);
-            _NODISCARD_ std::string FormatCalendarInformation(const char* calendarFormatString);
+            _NODISCARD_ std::vector<std::string> ProcessMessage(Adapter* adapter, LogRecord* logRecord);
+            _NODISCARD_ std::vector<std::string> FormatMessage(const std::string &message, int characterStart, int characterEnd);
+            _NODISCARD_ std::string FormatCalendarInformation(const char *calendarFormatString);
             _NODISCARD_ std::string FormatLogCount(int logCount);
-            _NODISCARD_ std::string FormatSeverity(const LogMessageSeverity& messageSeverity);
-            _NODISCARD_ std::string FormatTimestamp(const char* formattingString, const Timing::TimeStamp& timeStamp);
+            _NODISCARD_ std::string FormatSeverity(const LogMessageSeverity &messageSeverity);
+            _NODISCARD_ std::string FormatTimestamp(const Adapter *adapter, const Timing::TimeStamp &timeStamp);
             _NODISCARD_ std::string FormatSeparator(int lineLength);
 
             // Adapter data
@@ -147,7 +148,6 @@ namespace Spark::UtilityBox::Logger {
             std::chrono::milliseconds _asynchronousInterval;                     // Interval at which thread switches buffers and processes messages.
             std::atomic<bool> _distributeMessages;                               // Boolean flag to control the terminating condition for the threaded function.
             std::atomic<std::queue<LogRecord>*> _printingBufferLocation; // Abstracting the location for functions to print data to.
-            LogRecord* _currentMessageAddress;                           // References the current packet of data being processed to verify passed pointers.
             std::thread _distributingThread;                                     // Worker thread that processes error messages.
 
             std::chrono::time_point<std::chrono::high_resolution_clock> _initializationTime; // Timestamp for the initialization of the parent LoggingHub.
@@ -162,15 +162,10 @@ namespace Spark::UtilityBox::Logger {
                                                                                                                                    _asynchronousInterval(std::chrono::milliseconds(200)),
                                                                                                                                    _distributeMessages(true),
                                                                                                                                    _printingBufferLocation(&_printingBuffer1),
-                                                                                                                                   _currentMessageAddress(nullptr),
                                                                                                                                    _initializationTime(initTimestamp),
                                                                                                                                    _reset(false)
                                                                                                                                    {
         _cerr->GetConfiguration()->SetMessageSeverityCutoff(LogMessageSeverity::SEVERE);
-        _cout->GetConfiguration()->SetFormattingString("%x\n[%c] | %d | [ %s ]\n\tLogged through system: %n\n%x\n\t[ %t ] - %m\n");
-        _cout->GetConfiguration()->SetTimestamppFormattingString("%mm %ss %lms");
-        _cerr->GetConfiguration()->SetFormattingString("%x\n[%c] | %d | [ %s ]\n\tLogged through system: %n\n%x\n\t[ %t ] - %m\n");
-        _cerr->GetConfiguration()->SetTimestamppFormattingString("%mm %ss %lms");
 
         // Start worker thread last when all the other data is ready.
         _distributingThread = std::move(std::thread(&LoggingHub::LoggingHubData::DistributeMessages, this));
@@ -250,6 +245,8 @@ namespace Spark::UtilityBox::Logger {
     // Run by the worker thread to process and distribute message to adapters.
     void LoggingHub::LoggingHubData::DistributeMessages() {
         while (_distributeMessages) {
+            static LogRecord* currentMessageAddress = nullptr;
+
             // Only place that needs synchronization is switching the buffers, as everything else accesses the printing
             // buffers through an abstracted pointer.
             _bufferMutex.lock();
@@ -259,34 +256,32 @@ namespace Spark::UtilityBox::Logger {
 
             // Data will now be written to other buffer while this one is being printed from.
             while (!buffer.empty()) {
-                _currentMessageAddress = &buffer.front();
-
+                currentMessageAddress = &buffer.front();
                 // Process message for standard output and standard error.
                 static std::vector<std::string> formattedMessages;
 
-                _cout->OutputMessage(ProcessMessage(_cout));
-                _cerr->OutputMessage(ProcessMessage(_cerr));
+                _cout->OutputMessage(ProcessMessage(_cout, currentMessageAddress));
+                _cerr->OutputMessage(ProcessMessage(_cerr, currentMessageAddress));
 
                 // Process message for all custom adapters.
                 for (auto* adapter : _customAdapters) {
                     try {
-                        adapter->OutputMessage(ProcessMessage(adapter));
+                        adapter->OutputMessage(ProcessMessage(adapter, currentMessageAddress));
                     }
                     // If the adapter's formatting string contains an invalid character, an exception is thrown and caught here.
-                    catch (const std::invalid_argument& exception) {
-//
-//                        // Log a direct message to standard error about the exception.
-//                        _errorMessageProcessing->SetLogCount(_cerr->GetLogCount()); // Maintain previous log count.
-//                        ConstructStandardErrorMessage(exception, adapter->GetName().c_str());
-//                        _cerr->OutputErrorMessage(std::move(_formattedErrorMessages));
-//
-//                        // Log a direct message to the adapter that failed to process the message safely.
-//                        _errorMessageProcessing->SetLogCount(adapter->GetLogCount()); // Maintain previous log count.
-//                        ConstructAdapterErrorMessage(exception, adapter->GetName().c_str());
-//                        adapter->OutputErrorMessage(std::move(_formattedErrorMessages));
-//
-//                        // Delete faulty adapter from the custom adapters list.
-//                        DetachAdapter(adapter);
+                    catch (const InvalidFormatCharacterException& exceptionData) {
+                        LogRecord errorLogRecord;
+                        errorLogRecord.message = exceptionData.what();
+                        errorLogRecord.messageSeverity = LogMessageSeverity::SEVERE;
+                        errorLogRecord.loggingSystemName = "Logging Hub";
+
+                        static LogRecord* errorMessageAddress = &errorLogRecord;
+
+                        _cout->OutputMessage(ProcessMessage(_cout, errorMessageAddress));
+                        _cerr->OutputMessage(ProcessMessage(_cerr, errorMessageAddress));
+
+                        // Delete faulty adapter from the custom adapters list.
+                        DetachAdapter(adapter);
                     }
                 }
                 buffer.pop();
@@ -295,11 +290,20 @@ namespace Spark::UtilityBox::Logger {
         }
     }
 
+    // Switch the 'printed-to' buffer to be able to safely distribute the other buffer of stored message data.
+    void LoggingHub::LoggingHubData::SwitchBuffers() {
+        if (_printingBufferLocation == &(_printingBuffer1)) {
+            _printingBufferLocation = &_printingBuffer2;
+        }
+        else {
+            _printingBufferLocation = &_printingBuffer1;
+        }
+    }
 
-    std::vector<std::string> LoggingHub::LoggingHubData::ProcessMessage(Adapter* adapter) {
+    std::vector<std::string> LoggingHub::LoggingHubData::ProcessMessage(Adapter *adapter, LogRecord *logRecord) {
         static std::vector<std::string> processedMessages;
 
-        if (_currentMessageAddress->messageSeverity >= adapter->GetConfiguration()->GetMessageSeverityCutoff()) {
+        if (logRecord->messageSeverity >= adapter->GetConfiguration()->GetMessageSeverityCutoff()) {
             static std::stringstream format;
             const char* adapterFormattingString = adapter->GetConfiguration()->GetFormattingString();
 
@@ -319,6 +323,10 @@ namespace Spark::UtilityBox::Logger {
                         format.str(std::string(""));
                         currentCharacterCount = 0;
                     }
+                    else if (*traversalIndex == '\t') {
+                        format << *traversalIndex;
+                        currentCharacterCount += 4;
+                    }
                     else {
                         format << *traversalIndex;
                         ++currentCharacterCount;
@@ -333,50 +341,49 @@ namespace Spark::UtilityBox::Logger {
                 switch (*traversalIndex) {
                     // Timestamp
                     case 't':
-                        appendedElement = FormatTimestamp(adapter->GetConfiguration()->GetTimestampFormattingString(), _currentMessageAddress->timeStamp);
+                        appendedElement = FormatTimestamp(adapter, logRecord->timeStamp);
                         format << appendedElement;
                         currentCharacterCount += appendedElement.length();
                         break;
-                    // Log count
+                        // Log count
                     case 'c':
                         appendedElement = FormatLogCount(adapter->GetLogCount());
                         format << appendedElement;
                         currentCharacterCount += appendedElement.length();
                         break;
-                    // Calendar date
+                        // Calendar date
                     case 'd':
                         appendedElement = FormatCalendarInformation(adapter->GetConfiguration()->GetCalendarFormatString());
                         format << appendedElement;
                         currentCharacterCount += appendedElement.length();
                         break;
-                    // Message severity.
+                        // Message severity.
                     case 's':
-                        appendedElement = FormatSeverity(_currentMessageAddress->messageSeverity);
+                        appendedElement = FormatSeverity(logRecord->messageSeverity);
                         format << appendedElement;
                         currentCharacterCount += appendedElement.length();
                         break;
-                    // Logged system name.
+                        // Logged system name.
                     case 'n':
                         appendedElement = adapter->GetConfiguration()->GetAdapterName();
                         format << appendedElement;
                         currentCharacterCount += appendedElement.length();
                         break;
-                    // Separating line.
+                        // Separating line.
                     case 'x':
                         appendedElement = FormatSeparator(adapter->GetConfiguration()->GetMessageWrapLimit());
                         format << appendedElement;
                         currentCharacterCount += appendedElement.length();
                         break;
-                    // Message
+                        // Message
                     case 'm':
-                        for (auto& string : FormatMessage(_currentMessageAddress->message, currentCharacterCount, adapter->GetConfiguration()->GetMessageWrapLimit())) {
+                        for (auto& string : FormatMessage(logRecord->message, currentCharacterCount, adapter->GetConfiguration()->GetMessageWrapLimit())) {
                             format << string;
                         }
                         break;
-                    // Unknown character.
+                        // Unknown character.
                     default:
-                        throw std::invalid_argument(traversalIndex);
-                        break;
+                        throw InvalidFormatCharacterException("Unknown formatting character: '%c' encountered in adapter formatting string. Custom adapter with name: '%s' will be removed from the custom adapter list.", *traversalIndex, adapter->GetConfiguration()->GetAdapterName());
                 }
             }
         }
@@ -384,127 +391,14 @@ namespace Spark::UtilityBox::Logger {
         return std::move(processedMessages);
     }
 
-    std::string LoggingHub::LoggingHubData::FormatCalendarInformation(const char* calendarFormatString) {
-        static std::time_t _calendarTime = std::time(nullptr);  // Gets filled with the current time when formatting calendar buffer.
-        static unsigned _calendarBufferSize = 64u;                    // Size of the calendar buffer.
-        static char* _calendarBuffer = new char[_calendarBufferSize]; // Calendar buffer.
-
-        while(!std::strftime(_calendarBuffer, _calendarBufferSize, calendarFormatString, std::localtime(&_calendarTime))) {
-            _calendarBufferSize *= 2;
-            delete[] _calendarBuffer;
-            _calendarBuffer = new char[_calendarBufferSize];
-        }
-
-        // Reset to get the most updated calendar time.
-        _calendarTime = std::time(nullptr);
-
-        return _calendarBuffer;
-    }
-
-    std::string LoggingHub::LoggingHubData::FormatSeverity(const LogMessageSeverity& messageSeverity) {
-        static std::stringstream format;
-
-        switch (messageSeverity) {
-            case LogMessageSeverity::DEBUG:
-                format << "DEBUG";
-                break;
-            case LogMessageSeverity::WARNING:
-                format << "WARNING";
-                break;
-            case LogMessageSeverity::SEVERE:
-                format << "SEVERE";
-                break;
-        }
-
-        std::string formattedMessage = format.str();
-        format.str(std::string("")); // Clear format.
-        return std::move(formattedMessage);
-    }
-
-    std::string LoggingHub::LoggingHubData::FormatLogCount(int logCount) {
-        static std::stringstream format;
-
-        format << std::setfill('0') << std::setw(4);
-        format << logCount / 1000;
-
-        format << ' ';
-
-        format << std::setfill('0') << std::setw(4);
-        format << logCount % 1000;
-
-        std::string formattedMessage = format.str();
-        format.str(std::string("")); // Clear format.
-        return std::move(formattedMessage);
-    }
-
-    std::string LoggingHub::LoggingHubData::FormatTimestamp(const char* formattingString, const Timing::TimeStamp &timeStamp) {
-        static std::stringstream format;
-
-        for (const char* traversalIndex = formattingString; *traversalIndex != '\0'; ++traversalIndex) {
-            // Get to the character after the next '%'.
-            while (*traversalIndex != '%') {
-                // Reached the end of the string.
-                if (*traversalIndex == '\0') {
-                    std::string formattedMessage = format.str();
-                    format.str(std::string("")); // Clear format.
-                    return std::move(formattedMessage);
-                }
-
-                format << *traversalIndex++;
-            }
-            ++traversalIndex;
-
-            switch (*traversalIndex) {
-                // Append minutes into stream.
-                case 'm':
-                    format << std::setfill('0') << std::setw(3);
-                    format << timeStamp.GetMinutes();
-                    break;
-                // Append seconds into stream.
-                case 's':
-                    format << std::setfill('0') << std::setw(2);
-                    format << timeStamp.GetSeconds();
-                    break;
-                // Append milliseconds into stream.
-                case 'l':
-                    format << std::setfill('0') << std::setw(4);
-                    format << timeStamp.GetMillis();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        std::string formattedMessage = format.str();
-        format.str(std::string("")); // Clear format.
-        return std::move(formattedMessage);
-    }
-
-    std::string LoggingHub::LoggingHubData::FormatSeparator(int lineLength) {
-        static std::stringstream format;
-        format << std::setw(lineLength) << std::setfill('-') << "";
-
-        std::string formattedMessage = format.str();
-        format.str(std::string("")); // Clear format.
-        return std::move(formattedMessage);
-    }
-
-    // Switch the 'printed-to' buffer to be able to safely distribute the other buffer of stored message data.
-    void LoggingHub::LoggingHubData::SwitchBuffers() {
-        if (_printingBufferLocation == &(_printingBuffer1)) {
-            _printingBufferLocation = &_printingBuffer2;
-        }
-        else {
-            _printingBufferLocation = &_printingBuffer1;
-        }
-    }
-
     std::vector<std::string> LoggingHub::LoggingHubData::FormatMessage(const std::string &message, int characterStart, int characterEnd) {
         static std::vector<std::string> formattedStrings;
         static std::stringstream format;
 
+        int availableMessageSpace = characterEnd - characterStart;
+
         // Message cannot fit on one line, tokenize.
-        if (message.length() > (characterStart - characterEnd)) {
+        if (message.length() > (availableMessageSpace)) {
             unsigned length = 0;                // Current length of the built string.
             bool firstLine = true;              // First line needs no aligning spaces, subsequent lines do.
             std::vector<std::string> tokens;    // Token storage.
@@ -514,12 +408,12 @@ namespace Spark::UtilityBox::Logger {
             // Tokenize the string by spaces.
             while (getline(parser, storage, ' ')) {
                 // Delimiter gets rid of the space, we must append 1 to correctly count the space as a character.
-                if ((length + storage.length() + 1) > (characterStart - characterEnd)) {
+                if ((length + storage.length() + 1) > (availableMessageSpace)) {
 
-                    // First line has preceeding information, don't append any extra characters to the beginning.
+                    // First line has preceding information, don't append any extra characters to the beginning.
                     // Additional lines will need to be aligned.
                     if (!firstLine) {
-                        format << std::setw(characterEnd) << std::setfill(' ') << "";
+                        format << std::setw(characterStart) << std::setfill(' ') << "";
                     }
 
                     firstLine = false;
@@ -544,9 +438,7 @@ namespace Spark::UtilityBox::Logger {
 
             // Add all remaining tokens after the whole string has been parsed.
             if (!tokens.empty()) {
-                for (int i = 0; i < characterEnd; ++i) {
-                    format << ' ';
-                }
+                format << std::setw(characterStart) << std::setfill(' ') << "";
 
                 for (auto &token : tokens) {
                     format << token << ' ';
@@ -563,6 +455,111 @@ namespace Spark::UtilityBox::Logger {
         }
 
         return std::move(formattedStrings);
+    }
+
+    std::string LoggingHub::LoggingHubData::FormatCalendarInformation(const char *calendarFormatString) {
+        static std::time_t _calendarTime = std::time(nullptr);  // Gets filled with the current time when formatting calendar buffer.
+        static unsigned _calendarBufferSize = 64u;                    // Size of the calendar buffer.
+        static char* _calendarBuffer = new char[_calendarBufferSize]; // Calendar buffer.
+
+        while(!std::strftime(_calendarBuffer, _calendarBufferSize, calendarFormatString, std::localtime(&_calendarTime))) {
+            _calendarBufferSize *= 2;
+            delete[] _calendarBuffer;
+            _calendarBuffer = new char[_calendarBufferSize];
+        }
+
+        // Reset to get the most updated calendar time.
+        _calendarTime = std::time(nullptr);
+
+        return _calendarBuffer;
+    }
+
+    std::string LoggingHub::LoggingHubData::FormatLogCount(int logCount) {
+        static std::stringstream format;
+
+        format << std::setfill('0') << std::setw(4);
+        format << logCount / 1000;
+
+        format << ' ';
+
+        format << std::setfill('0') << std::setw(4);
+        format << logCount % 1000;
+
+        std::string formattedMessage = format.str();
+        format.str(std::string("")); // Clear format.
+        return std::move(formattedMessage);
+    }
+
+    std::string LoggingHub::LoggingHubData::FormatSeverity(const LogMessageSeverity &messageSeverity) {
+        static std::stringstream format;
+
+        switch (messageSeverity) {
+            case LogMessageSeverity::DEBUG:
+                format << "DEBUG";
+                break;
+            case LogMessageSeverity::WARNING:
+                format << "WARNING";
+                break;
+            case LogMessageSeverity::SEVERE:
+                format << "SEVERE";
+                break;
+        }
+
+        std::string formattedMessage = format.str();
+        format.str(std::string("")); // Clear format.
+        return std::move(formattedMessage);
+    }
+
+    std::string LoggingHub::LoggingHubData::FormatTimestamp(const Adapter *adapter, const Timing::TimeStamp &timeStamp) {
+        static std::stringstream format;
+
+        for (const char* traversalIndex = adapter->GetConfiguration()->GetTimestampFormattingString(); *traversalIndex != '\0'; ++traversalIndex) {
+            // Get to the character after the next '%'.
+            while (*traversalIndex != '%') {
+                // Reached the end of the string.
+                if (*traversalIndex == '\0') {
+                    std::string formattedMessage = format.str();
+                    format.str(std::string("")); // Clear format.
+                    return std::move(formattedMessage);
+                }
+
+                format << *traversalIndex++;
+            }
+            ++traversalIndex;
+
+            switch (*traversalIndex) {
+                // Append minutes into stream.
+                case 'm':
+                    format << std::setfill('0') << std::setw(3);
+                    format << timeStamp.GetMinutes();
+                    break;
+                    // Append seconds into stream.
+                case 's':
+                    format << std::setfill('0') << std::setw(2);
+                    format << timeStamp.GetSeconds();
+                    break;
+                    // Append milliseconds into stream.
+                case 'l':
+                    format << std::setfill('0') << std::setw(4);
+                    format << timeStamp.GetMillis();
+                    break;
+                default:
+                    throw InvalidFormatCharacterException("Unknown timestamp formatting character: '%c' encountered in adapter timestamp formatting string. Custom adapter with name: '%s' will be removed from the custom adapter list.", *traversalIndex, adapter->GetConfiguration()->GetAdapterName());
+            }
+        }
+
+        std::string formattedMessage = format.str();
+        format.str(std::string("")); // Clear format.
+        return std::move(formattedMessage);
+    }
+
+    std::string LoggingHub::LoggingHubData::FormatSeparator(int lineLength) {
+        static std::stringstream format;
+        format << std::setw(lineLength) << std::setfill('-') << "";
+
+        std::string formattedMessage = format.str();
+        format.str(std::string("")); // Clear format.
+        return std::move(formattedMessage);
     }
 
 

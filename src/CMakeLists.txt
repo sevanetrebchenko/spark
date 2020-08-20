@@ -10,7 +10,7 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/core/application.cpp"
         "${PROJECT_SOURCE_DIR}/src/core/layer.cpp"
         "${PROJECT_SOURCE_DIR}/src/core/layer_stack.cpp"
-        "${PROJECT_SOURCE_DIR}/src/utilitybox/servicelocator/service_locator.cpp"
+        "core/service_locator.cpp"
         # ECS
         "${PROJECT_SOURCE_DIR}/src/ecs/entities/entity_manager.cpp"
         "${PROJECT_SOURCE_DIR}/src/ecs/entities/entity_manager_data.cpp"
@@ -39,6 +39,7 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/log_message.cpp"
         "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/logger.cpp"
         "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/logging_system.cpp"
+        "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/invalid_format_character_exception.cpp"
         # Memory
         "${PROJECT_SOURCE_DIR}/src/utilitybox/memory/segmented_pool_allocator.cpp"
         "${PROJECT_SOURCE_DIR}/src/utilitybox/memory/memory_formatter.cpp"

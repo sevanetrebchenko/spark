@@ -27,7 +27,7 @@ namespace Spark {
                     void SetMessageSeverityCutoff(LogMessageSeverity newCutoff);
                     void SetFormattingString(const char* formattingString);
                     void SetCalendarFormatString(const char* newFormat);
-                    void SetTimestamppFormattingString(const char* timestampFormat);
+                    void SetTimestampFormattingString(const char* timestampFormat);
 
                 private:
                     // Storage for AdapterConfiguration data, back-end functionality, and helper functions.

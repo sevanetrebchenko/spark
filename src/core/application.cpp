@@ -48,7 +48,7 @@ namespace Spark {
         while(_running) {
             ServiceLocator::GetEventHub()->OnUpdate();
             static UtilityBox::Logger::LoggingSystem system {"lmao"};
-            system.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "testing");
+            system.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "testing testing testing testing testing testing testing testing testing testing testing ");
 
             // Call OnUpdate for all layers.
             for (Layer* layer : _layerStack) {

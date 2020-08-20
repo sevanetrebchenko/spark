@@ -25,6 +25,7 @@ namespace Spark::UtilityBox::Logger {
             void SetTimestampFormattingString(const char* timestampFormat);
 
         private:
+            int _messageWrapLimitMinimum;
             int _messageWrapLimit;
             LogMessageSeverity _severityCutoff;
             const char* _adapterName;
@@ -34,7 +35,8 @@ namespace Spark::UtilityBox::Logger {
     };
 
     // Constructor. Establishes default formats for headers and messages.
-    AdapterConfiguration::AdapterConfigurationData::AdapterConfigurationData(const char* adapterName) : _messageWrapLimit(100),
+    AdapterConfiguration::AdapterConfigurationData::AdapterConfigurationData(const char* adapterName) : _messageWrapLimitMinimum(-1),
+                                                                                                        _messageWrapLimit(100),
                                                                                                         _severityCutoff(LogMessageSeverity::DEBUG),
                                                                                                         _adapterName(adapterName),
                                                                                                         _formattingString(""),
@@ -73,10 +75,11 @@ namespace Spark::UtilityBox::Logger {
     }
 
     void AdapterConfiguration::AdapterConfigurationData::SetMessageWrapLimit(int newLimit) {
-        // Don't allow negative limits.
-        if (newLimit > 0) {
-            _messageWrapLimit = newLimit;
+        if (newLimit < _messageWrapLimitMinimum) {
+            newLimit = _messageWrapLimitMinimum;
         }
+
+        _messageWrapLimit = newLimit;
     }
 
     void AdapterConfiguration::AdapterConfigurationData::SetMessageSeverityCutoff(LogMessageSeverity newCutoff) {
@@ -153,7 +156,7 @@ namespace Spark::UtilityBox::Logger {
         _data->SetCalendarFormatString(newFormat);
     }
 
-    void AdapterConfiguration::SetTimestamppFormattingString(const char *timestampFormat) {
+    void AdapterConfiguration::SetTimestampFormattingString(const char *timestampFormat) {
         _data->SetTimestampFormattingString(timestampFormat);
     }
 

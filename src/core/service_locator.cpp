@@ -68,7 +68,6 @@ namespace Spark {
         return _data->GetLoggingHub();
     }
 
-
 }
 
 #endif // SPARK_SERVICE_LOCATOR_INL
