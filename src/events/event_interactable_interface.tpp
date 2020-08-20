@@ -1,6 +1,6 @@
 
-#ifndef SPARK_EVENT_INTERACTABLE_TPP
-#define SPARK_EVENT_INTERACTABLE_TPP
+#ifndef SPARK_EVENT_INTERACTABLE_INTERFACE_TPP
+#define SPARK_EVENT_INTERACTABLE_INTERFACE_TPP
 
 #include <events/event_listener.h>
 #include <events/application_events.h>
@@ -87,4 +87,4 @@ namespace Spark::Events {
     }
 }
 
-#endif // SPARK_EVENT_INTERACTABLE_TPP
+#endif // SPARK_EVENT_INTERACTABLE_INTERFACE_TPP

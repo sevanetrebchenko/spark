@@ -22,7 +22,7 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/events/key_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/events/mouse_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/events/event.cpp"
-        "${PROJECT_SOURCE_DIR}/src/events/event_interactable.tpp"
+        "${PROJECT_SOURCE_DIR}/src/events/event_interactable_interface.tpp"
         # Graphics
         "${PROJECT_SOURCE_DIR}/src/graphics/window/window.cpp"
         "${PROJECT_SOURCE_DIR}/src/graphics/context/rendering_context.cpp"
@@ -40,6 +40,7 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/logger.cpp"
         "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/logging_system.cpp"
         "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/invalid_format_character_exception.cpp"
+        "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/logging_interface.cpp"
         # Memory
         "${PROJECT_SOURCE_DIR}/src/utilitybox/memory/segmented_pool_allocator.cpp"
         "${PROJECT_SOURCE_DIR}/src/utilitybox/memory/memory_formatter.cpp"

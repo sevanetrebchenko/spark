@@ -1,6 +1,6 @@
 
-#ifndef SPARK_EVENT_INTERACTABLE_H
-#define SPARK_EVENT_INTERACTABLE_H
+#ifndef SPARK_EVENT_INTERACTABLE_INTERFACE_H
+#define SPARK_EVENT_INTERACTABLE_INTERFACE_H
 
 namespace Spark {
     namespace Events {
@@ -49,6 +49,6 @@ namespace Spark {
     }
 }
 
-#include "../../../src/events/event_interactable.tpp" // Template function includes.
+#include "../../../src/events/event_interactable_interface.tpp" // Template function includes.
 
-#endif //SPARK_EVENT_INTERACTABLE_H
+#endif //SPARK_EVENT_INTERACTABLE_INTERFACE_H

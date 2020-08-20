@@ -1,0 +1,29 @@
+
+#ifndef SPARK_LOGGING_INTERFACE_H
+#define SPARK_LOGGING_INTERFACE_H
+
+namespace Spark {
+    namespace UtilityBox {
+        namespace Logger {
+
+            class ILoggable {
+                public:
+                    void LogDebug(const char* formatString, ...);
+                    void LogWarning(const char* formatString, ...);
+                    void LogError(const char* formatString, ...);
+
+                protected:
+                    explicit ILoggable(const char* systemName = "");
+                    ~ILoggable();
+
+                private:
+                    class ILoggableData;
+                    ILoggableData* _data;
+            };
+
+
+        }
+    }
+}
+
+#endif //SPARK_LOGGING_INTERFACE_H

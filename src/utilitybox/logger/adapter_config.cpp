@@ -40,7 +40,7 @@ namespace Spark::UtilityBox::Logger {
                                                                                                         _severityCutoff(LogMessageSeverity::DEBUG),
                                                                                                         _adapterName(adapterName),
                                                                                                         _formattingString(""),
-                                                                                                        _timestampFormat("%m %s %l"),
+                                                                                                        _timestampFormat("%mm %ss %lms"),
                                                                                                         _calendarFormat("[%A %d, %B %Y - %H:%M:%S]")
     {
         // Nothing to do here.

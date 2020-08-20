@@ -35,7 +35,7 @@ namespace Spark {
                      * @param formatString    - Printf-like formatting string for the message and additional parameters
                      * @param ...             - Printf-like list of variadic arguments.
                      */
-                    void Log(LogMessageSeverity messageSeverity, const char* formatString, ...) const;
+                    void Log(LogMessageSeverity messageSeverity, const char* formatString, std::va_list argsList) const;
 
                 private:
                     class LoggingSystemData;

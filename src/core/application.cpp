@@ -2,17 +2,18 @@
 #include <core/application.h>
 #include <events/event.h>
 #include <events/application_events.h>
-#include <events/event_interactable.h>
+#include <events/event_interactable_interface.h>
 #include <graphics/window/window.h>
 #include <core/layer_stack.h>
 #include <graphics/context/imgui_layer.h>
 #include <utilitybox/logger/logger.h>
+#include <utilitybox/logger/logging_interface.h>
 
 namespace Spark {
     //------------------------------------------------------------------------------------------------------------------
     // APPLICATION DATA
     //------------------------------------------------------------------------------------------------------------------
-    class Application::ApplicationData : public Events::IEventReceivable<Application::ApplicationData, Events::WindowCloseEvent, Events::WindowResizeEvent> {
+    class Application::ApplicationData : public UtilityBox::Logger::ILoggable, public Events::IEventReceivable<Application::ApplicationData, Events::WindowCloseEvent, Events::WindowResizeEvent> {
         public:
             ApplicationData();
             ~ApplicationData();
@@ -32,7 +33,7 @@ namespace Spark {
             LayerStack _layerStack;
     };
 
-    Application::ApplicationData::ApplicationData() : _window(Graphics::Window::Create()), _imGuiLayer(Graphics::ImGuiLayer::Create(_window->GetNativeWindow())) {
+    Application::ApplicationData::ApplicationData() : _window(Graphics::Window::Create()), _imGuiLayer(Graphics::ImGuiLayer::Create(_window->GetNativeWindow())), UtilityBox::Logger::ILoggable("ILoggableInterfaceTest") {
         // Attach ImGui as an overlay.
         _layerStack.PushOverlay(_imGuiLayer);
 
@@ -47,8 +48,7 @@ namespace Spark {
     void Application::ApplicationData::Run() {
         while(_running) {
             ServiceLocator::GetEventHub()->OnUpdate();
-            static UtilityBox::Logger::LoggingSystem system {"lmao"};
-            system.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "testing testing testing testing testing testing testing testing testing testing testing ");
+            LogError("testing testing testing testing testing testing testing testing testing testing testing ");
 
             // Call OnUpdate for all layers.
             for (Layer* layer : _layerStack) {

@@ -64,14 +64,9 @@ namespace Spark::UtilityBox::Logger {
     }
 
     // Log a message directly through this LoggingSystem.
-    void LoggingSystem::Log(LogMessageSeverity messageSeverity, const char *formatString, ...) const {
+    void LoggingSystem::Log(LogMessageSeverity messageSeverity, const char *formatString, std::va_list argsList) const {
         LogRecord logRecord;
-
-        std::va_list argsList;
-        va_start(argsList, formatString);
         logRecord.message = _data->ProcessMessage(formatString, argsList);
-        va_end(argsList);
-
         logRecord.messageSeverity = messageSeverity;
         logRecord.loggingSystemName = _data->GetSystemName();
 
