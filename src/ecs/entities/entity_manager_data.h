@@ -5,14 +5,14 @@
 #include <spark_pch.h>                         // std::function
 #include <ecs/ecs_typedefs.h>                  // EntityID, ComponentTypeID
 #include <ecs/components/base_component.h>     // BaseComponent
-#include <utilitybox/logger/logging_system.h>  // LoggingSystem
+#include <utilitybox/logger/logging_interface.h>  // ILoggable
 #include <ecs/entities/entity_callback_type.h> // CallbackType
 
 namespace Spark {
     namespace ECS {
         namespace Entities {
 
-            class EntityManagerData {
+            class EntityManagerData : public UtilityBox::Logger::ILoggable {
                 public:
                     /**
                     * Constructor.
@@ -45,15 +45,11 @@ namespace Spark {
                     void DestroyEntity(std::string name);
 
                     /**
-                    * Function to capture a class member function to convert it to a standard callback function callable from
-                    * within the Entity Manager as a response to changes to entities or their components.
-                    * @tparam Class             - Class type which holds the member function.
-                    * @tparam ReturnType        - Return type of the member function.
-                    * @tparam FunctionArguments - Parameter types of the member function.
-                    * @param  classInstance     - Class 'this' pointer.
-                    * @param  memberFunction    - Pointer to the member function to call.
-                    */
-                    template <class Class, typename ReturnType, typename ...FunctionArguments> void RegisterCallback(CallbackType, Class* classInstance, ReturnType(Class::*memberFunction)(FunctionArguments...));
+                     * Register a callback function of a given type with the entity manager.
+                     * @param callbackType     - Callback function type.
+                     * @param callbackFunction - Callback function.
+                     */
+                    void RegisterCallback(CallbackType callbackType, const std::function<void(EntityID)>& callbackFunction);
 
                     /**
                     * Retrieve the list of components that are attached to an entity with the provided ID, given that such an
@@ -126,18 +122,6 @@ namespace Spark {
                     void ConvertToLowercase(std::string& string) const;
 
                     /**
-                    * Captures the data type of both the class and member function and constructs a lambda function to be able
-                    * to call the member function from outside of the class.
-                    * @tparam Class             - Class type which holds the member function.
-                    * @tparam ReturnType        - Return type of the member function.
-                    * @tparam FunctionArguments - Parameter types of the member function.
-                    * @param  classInstance     - Class 'this' pointer.
-                    * @param  memberFunction    - Pointer to the member function to call.
-                    * @return Standalone lambda function to ues to call the class member function.
-                    */
-                    template <class Class, typename ReturnType, typename ...FunctionArguments> auto CreateMemberFunction(Class* classInstance, ReturnType(Class::*memberFunction)(FunctionArguments...));
-
-                    /**
                     * Convert an instance of an EntityManager::CallbackType object to a string to use in debug messages.
                     * @param callbackType - Type of callback function to convert.
                     * @return String representation of the callback function type.
@@ -160,8 +144,6 @@ namespace Spark {
                     std::vector<OnEntityDestroy> _entityDestroyCallbackFunctions;           // Callback functions for when entities get created.
                     std::vector<OnEntityComponentAdd> _componentAddCallbackFunctions;       // Callback functions for when entities get a component attached.
                     std::vector<OnEntityComponentRemove> _componentRemoveCallbackFunctions; // Callback functions for when entities get a component removed.
-
-                    UtilityBox::Logger::LoggingSystem _loggingSystem { "Entity Manager" }; // Entity manager logging system.
             };
 
         } // namespace Entities

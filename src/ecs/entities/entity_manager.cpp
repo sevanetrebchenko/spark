@@ -40,4 +40,8 @@ namespace Spark::ECS::Entities {
     const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& EntityManager::GetComponents(std::string name) const {
         return _data->GetComponents(std::move(name));
     }
+
+    void EntityManager::RegisterCallback(CallbackType callbackType, const std::function<void(EntityID)>& callbackFunction) {
+        _data->RegisterCallback(callbackType, callbackFunction);
+    }
 }

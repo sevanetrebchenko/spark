@@ -3,7 +3,8 @@
 #define SPARK_ADAPTER_CONFIG_H
 
 #include <spark_pch.h>                     // std::queue
-#include <utilitybox/logger/log_message.h> // LogMessage
+#include <utilitybox/tools/global_defines.h>
+#include <utilitybox/logger/log_message_severity.h>
 
 namespace Spark {
     namespace UtilityBox {

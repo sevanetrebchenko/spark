@@ -36,7 +36,6 @@ set(CORE_SOURCE_FILES
         # Logger
         "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/adapter.cpp"
         "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/adapter_config.cpp"
-        "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/log_message.cpp"
         "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/logger.cpp"
         "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/logging_system.cpp"
         "${PROJECT_SOURCE_DIR}/src/utilitybox/logger/invalid_format_character_exception.cpp"

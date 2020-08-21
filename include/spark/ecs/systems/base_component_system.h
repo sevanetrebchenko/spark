@@ -4,21 +4,21 @@
 
 #include <spark_pch.h>                                   // std::tuple, std::vector
 #include <ecs/systems/base_component_system_interface.h> // BaseComponentSystemInterface
-#include <utilitybox/logger/logging_system.h>            // LoggingSystem
+#include <utilitybox/logger/logging_interface.h>            // LoggingSystem
 
 namespace Spark {
     namespace ECS {
         namespace Systems {
 
             template <class ...ComponentTypes>
-            class BaseComponentSystem : public BaseComponentSystemInterface {
+            class BaseComponentSystem : public BaseComponentSystemInterface, UtilityBox::Logger::ILoggable {
                 public:
                     /**
                     * Constructs the necessary fundamentals for a component system, including automatic entity filtering and
                     * logging system instance. Enforces all component types managed by this system are derived from BaseComponent.
                     * @param systemName - Name for this component system.
                     */
-                    explicit BaseComponentSystem(std::string&& systemName);
+                    explicit BaseComponentSystem(std::string systemName);
 
                     /**
                     * Destructor.
@@ -65,9 +65,7 @@ namespace Spark {
                     template <typename ComponentType>
                     ComponentType* GetComponent(const ComponentTuple& componentTuple);
 
-                    std::string _systemName;                                                                  // Name of this component system.
-                    UtilityBox::Logger::LoggingSystem _loggingSystem { std::move(std::string(_systemName)) }; // Logging system instance for this component system.
-                    std::vector<ComponentTuple> _filteredEntities;                                            // Array of component tuples of entities managed by this system.
+                    std::vector<ComponentTuple> _filteredEntities; // Array of component tuples of entities managed by this system.
 
                 private:
                     // Storage for BaseComponentSystem data, back-end functionality, and helper functions.

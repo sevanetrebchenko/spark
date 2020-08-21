@@ -27,21 +27,25 @@ namespace Spark::UtilityBox::Logger {
         // Nothing to do here.
     }
 
-    void ILoggable::LogDebug(const char *formatString, ...) {
+    ILoggable::ILoggable(const std::string& systemName) : _data(new ILoggableData(systemName.c_str())){
+
+    }
+
+    void ILoggable::LogDebug(const char *formatString, ...) const {
         std::va_list argsList;
         va_start(argsList, formatString);
         _data->_loggingSystem.Log(LogMessageSeverity::DEBUG, formatString, argsList);
         va_end(argsList);
     }
 
-    void ILoggable::LogWarning(const char *formatString, ...) {
+    void ILoggable::LogWarning(const char *formatString, ...) const {
         std::va_list argsList;
         va_start(argsList, formatString);
         _data->_loggingSystem.Log(LogMessageSeverity::WARNING, formatString, argsList);
         va_end(argsList);
     }
 
-    void ILoggable::LogError(const char *formatString, ...) {
+    void ILoggable::LogError(const char *formatString, ...) const {
         std::va_list argsList;
         va_start(argsList, formatString);
         _data->_loggingSystem.Log(LogMessageSeverity::SEVERE, formatString, argsList);
@@ -51,4 +55,5 @@ namespace Spark::UtilityBox::Logger {
     ILoggable::~ILoggable() {
         delete _data;
     }
+
 }

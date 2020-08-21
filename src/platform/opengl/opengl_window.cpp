@@ -4,14 +4,15 @@
 #include <core/service_locator.h>
 #include <events/key_events.h>
 #include <events/mouse_events.h>
-#include <utilitybox/logger/logging_system.h>
+#include <utilitybox/logger/logging_interface.h>
 #include <GLFW/glfw3.h>
+#include <utilitybox/tools/utility_functions.h>
 
 namespace Spark::Graphics {
     //------------------------------------------------------------------------------------------------------------------
     // WINDOW DATA
     //------------------------------------------------------------------------------------------------------------------
-    class OpenGLWindow::OpenGLWindowData {
+    class OpenGLWindow::OpenGLWindowData : public UtilityBox::Logger::ILoggable {
         public:
             OpenGLWindowData(std::string windowName, int width, int height);
             ~OpenGLWindowData();
@@ -25,18 +26,19 @@ namespace Spark::Graphics {
         private:
             void InitializeGLFW();
             void SetupGLFWCallbacks();
+            void LogErrorWrapper(const char*formattingString, int errorCode, const char *errorDescription);
 
             std::string _windowName;
             int _windowWidth, _windowHeight;
 
             GLFWwindow* _window;
             Graphics::RenderingContext* _context;
-            UtilityBox::Logger::LoggingSystem _loggingSystem { "OpenGL Window" };
     };
 
     OpenGLWindow::OpenGLWindowData::OpenGLWindowData(std::string windowName, int width, int height) : _windowName(std::move(windowName)),
                                                                                                       _windowWidth(width),
-                                                                                                      _windowHeight(height) {
+                                                                                                      _windowHeight(height),
+                                                                                                      UtilityBox::Logger::ILoggable("OpenGL Window") {
         // GLFW needs to be initialized before creating a GLFW window.
         InitializeGLFW();
 
@@ -78,17 +80,15 @@ namespace Spark::Graphics {
         int initializationCode = glfwInit();
         // Failed to initialize GLFW
         if (!initializationCode) {
-            _loggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW initialization failed with error code: %i.", initializationCode);
+            LogError("GLFW initialization failed with error code: %i.", initializationCode);
             throw std::runtime_error("GLFW initialization failed.");
         }
         else {
-            _loggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::DEBUG, "GLFW successfully initialized.");
+            LogDebug("GLFW successfully initialized.");
         }
 
-        // Register error callback function.
         glfwSetErrorCallback([](int errorCode, const char *errorDescription) {
             static UtilityBox::Logger::LoggingSystem errorLoggingSystem("GLFW Error");
-            errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred.");
 
             switch (errorCode) {
                 case GLFW_NO_ERROR:

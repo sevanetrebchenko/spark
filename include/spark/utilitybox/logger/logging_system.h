@@ -2,8 +2,10 @@
 #ifndef SPARK_LOGGING_SYSTEM_H
 #define SPARK_LOGGING_SYSTEM_H
 
-#include <spark_pch.h>                     // std::string
-#include <utilitybox/logger/log_message.h> // LogMessage
+#include <spark_pch.h>
+#include <utilitybox/logger/logging_interface.h>
+#include <utilitybox/logger/log_message_severity.h>
+#include <utilitybox/timing/timestamp.h>
 
 namespace Spark {
     namespace UtilityBox {
@@ -35,9 +37,18 @@ namespace Spark {
                      * @param formatString    - Printf-like formatting string for the message and additional parameters
                      * @param ...             - Printf-like list of variadic arguments.
                      */
-                    void Log(LogMessageSeverity messageSeverity, const char* formatString, std::va_list argsList) const;
+                    void Log(LogMessageSeverity messageSeverity, const char* formatString, ...) const;
 
                 private:
+                    /**
+                     * Log a message indirectly through ILoggable interface.
+                     * @param messageSeverity - Severity of the message.
+                     * @param formatString    - Printf-like formatting string for the message and additional parameters
+                     * @param argsList        - Initialized variadic arguments list.
+                     */
+                    friend class ILoggable;
+                    void Log(LogMessageSeverity messageSeverity, const char* formatString, std::va_list argsList) const;
+
                     class LoggingSystemData;
                     LoggingSystemData* _data;
             };

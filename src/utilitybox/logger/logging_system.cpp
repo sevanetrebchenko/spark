@@ -72,4 +72,12 @@ namespace Spark::UtilityBox::Logger {
 
         Spark::ServiceLocator::GetLoggingHub()->SendMessage(std::move(logRecord));
     }
+
+    // Log a message indirectly through ILoggable interface.
+    void LoggingSystem::Log(LogMessageSeverity messageSeverity, const char *formatString, ...) const {
+        std::va_list argsList;
+        va_start(argsList, formatString);
+        Log(messageSeverity, formatString, argsList);
+        va_end(argsList);
+    }
 }

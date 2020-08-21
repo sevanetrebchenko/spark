@@ -2,21 +2,20 @@
 #ifndef SPARK_COMPONENT_MANAGER_COLLECTION_TPP
 #define SPARK_COMPONENT_MANAGER_COLLECTION_TPP
 
-#define PARAMETER_PACK_EXPAND(function, args, ...) ((void)function<args>(__VA_ARGS__), ...);
-
 #include <spark_pch.h>                                  // std::unordered_map
-#include <ecs/all_components.h>                        // ALL_COMPONENTS
+#include <ecs/all_components.h>                         // ALL_COMPONENTS
 #include <ecs/components/component_manager_interface.h> // ComponentManagerInterface
 #include <ecs/ecs_typedefs.h>                           // ComponentTypeID
 #include <ecs/components/base_component.h>              // BaseComponent
-#include <utilitybox/logger/logging_system.h>           // LoggingSystem
+#include <utilitybox/tools/utility_functions.h>         // PARAMETER_PACK_EXPAND
+#include <utilitybox/logger/logging_interface.h>        // ILoggable
 
 namespace Spark::ECS::Components {
     //------------------------------------------------------------------------------------------------------------------
     // COMPONENT MANAGER COLLECTION DATA
     //------------------------------------------------------------------------------------------------------------------
     template <class ...ComponentTypes>
-    class ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData {
+    class ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData : public UtilityBox::Logger::ILoggable {
         public:
             /**
              * Registers a ComponentManager for each unique component type in the system's template argument list.
@@ -40,21 +39,18 @@ namespace Spark::ECS::Components {
             /**
              * Constructs and registers a unique ComponentManager for the provided component type.
              * @tparam ComponentType - Component type for ComponentManager to manage.
-             * @param  message       - Log message to record messages to.
              */
             template <class ComponentType>
-            void CreateComponentSystem(UtilityBox::Logger::LogMessage& message);
+            void CreateComponentSystem();
 
             /**
              * Safely cleans up a ComponentManager with the provided component type.
              * @tparam ComponentType - Component type for Component Manager to manage.
-             * @param  message       - Log message to record messages to.
              */
             template <class ComponentType>
-            void DestroyComponentSystem(UtilityBox::Logger::LogMessage& message);
+            void DestroyComponentSystem();
 
             std::unordered_map<ComponentTypeID, ComponentManagerInterface*> _componentManagerMap; // Map for getting individual ComponentManagers.
-            UtilityBox::Logger::LoggingSystem _loggingSystem { "Component Manager Collection" };  // ComponentManagerCollection logging system.
     };
 
     // Static instance initialization.
@@ -63,15 +59,11 @@ namespace Spark::ECS::Components {
 
     // Registers a ComponentManager for each unique component type in the system's template argument list.
     template<class... ComponentTypes>
-    ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::ComponentManagerCollectionData() {
-        UtilityBox::Logger::LogMessage message {};
-
+    ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::ComponentManagerCollectionData() : UtilityBox::Logger::ILoggable("Component Manager Collection") {
         // Initialize systems.
-        message.Supply("Constructing all ComponentManagers.");
-        PARAMETER_PACK_EXPAND(CreateComponentSystem, ComponentTypes, message);
-
-        message.Supply("Finished constructing ComponentManagers.");
-//        _loggingSystem.Log(message);
+        LogDebug("Constructing all ComponentManagers.");
+        PARAMETER_PACK_EXPAND(CreateComponentSystem, ComponentTypes);
+        LogDebug("Finished constructing ComponentManagers.");
     }
 
     // Cleans up all resources and unregisters all registered ComponentManager instances.
@@ -79,13 +71,10 @@ namespace Spark::ECS::Components {
     ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::~ComponentManagerCollectionData() {
         _componentManagerMap.clear();
 
-        UtilityBox::Logger::LogMessage message {};
         // Destroy systems.
-        message.Supply("Destroying all ComponentManagers.");
-        PARAMETER_PACK_EXPAND(DestroyComponentSystem, ComponentTypes, message);
-        message.Supply("Finished destroying all ComponentManagers.");
-
-//        _loggingSystem.Log(message);
+        LogDebug("Destroying all ComponentManagers.");
+        PARAMETER_PACK_EXPAND(DestroyComponentSystem, ComponentTypes);
+        LogDebug("Finished destroying all ComponentManagers.");
     }
 
     // Get a ComponentManager for a specific component type.
@@ -100,9 +89,9 @@ namespace Spark::ECS::Components {
     // Constructs and registers a unique ComponentManager for the provided component type.
     template<class... ComponentTypes>
     template<class ComponentType>
-    inline void ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::CreateComponentSystem(UtilityBox::Logger::LogMessage& message) {
+    inline void ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::CreateComponentSystem() {
         // Construct component manager of given type.
-        message.Supply("Constructing ComponentManager of component type: '%s'.", ComponentType::Name);
+        LogDebug("Constructing ComponentManager of component type: '%s'.", ComponentType::Name);
 
         try {
             ComponentManager<ComponentType>* componentManager = new ComponentManager<ComponentType>();
@@ -112,10 +101,7 @@ namespace Spark::ECS::Components {
         }
         catch (std::bad_alloc& e) {
             // Failure to allocate component manager is a fatal error.
-            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
-            message.Supply("Exception thrown: Failed to allocate sufficient memory for back-end of ComponentManager with component type: '%s'.", ComponentType::Name);
-//            _loggingSystem.Log(message);
-
+            LogError("Exception thrown: Failed to allocate sufficient memory for back-end of ComponentManager with component type: '%s'.", ComponentType::Name);
             throw e;
         }
     }
@@ -123,8 +109,8 @@ namespace Spark::ECS::Components {
     // Safely cleans up a ComponentManager with the provided component type.
     template<class... ComponentTypes>
     template<class ComponentType>
-    void ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::DestroyComponentSystem(UtilityBox::Logger::LogMessage& message) {
-        message.Supply("Destroying ComponentManager of component type: '%s'.", ComponentType::Name);
+    void ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollectionData::DestroyComponentSystem() {
+        LogDebug("Destroying ComponentManager of component type: '%s'.", ComponentType::Name);
         _componentManagerMap.erase(ComponentType::ID);
     }
 

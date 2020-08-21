@@ -1,13 +1,13 @@
 
 #include <glad/glad.h>
 #include <platform/opengl/opengl_rendering_context.h>
-#include <utilitybox/logger/logging_system.h>
+#include <utilitybox/logger/logging_interface.h>
 
 namespace Spark::Graphics {
     //------------------------------------------------------------------------------------------------------------------
     // OPENGL RENDERING CONTEXT DATA
     //------------------------------------------------------------------------------------------------------------------
-    class OpenGLRenderingContext::OpenGLRenderingContextData {
+    class OpenGLRenderingContext::OpenGLRenderingContextData : public UtilityBox::Logger::ILoggable {
         public:
             explicit OpenGLRenderingContextData(GLFWwindow* window);
             ~OpenGLRenderingContextData();
@@ -16,10 +16,9 @@ namespace Spark::Graphics {
 
         private:
             GLFWwindow* _window;
-            UtilityBox::Logger::LoggingSystem _loggingSystem;
     };
 
-    OpenGLRenderingContext::OpenGLRenderingContextData::OpenGLRenderingContextData(GLFWwindow* window) : _window(window) {
+    OpenGLRenderingContext::OpenGLRenderingContextData::OpenGLRenderingContextData(GLFWwindow* window) : _window(window), UtilityBox::Logger::ILoggable("OpenGL Rendering Context") {
         // TODO: assert that window is not null.
         // Set current OpenGL context to this window.
         glfwMakeContextCurrent(_window);

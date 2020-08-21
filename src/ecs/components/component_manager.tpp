@@ -3,8 +3,7 @@
 #define SPARK_COMPONENT_MANAGER_TPP
 
 #include <utilitybox/memory/segmented_pool_allocator.h> // SegmentedPoolAllocator
-#include <utilitybox/logger/logging_system.h>           // LoggingSystem
-#include <utilitybox/logger/log_message.h>              // LogMessage, LogMessageSeverity
+#include <utilitybox/logger/logging_interface.h>        // ILoggable
 #include <utilitybox/tools/global_defines.h>            // _NODISCARD_
 #include <ecs/components/base_component.h>              // BaseComponent
 
@@ -13,7 +12,7 @@ namespace Spark::ECS::Components {
     // COMPONENT MANAGER DATA
     //------------------------------------------------------------------------------------------------------------------
     template <class ComponentType>
-    class ComponentManager<ComponentType>::ComponentManagerData {
+    class ComponentManager<ComponentType>::ComponentManagerData : public UtilityBox::Logger::ILoggable {
         public:
             /**
              * Constructor (default). Creates logging system memory allocator for components managed by this system.
@@ -39,74 +38,55 @@ namespace Spark::ECS::Components {
             void DeleteComponent(ComponentType* component);
 
         private:
-            UtilityBox::Memory::SegmentedPoolAllocator _allocator { sizeof(ComponentType) }; // memory manager.
-            UtilityBox::Logger::LoggingSystem _loggingSystem { std::string("ComponentManager: ") + std::string(ComponentType::Name) }; // Logging system.
+            UtilityBox::Memory::SegmentedPoolAllocator _allocator { sizeof(ComponentType) }; // Memory allocator.
     };
 
     // Creates logging system memory allocator for components managed by this system.
     template<class ComponentType>
-    ComponentManager<ComponentType>::ComponentManagerData::ComponentManagerData() {
-//        UtilityBox::Logger::LogMessage message {};
-//        message.Supply("Constructing ComponentManager managing component type: '%s'.", ComponentType::Name);
-//        _loggingSystem.Log(message);
+    ComponentManager<ComponentType>::ComponentManagerData::ComponentManagerData() : UtilityBox::Logger::ILoggable(std::string("ComponentManager: ") + std::string(ComponentType::Name)){
+        LogDebug("Constructing ComponentManager managing component type: '%s'.", ComponentType::Name);
     }
 
     // Cleans up allocator and logging system.
     template<class ComponentType>
     ComponentManager<ComponentType>::ComponentManagerData::~ComponentManagerData() {
-//        UtilityBox::Logger::LogMessage message {};
-//        message.Supply("Destroying ComponentManager managing component type: '%s'.", ComponentType::Name);
-//        _loggingSystem.Log(message);
+        LogDebug("Destroying ComponentManager managing component type: '%s'.", ComponentType::Name);
     }
 
     // Uses the memory manager to retrieve a block of memory and default constructs a component in-place.
     template<class ComponentType>
     inline ComponentType *ComponentManager<ComponentType>::ComponentManagerData::CreateComponent() {
-        UtilityBox::Logger::LogMessage message {};
-        message.Supply("Entering function CreateComponent of type: '%s'.", ComponentType::Name);
+        LogDebug("Entering function CreateComponent of type: '%s'.", ComponentType::Name);
 
-        // Program can run out of memory if underlying allocator has no more free blocks in it's pages and RetrieveBlock
-        // fails to reallocate a new block page.
+        // Program can run out of memory if underlying allocator has no more free blocks in it's pages and RetrieveBlock fails to reallocate a new block page.
         void* blockAddress;
         try {
             blockAddress = _allocator.RetrieveBlock();
         }
         catch (std::bad_alloc& e) {
-//            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::SEVERE);
-//            message.Supply("Exception thrown: Allocator failed to reallocate new block page - program is out of memory.");
-//            _loggingSystem.Log(message);
-
+            LogError("Exception thrown: Allocator failed to reallocate new block page - program is out of memory.");
             throw e;
         }
 
         // Default construct the block in-place.
         new (blockAddress) ComponentType();
-//        message.Supply("Free block retrieved, object successfully default-constructed in-place.");
-//        _loggingSystem.Log(message);
-
+        LogDebug("Free block retrieved, object successfully default-constructed in-place.");
         return static_cast<ComponentType*>(blockAddress);
     }
 
     // Returns a component pointed at by the provided pointer back to the memory manager. Calls destructor for the object.
     template<class ComponentType>
     inline void ComponentManager<ComponentType>::ComponentManagerData::DeleteComponent(ComponentType *component) {
-//        UtilityBox::Logger::LogMessage message {};
-//        message.Supply("Entering function DeleteComponent.");
+        LogDebug("Entering function DeleteComponent.");
 
         if (component) {
-//            message.Supply("Valid component provided to DeleteComponent. Calling destructor on component.");
-//            component->~ComponentType();
-//
-//            message.Supply("Returning component block back to Allocator.");
+            LogDebug("Valid component provided. Calling destructor and returning block back to allocator.");
+            component->~ComponentType();
             _allocator.ReturnBlock(static_cast<void*>(component));
         }
         else {
-//            // Issue warning message.
-//            message.SetMessageSeverity(UtilityBox::Logger::LogMessageSeverity::WARNING);
-//            message.Supply("Pointer provided to DeleteComponent is null.");
+            LogWarning("Pointer provided to DeleteComponent is null.");
         }
-
-//        _loggingSystem.Log(message);
     }
 
 
@@ -116,7 +96,7 @@ namespace Spark::ECS::Components {
     // Ensures desired component type for the ComponentManager is valid before any initialization happens. Creates the
     // back-end functionality and allocates space for components.
     template<class ComponentType>
-    inline ComponentManager<ComponentType>::ComponentManager() : _data(new ComponentManagerData()) /* Throws exception, not caught purposefully. */ {
+    inline ComponentManager<ComponentType>::ComponentManager() : _data(new ComponentManagerData()) {
         // Make sure all component managers only manage valid types.
         static_assert(std::is_base_of<BaseComponent, ComponentType>::value, "Invalid template parameter provided to base ComponentManager - component type must derive from ecs::components::BaseComponent.");
     }

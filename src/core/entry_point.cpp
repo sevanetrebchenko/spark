@@ -1,26 +1,12 @@
 
 #include <core/entry_point.h>
 #include <events/event_hub.h>
-#include <events/event_listener.h>
-#include <events/application_events.h>
+
 #include <core/service_locator.h>
-#include <utilitybox/logger/logger.h>
-
-#include <utilitybox/logger/adapter.h>
-
-    class CustomAdapter : public Spark::UtilityBox::Logger::Adapter {
-    public:
-        CustomAdapter();
-        void OutputMessage(std::vector<std::string> messages) override;
-    };
-
-    CustomAdapter::CustomAdapter() : Spark::UtilityBox::Logger::Adapter("custom adapter"){
-        GetConfiguration()->SetFormattingString("%i%y");
-    }
-
-    void CustomAdapter::OutputMessage(std::vector<std::string> messages) {
-
-    }
+#include <ecs/systems/base_component_system.h>
+// Services
+#include <utilitybox/logger/logger.h> // ILoggingHub
+#include <ecs/entities/entity_manager.h>
 
 int main(int argc, char** argv) {
     auto* eventHub = Spark::Events::EventHub::GetInstance();
@@ -30,8 +16,6 @@ int main(int argc, char** argv) {
     Spark::ServiceLocator::ProvideLoggingService(loggingHub);
 
     auto* application = Spark::CreateApplication();
-
-    eventHub->Dispatch(new Spark::Events::WindowCloseEvent());
 
     application->Run();
     return 0;

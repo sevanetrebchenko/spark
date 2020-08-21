@@ -3,13 +3,6 @@
 #define SPARK_ENTITY_MANAGER_TPP
 
 namespace Spark::ECS::Entities {
-    // Function to capture a class member function to convert it to a standard callback function callable from within
-    // the Entity Manager as a response to changes to entities or their components.
-    template<class Class, typename ReturnType, typename... FunctionArguments>
-    inline void EntityManager::RegisterCallback(CallbackType callbackType, Class *classInstance, ReturnType(Class::* memberFunction)(FunctionArguments...)) {
-        _data->RegisterCallback<Class, ReturnType, FunctionArguments...>(callbackType, classInstance, memberFunction);
-    }
-
     // Attach a component to an entity at the provided ID, given that it exists and the entity doesn't already have a
     // component of that type attached to it. Automatically notifies all fully registered component systems that a
     // component has been added to this entity.

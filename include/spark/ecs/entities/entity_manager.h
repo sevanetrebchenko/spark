@@ -25,16 +25,11 @@ namespace Spark {
                     ~EntityManager();
 
                     /**
-                    * Function to capture a class member function to convert it to a standard callback function callable from
-                    * within the Entity Manager as a response to changes to entities or their components.
-                    * @tparam Class             - Class type which holds the member function.
-                    * @tparam ReturnType        - Return type of the member function.
-                    * @tparam FunctionArguments - Parameter types of the member function.
-                    * @param  classInstance     - Class 'this' pointer.
-                    * @param  memberFunction    - Pointer to the member function to call.
-                    */
-                    template <class Class, typename ReturnType, typename ...FunctionArguments>
-                    void RegisterCallback(CallbackType, Class* classInstance, ReturnType(Class::*memberFunction)(FunctionArguments...));
+                     * Register a callback function of a given type with the entity manager.
+                     * @param callbackType     - Callback function type.
+                     * @param callbackFunction - Callback function.
+                     */
+                    void RegisterCallback(CallbackType callbackType, const std::function<void(EntityID)>& callbackFunction);
 
                     /**
                     * Create an entity. Throws error if the provided entity name matches any of the the bin-in component type
