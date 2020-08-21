@@ -13,7 +13,7 @@ namespace Spark {
                     void LogError(const char* formatString, ...);
 
                 protected:
-                    explicit ILoggable(const char* systemName = "");
+                    explicit ILoggable(const char* systemName = ""); // Make this class abstract.
                     ~ILoggable();
 
                 private:
