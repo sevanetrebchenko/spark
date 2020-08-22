@@ -14,6 +14,7 @@ set(CORE_SOURCE_FILES
         # ECS
         "${PROJECT_SOURCE_DIR}/src/ecs/entities/entity_manager.cpp"
         "${PROJECT_SOURCE_DIR}/src/ecs/entities/entity_manager_data.cpp"
+        "${PROJECT_SOURCE_DIR}/src/ecs/entities/entity_events.tpp"
         # Events
         "${PROJECT_SOURCE_DIR}/src/events/event_hub.cpp"
         "${PROJECT_SOURCE_DIR}/src/events/null_event_hub.cpp"

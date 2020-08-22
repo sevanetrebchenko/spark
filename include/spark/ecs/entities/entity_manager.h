@@ -7,12 +7,13 @@
 #include <ecs/ecs_typedefs.h>                                 // EntityID, ComponentTypeID
 #include <ecs/components/base_component.h>                     // BaseComponent
 #include "../../../../src/ecs/entities/entity_manager_data.h" // EntityManagerData
+#include "entity_manager_interface.h"
 
 namespace Spark {
     namespace ECS {
         namespace Entities {
 
-            class EntityManager {
+            class EntityManager : public EntityManagerInterface {
                 public:
                     /**
                     * Constructor.
@@ -29,7 +30,7 @@ namespace Spark {
                      * @param callbackType     - Callback function type.
                      * @param callbackFunction - Callback function.
                      */
-                    void RegisterCallback(CallbackType callbackType, const std::function<void(EntityID)>& callbackFunction);
+                    void RegisterCallback(CallbackType callbackType, const std::function<void(EntityID)>& callbackFunction) override;
 
                     /**
                     * Create an entity. Throws error if the provided entity name matches any of the the bin-in component type
@@ -37,21 +38,21 @@ namespace Spark {
                     * a new entity has been created.
                     * @param name - Unique name for the entity to have.
                     */
-                    void CreateEntity(std::string name);
+                    void CreateEntity(std::string name) override;
 
                     /**
                     * Destroy an entity from the Entity Manager with the provided entity ID, given that it exists. Automatically
                     * notifies all fully registered component systems that an entity has been deleted.
                     * @param ID - ID of the entity to delete.
                     */
-                    void DestroyEntity(EntityID ID);
+                    void DestroyEntity(EntityID ID) override;
 
                     /**
                     * Destroy an entity from the Entity Manager with the provided entity name, given that it exists. Automatically
                     * notifies all fully registered component systems that an entity has been deleted.
                     * @param name - Name of the entity to delete.
                     */
-                    void DestroyEntity(std::string name);
+                    void DestroyEntity(std::string name) override;
 
                     /**
                     * Retrieve the list of components that are attached to an entity with the provided ID, given that such an
@@ -59,7 +60,7 @@ namespace Spark {
                     * @param ID - ID of the entity to get the components of.
                     * @return List of attached components to the entity at the provided ID.
                     */
-                    const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& GetComponents(EntityID ID) const;
+                    _NODISCARD_ const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& GetComponents(EntityID ID) const override;
 
                     /**
                     * Retrieve the list of components that are attached to an entity with the provided name, given that such an
@@ -67,7 +68,7 @@ namespace Spark {
                     * @param name - Name of the entity to get the components of.
                     * @return List of attached components to the entity at the provided name.
                     */
-                    const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& GetComponents(std::string name) const;
+                    _NODISCARD_ const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& GetComponents(std::string name) const override;
 
                     /**
                     * Attach a component to an entity at the provided ID, given that it exists and the entity doesn't already
