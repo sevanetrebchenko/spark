@@ -418,6 +418,11 @@ namespace Spark::ECS::Entities {
         _data->DestroyEntity(std::move(name));
     }
 
+    // Convert a given entity name to the relative entity ID.
+    EntityID EntityManager::GetEntityIDFromName(const std::string &entityName) const {
+        return STRINGHASH(entityName.c_str());
+    }
+
     // Retrieve the list of components that are attached to an entity with the provided ID, given that such an entity
     // exists in the Entity Manager.
     const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& EntityManager::GetComponents(EntityID ID) const {
@@ -437,4 +442,5 @@ namespace Spark::ECS::Entities {
     void EntityManager::OnEvent(Events::RemoveComponentEvent<Components::BaseComponent> *event) {
         _data->RemoveComponent<Components::BaseComponent>(event->GetEntityID());
     }
+
 }

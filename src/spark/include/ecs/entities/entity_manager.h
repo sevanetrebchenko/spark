@@ -58,6 +58,13 @@ namespace Spark {
                     void DestroyEntity(std::string name) override;
 
                     /**
+                     * Convert a given entity name to the relative entity ID.
+                     * @param entityName - Name of the entity to get the ID of.
+                     * @return ID of the entity with the given name.
+                     */
+                    _NODISCARD_ EntityID GetEntityIDFromName(const std::string& entityName) const override;
+
+                    /**
                     * Retrieve the list of components that are attached to an entity with the provided ID, given that such an
                     * entity exists in the Entity Manager.
                     * @param ID - ID of the entity to get the components of.
