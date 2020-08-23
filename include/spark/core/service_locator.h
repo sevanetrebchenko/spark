@@ -10,6 +10,7 @@ namespace Spark {
 
     class ServiceLocator {
         public:
+            static void Initialize();
             static void ProvideService(Events::IEventHub* eventHubInterface);
             static void ProvideService(UtilityBox::Logger::ILoggingHub *loggingHubInterface);
             static void ProvideService(ECS::Entities::IEntityManager* entityManagerInterface);

@@ -18,15 +18,7 @@ namespace Spark {
 
             class EntityManager : public IEntityManager, public Events::IEventReceivable<EntityManager, Events::GenerateAddComponentsForTypes<ALL_COMPONENTS>::Type, Events::GenerateRemoveComponentsForTypes<ALL_COMPONENTS>::Type> {
                 public:
-                    /**
-                    * Constructor.
-                    */
-                    EntityManager();
-
-                    /**
-                    * Cleans up any resources associated with the Entity Manager.
-                    */
-                    ~EntityManager();
+                    static EntityManager* GetInstance();
 
                     /**
                      * Register a callback function of a given type with the entity manager.
@@ -86,13 +78,17 @@ namespace Spark {
                     void operator=(EntityManager const &other) = delete;
 
                 private:
+                    EntityManager();
+                    ~EntityManager();
+                    static EntityManager* _instance;
+
                     friend Events::IEventReceivable<EntityManager, Events::GenerateAddComponentsForTypes<ALL_COMPONENTS>::Type, Events::GenerateRemoveComponentsForTypes<ALL_COMPONENTS>::Type>;
                     void OnEvent(Events::AddComponentEvent<Components::BaseComponent>* event) override;
                     void OnEvent(Events::RemoveComponentEvent<Components::BaseComponent>* event) override;
 
                     // Storage for EntityManager data, back-end functionality, and helper functions.
                     class EntityManagerData;
-                    EntityManagerData* _data = nullptr;
+                    EntityManagerData* _data;
             };
 
         }

@@ -53,6 +53,9 @@ namespace Spark {
     //------------------------------------------------------------------------------------------------------------------
     // SERVICE LOCATOR
     //------------------------------------------------------------------------------------------------------------------
+    void ServiceLocator::Initialize() {
+    }
+
     UtilityBox::Logger::ILoggingHub *ServiceLocator::ServiceLocatorData::GetLoggingHub() {
         return _loggingHub;
     }

@@ -6,13 +6,9 @@
 #include <core/entry_point.h>           // CreateApplication
 
 int main(int argc, char** argv) {
-    auto* eventHub = Spark::Events::EventHub::GetInstance();
-    auto* loggingHub = Spark::UtilityBox::Logger::LoggingHub::GetInstance();
-    auto* entityManager = new Spark::ECS::Entities::EntityManager();
-
-    Spark::ServiceLocator::ProvideService(eventHub);
-    Spark::ServiceLocator::ProvideService(loggingHub);
-    Spark::ServiceLocator::ProvideService(entityManager);
+    Spark::ServiceLocator::ProvideService(Spark::Events::EventHub::GetInstance());
+    Spark::ServiceLocator::ProvideService(Spark::UtilityBox::Logger::LoggingHub::GetInstance());
+    Spark::ServiceLocator::ProvideService(Spark::ECS::Entities::EntityManager::GetInstance());
 
     auto* application = Spark::CreateApplication();
 

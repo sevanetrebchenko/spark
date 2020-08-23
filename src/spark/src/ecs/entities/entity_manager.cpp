@@ -125,6 +125,8 @@ namespace Spark::ECS::Entities {
             std::vector<OnEntityComponentRemove> _componentRemoveCallbackFunctions; // Callback functions for when entities get a component removed.
     };
 
+    EntityManager* EntityManager::_instance = nullptr;
+
     // Constructor.
     EntityManager::EntityManagerData::EntityManagerData() : UtilityBox::Logger::ILoggable("Entity Manager") {
         LogDebug("Constructing EntityManager.");
@@ -387,7 +389,15 @@ namespace Spark::ECS::Entities {
     //------------------------------------------------------------------------------------------------------------------
     // ENTITY MANAGER
     //------------------------------------------------------------------------------------------------------------------
-    EntityManager::EntityManager() : _data(new EntityManagerData()) /* Throws on error, caught elsewhere. */ {
+    EntityManager *EntityManager::GetInstance() {
+        if (!_instance) {
+            _instance = new EntityManager();
+        }
+
+        return _instance;
+    }
+
+    EntityManager::EntityManager() : IEventReceivable(), _data(new EntityManagerData()) /* Throws on error, caught elsewhere. */ {
         // Nothing to do here.
     }
 
