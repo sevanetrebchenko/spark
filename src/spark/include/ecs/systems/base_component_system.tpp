@@ -5,6 +5,7 @@
 #include <spark_pch.h>                                 // std::unordered_map, std::vector, std::is_same_v, std::is_base_of, std::out_of_range
 #include <spark/ecs/components/types/base_component.h> // BaseComponent
 #include <spark/ecs/entities/entity_callback_type.h>   // CallbackType
+#include <spark/core/service_locator.h>                // ServiceLocator
 #include <ecs/entities/entity_manager.h>               // EntityManager
 #include <utilitybox/tools/utility_functions.h>        // CallbackFromMemberFn
 
@@ -144,7 +145,7 @@ namespace Spark::ECS::Systems {
                                                                                                                                                                                                    {
         _loggingInterface.LogDebug("Constructing BaseComponentSystem.");
         // Register callback functions.
-        Entities::EntityManager *entityManager;// = Spark::Core::GetInstance()->GetEntityManager();
+        Entities::IEntityManager *entityManager = Spark::ServiceLocator::GetEntityManager();
 
         // Register callback for when entities get created.
         _loggingInterface.LogDebug("Registering 'OnEntityCreate' callback function.");
@@ -300,7 +301,7 @@ namespace Spark::ECS::Systems {
         _loggingInterface.LogDebug("Entering function FilterEntity with entity ID: %s.", ID);
         ComponentTuple componentTuple;
         unsigned numMatchingComponents = 0;
-        Entities::EntityManager* entityManager;// = Spark::Core::GetInstance()->GetEntityManager();
+        Entities::IEntityManager *entityManager = Spark::ServiceLocator::GetEntityManager();
 
         for (const auto& entityComponentPair : entityManager->GetComponents(ID)) { // ComponentTypeID, BaseComponent*
             // Attempt to see if this component is present in the system's component list.

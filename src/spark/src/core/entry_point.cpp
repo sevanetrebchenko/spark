@@ -1,9 +1,10 @@
 
-#include <spark/core/service_locator.h> // ServiceLocator
-#include <events/event_hub.h>           // EventHub
-#include <utilitybox/logger/logger.h>   // LoggingHub
-#include <ecs/entities/entity_manager.h>   // LoggingHub
-#include <core/entry_point.h>           // CreateApplication
+#include <spark/core/service_locator.h>  // ServiceLocator
+#include <events/event_hub.h>            // EventHub
+#include <utilitybox/logger/logger.h>    // LoggingHub
+#include <ecs/entities/entity_manager.h> // EntityManager
+#include <core/entry_point.h>            // CreateApplication
+#include <spark/ecs/systems/base_component_system.h>
 
 int main(int argc, char** argv) {
     Spark::ServiceLocator::ProvideService(Spark::Events::EventHub::GetInstance());
