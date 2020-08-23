@@ -8,8 +8,8 @@ int main(int argc, char** argv) {
     auto* eventHub = Spark::Events::EventHub::GetInstance();
     auto* loggingHub = Spark::UtilityBox::Logger::LoggingHub::GetInstance();
 
-    Spark::ServiceLocator::ProvideEventService(eventHub);
-    Spark::ServiceLocator::ProvideLoggingService(loggingHub);
+    Spark::ServiceLocator::ProvideService(eventHub);
+    Spark::ServiceLocator::ProvideService(loggingHub);
 
     auto* application = Spark::CreateApplication();
 

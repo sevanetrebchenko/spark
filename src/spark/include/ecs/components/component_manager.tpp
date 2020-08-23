@@ -78,7 +78,7 @@ namespace Spark::ECS::Components {
     // Returns a component pointed at by the provided pointer back to the memory manager. Calls destructor for the object.
     template<class ComponentType>
     inline void ComponentManager<ComponentType>::ComponentManagerData::DeleteComponent(ComponentType *component) {
-        LogDebug("Entering function DeleteComponent.");
+        LogDebug("Entering function RemoveComponent.");
 
         if (component) {
             LogDebug("Valid component provided. Calling destructor and returning block back to allocator.");
@@ -86,7 +86,7 @@ namespace Spark::ECS::Components {
             _allocator.ReturnBlock(static_cast<void*>(component));
         }
         else {
-            LogWarning("Pointer provided to DeleteComponent is null.");
+            LogWarning("Pointer provided to RemoveComponent is null.");
         }
     }
 

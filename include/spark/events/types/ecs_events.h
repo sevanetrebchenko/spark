@@ -15,18 +15,15 @@ namespace Spark {
             public:
                 static inline constexpr EventType StaticEventType = EventType::EntityComponentAdd;
 
-                AddComponentEvent();
                 explicit AddComponentEvent(ECS::EntityID ID);
-                explicit AddComponentEvent(std::string name);
+                explicit AddComponentEvent(const std::string& name);
 
-                _NODISCARD_ virtual std::string ToString() const override;
+                _NODISCARD_ std::string ToString() const override;
 
                 _NODISCARD_ const ECS::EntityID& GetEntityID() const;
-                _NODISCARD_ const std::string& GetEntityName() const;
 
             private:
                 ECS::EntityID _entityID;
-                std::string _entityName;
         };
 
         template <class ComponentType>
@@ -34,18 +31,15 @@ namespace Spark {
             public:
                 static inline constexpr EventType StaticEventType = EventType::EntityComponentRemove;
 
-                RemoveComponentEvent();
                 explicit RemoveComponentEvent(ECS::EntityID ID);
-                explicit RemoveComponentEvent(std::string name);
+                explicit RemoveComponentEvent(const std::string& name);
 
                 _NODISCARD_ std::string ToString() const override;
 
                 _NODISCARD_ const ECS::EntityID& GetEntityID() const;
-                _NODISCARD_ const std::string& GetEntityName() const;
 
             private:
                 ECS::EntityID _entityID;
-                std::string _entityName;
         };
 
     }

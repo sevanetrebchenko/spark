@@ -13,7 +13,6 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/spark/src/core/service_locator.cpp"
         # Spark - ECS
         "${PROJECT_SOURCE_DIR}/src/spark/src/ecs/entities/entity_manager.cpp"
-        "${PROJECT_SOURCE_DIR}/src/spark/src/ecs/entities/entity_manager_data.cpp"
         # Spark - Events
         "${PROJECT_SOURCE_DIR}/src/spark/src/events/types/event.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/src/events/types/mouse_events.cpp"

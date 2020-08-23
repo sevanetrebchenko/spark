@@ -2,18 +2,21 @@
 #ifndef SPARK_ENTITY_MANAGER_H
 #define SPARK_ENTITY_MANAGER_H
 
-#include <spark_pch.h>                                   // std::unordered_map, std::string
-#include <spark/ecs/entities/entity_callback_type.h>     // CallbackType
-#include <spark/ecs/ecs_typedefs.h>                      // EntityID
-#include <spark/ecs/components/types/base_component.h>   // BaseComponent
-#include <ecs/entities/entity_manager_data.h>            // EntityManagerData
-#include <spark/ecs/entities/entity_manager_interface.h> // EntityManagerInterface
+#include <spark_pch.h>                                    // std::unordered_map, std::string
+#include <spark/ecs/entities/entity_callback_type.h>      // CallbackType
+#include <spark/ecs/ecs_typedefs.h>                       // EntityID
+#include <spark/ecs/components/types/base_component.h>    // BaseComponent
+#include <spark/ecs/entities/entity_manager_interface.h>  // IEntityManager
+#include <spark/events/event_interactable_interface.h>    // IEventReceivable
+#include <spark/ecs/components/all_components.h>          // ALL_COMPONENTS
+#include <events/generators/add_component_generator.h>    // GenerateAddComponentsForTypes
+#include <events/generators/remove_component_generator.h> // GenerateRemoveComponentsForTypes
 
 namespace Spark {
     namespace ECS {
         namespace Entities {
 
-            class EntityManager : public EntityManagerInterface {
+            class EntityManager : public IEntityManager, public Events::IEventReceivable<EntityManager, Events::GenerateAddComponentsForTypes<ALL_COMPONENTS>::Type, Events::GenerateRemoveComponentsForTypes<ALL_COMPONENTS>::Type> {
                 public:
                     /**
                     * Constructor.
@@ -70,67 +73,24 @@ namespace Spark {
                     */
                     _NODISCARD_ const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& GetComponents(std::string name) const override;
 
-                    /**
-                    * Attach a component to an entity at the provided ID, given that it exists and the entity doesn't already
-                    * have a component of that type attached to it. Automatically notifies all fully registered component systems
-                    * that a component has been added to this entity.
-                    * @tparam ComponentType - Type of component to attach.
-                    * @param  ID            - ID of the entity to attach component to.
-                    */
-                    template <class ComponentType>
-                    void AddComponent(EntityID ID);
-
-                    /**
-                    * Attach a component to an entity at the provided name, given that it exists and the entity doesn't already
-                    * have a component of that type attached to it. Automatically notifies all fully registered component systems
-                    * that a component has been added to this entity.
-                    * @tparam ComponentType - Type of component to attach.
-                    * @param  name          - Name of the entity to attach component to.
-                    */
-                    template <class ComponentType>
-                    void AddComponent(std::string name);
-
-                    /**
-                    * Remove a component from an entity at the provided ID, given that the entity exists in the Entity Manager.
-                    * It is valid behavior to delete a component from an entity that does not manage a component of that type.
-                    * Automatically notifies all fully registered component systems that a component has been removed from this
-                    * entity.
-                    * @tparam ComponentType - Type of component to attach.
-                    * @param  ID            - ID of the entity from which to remove the component.
-                    */
-                    template <class ComponentType>
-                    void DeleteComponent(EntityID ID);
-
-                    /**
-                    * Remove a component from an entity at the provided nae, given that the entity exists in the Entity Manager.
-                    * It is valid behavior to delete a component from an entity that does not manage a component of that type.
-                    * Automatically notifies all fully registered component systems that a component has been removed from this
-                    * entity.
-                    * @tparam ComponentType - Type of component to attach.
-                    * @param  name          - Name of the entity from which to remove the component.
-                    */
-                    template <class ComponentType>
-                    void DeleteComponent(std::string name);
-
                     // Entity manager should not be copied/duplicated.
                     EntityManager(EntityManager const &other) = delete;
                     EntityManager(EntityManager &&other) = delete;
                     void operator=(EntityManager const &other) = delete;
 
                 private:
-                    friend EntityManagerInterface;
+                    friend Events::IEventReceivable<EntityManager, Events::GenerateAddComponentsForTypes<ALL_COMPONENTS>::Type, Events::GenerateRemoveComponentsForTypes<ALL_COMPONENTS>::Type>;
                     void OnEvent(Events::AddComponentEvent<Components::BaseComponent>* event) override;
                     void OnEvent(Events::RemoveComponentEvent<Components::BaseComponent>* event) override;
 
                     // Storage for EntityManager data, back-end functionality, and helper functions.
+                    class EntityManagerData;
                     EntityManagerData* _data = nullptr;
             };
 
         }
     }
 }
-
-#include <ecs/entities/entity_manager.tpp> // Template function definitions.
 
 #endif // SPARK_ENTITY_MANAGER_H
 
