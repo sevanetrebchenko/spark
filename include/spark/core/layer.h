@@ -2,8 +2,8 @@
 #ifndef SPARK_LAYER_H
 #define SPARK_LAYER_H
 
-#include <spark_pch.h>
-#include <utilitybox/tools/global_defines.h>
+#include <spark/utilitybox/tools/global_defines.h> // _NODISCARD_
+#include <spark_pch.h>                             // std::string
 
 namespace Spark {
 
@@ -53,4 +53,4 @@ namespace Spark {
 
 }
 
-#endif //SPARK_LAYER_H
+#endif // SPARK_LAYER_H

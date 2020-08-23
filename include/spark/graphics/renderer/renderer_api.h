@@ -2,7 +2,8 @@
 #ifndef SPARK_RENDERER_API_H
 #define SPARK_RENDERER_API_H
 
-#include <glm/glm.hpp>
+#include <glm/glm.hpp>                             // glm::vec4
+#include <spark/utilitybox/tools/global_defines.h> // _NODISCARD_
 
 namespace Spark {
     namespace Graphics {
@@ -14,8 +15,8 @@ namespace Spark {
                     OPENGL = 1
                 };
 
-                static RendererAPI* Create();
-                static API GetAPI();
+                _NODISCARD_ static RendererAPI* Create();
+                _NODISCARD_ static API GetAPI();
 
                 virtual ~RendererAPI() = default;
                 virtual void SetViewport(unsigned x, unsigned y, unsigned width, unsigned height) = 0;
@@ -29,4 +30,4 @@ namespace Spark {
     }
 }
 
-#endif //SPARK_RENDERER_API_H
+#endif // SPARK_RENDERER_API_H

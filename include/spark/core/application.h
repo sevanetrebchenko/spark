@@ -2,8 +2,6 @@
 #ifndef SPARK_APPLICATION_H
 #define SPARK_APPLICATION_H
 
-#include "configuration.h"
-
 namespace Spark {
 
     class Application {
@@ -20,4 +18,4 @@ namespace Spark {
 
 }
 
-#endif //SPARK_APPLICATION_H
+#endif // SPARK_APPLICATION_H

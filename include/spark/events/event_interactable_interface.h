@@ -2,22 +2,10 @@
 #ifndef SPARK_EVENT_INTERACTABLE_INTERFACE_H
 #define SPARK_EVENT_INTERACTABLE_INTERFACE_H
 
+#include <events/generators/on_event_function_generator.h> // RequireOnEventFunctionForTypes
+
 namespace Spark {
     namespace Events {
-
-        template <class EventType, class ...AdditionalEventTypes>
-        struct RequireOnEventFunctionForTypes : RequireOnEventFunctionForTypes<EventType>, RequireOnEventFunctionForTypes<AdditionalEventTypes...> {
-            using RequireOnEventFunctionForTypes<EventType>::OnEvent;
-        };
-
-        template <class EventType>
-        struct RequireOnEventFunctionForTypes<EventType> {
-            /**
-             * Required overload generated. Takes in an event pointer of the provided EventType.
-             * @param eventPointer - Event pointer of the provided EventType.
-             */
-            virtual void OnEvent(EventType* eventPointer) = 0;
-        };
 
         template <class ChildClass, class ...EventTypes>
         class IEventReceivable : public RequireOnEventFunctionForTypes<EventTypes...> {
@@ -46,9 +34,10 @@ namespace Spark {
                 class IEventReceivableData;
                 IEventReceivableData* _data;
         };
+
     }
 }
 
-#include "../../../src/events/event_interactable_interface.tpp" // Template function includes.
+#include <events/event_interactable_interface.tpp> // Template function definitions.
 
-#endif //SPARK_EVENT_INTERACTABLE_INTERFACE_H
+#endif // SPARK_EVENT_INTERACTABLE_INTERFACE_H

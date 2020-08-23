@@ -2,9 +2,9 @@
 #ifndef SPARK_BASE_COMPONENT_SYSTEM_H
 #define SPARK_BASE_COMPONENT_SYSTEM_H
 
-#include <spark_pch.h>                                   // std::tuple, std::vector
+#include <spark_pch.h>                                   // std::string, std::tuple, std::vector
+#include <spark/utilitybox/logger/logging_interface.h>   // ILoggable
 #include <ecs/systems/base_component_system_interface.h> // BaseComponentSystemInterface
-#include <utilitybox/logger/logging_interface.h>            // LoggingSystem
 
 namespace Spark {
     namespace ECS {
@@ -73,11 +73,11 @@ namespace Spark {
                     BaseComponentSystemData* _data = nullptr;
             };
 
-        } // namespace Systems
-    } // namespace ECS
-} // namespace Spark
+        }
+    }
+}
 
-#include "../../../../src/ecs/systems/base_component_system.tpp" // Template function includes.
+#include <ecs/systems/base_component_system.tpp> // Template function definitions.
 
 #endif // SPARK_BASE_COMPONENT_SYSTEM_H
 

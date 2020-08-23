@@ -2,9 +2,9 @@
 #ifndef SPARK_ADAPTER_CONFIG_H
 #define SPARK_ADAPTER_CONFIG_H
 
-#include <spark_pch.h>                     // std::queue
-#include <utilitybox/tools/global_defines.h>
-#include <utilitybox/logger/log_message_severity.h>
+#include <spark_pch.h>                                    // std::string, std::vector
+#include <spark/utilitybox/tools/global_defines.h>        // _NODISCARD
+#include <spark/utilitybox/logger/log_message_severity.h> // LogMessageSeverity
 
 namespace Spark {
     namespace UtilityBox {
@@ -36,8 +36,8 @@ namespace Spark {
                     AdapterConfigurationData* _data;
             };
 
-        } // namespace Logger
-    } // namespace UtilityBox
-} // namespace Spark
+        }
+    }
+}
 
 #endif // SPARK_ADAPTER_CONFIG_H

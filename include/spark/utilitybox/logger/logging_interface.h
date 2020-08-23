@@ -2,7 +2,7 @@
 #ifndef SPARK_LOGGING_INTERFACE_H
 #define SPARK_LOGGING_INTERFACE_H
 
-#include <spark_pch.h>
+#include <spark_pch.h> // std::string
 
 namespace Spark {
     namespace UtilityBox {
@@ -25,9 +25,8 @@ namespace Spark {
                     ILoggableData* _data;
             };
 
-
         }
     }
 }
 
-#endif //SPARK_LOGGING_INTERFACE_H
+#endif // SPARK_LOGGING_INTERFACE_H

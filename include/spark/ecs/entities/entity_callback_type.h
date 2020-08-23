@@ -14,8 +14,8 @@ namespace Spark {
                 COMPONENT_REMOVE
             };
 
-        } // namespace Entities
-    } // namespace ECS
-} // namespace Spark
+        }
+    }
+}
 
 #endif // SPARK_ENTITY_CALLBACK_TYPE_H

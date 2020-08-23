@@ -2,8 +2,8 @@
 #ifndef SPARK_SERVICE_LOCATOR_H
 #define SPARK_SERVICE_LOCATOR_H
 
-#include <events/event_hub_interface.h>
-#include <utilitybox/logger/logging_hub_interface.h>
+#include <spark/events/event_hub_interface.h>              // IEventHub
+#include <spark/utilitybox/logger/logging_hub_interface.h> // ILoggingHub
 
 namespace Spark {
 

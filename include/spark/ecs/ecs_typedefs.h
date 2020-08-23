@@ -10,7 +10,7 @@ namespace Spark {
         typedef unsigned ComponentTypeID; // Component type gets hashed into an unsigned value.
         typedef std::uint32_t EntityID;   // EntityID gets created by STRINGHASHing the entity name.
 
-    } // namespace ECS
-} // namespace Spark
+    }
+}
 
 #endif // SPARK_ECS_TYPEDEFS_H

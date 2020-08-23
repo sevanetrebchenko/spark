@@ -4,4 +4,4 @@
 
 
 
-#endif //SPARK_SPARK_H
+#endif // SPARK_SPARK_H

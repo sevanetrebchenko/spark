@@ -2,10 +2,9 @@
 #ifndef SPARK_ADAPTER_H
 #define SPARK_ADAPTER_H
 
-#include <spark_pch.h>                        // std::string, std::stringstream, std::queue
-#include <utilitybox/logger/adapter_config.h> // AdapterConfiguration
-#include <utilitybox/timing/timestamp.h>      // TimeStamp
-#include <utilitybox/tools/global_defines.h>  // _NODISCARD_
+#include <spark_pch.h>                              // std::string, std::vector
+#include <spark/utilitybox/tools/global_defines.h>  // _NODISCARD
+#include <spark/utilitybox/logger/adapter_config.h> // AdapterConfiguration
 
 namespace Spark {
     namespace UtilityBox {
@@ -25,8 +24,8 @@ namespace Spark {
                     int _logCount;
             };
 
-        } // namespace Logger
-    } // namespace UtilityBox
-} // namespace Spark
+        }
+    }
+}
 
 #endif // SPARK_ADAPTER_H
