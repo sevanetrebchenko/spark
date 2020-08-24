@@ -29,12 +29,25 @@ namespace Spark::Events {
     }
 
     void EventHub::EventHubData::AttachEventListener(IEventListener *eventListener) {
+        // Construct string of all the event types.
+        static std::stringstream format;
+        const std::vector<std::string>& eventTypesAsStrings = eventListener->GetEventTypesAsStrings();
+
+        // Print all except the last one with a comma.
+        for (int i = 0; i < eventTypesAsStrings.size() - 1; ++i) {
+            format << eventTypesAsStrings[i] << ", ";
+        }
+
+        format << eventTypesAsStrings[eventTypesAsStrings.size() - 1];
+        std::string eventTypesString = format.str();
+        format.str(std::string()); // Clear format.
+
         if (std::find(_eventListeners.cbegin(), _eventListeners.cend(), eventListener) == _eventListeners.cend()) {
             _eventListeners.emplace_back(eventListener);
+            LogDebug("Attached event listener registered with the following types: %s.", eventTypesString.c_str());
         }
         else {
-            std::cout << "already exists" << std::endl;
-            // Already exists in map.
+            LogWarning("Attempting to attach an already tracked event listener. Event listener types: %s.", eventTypesString.c_str());
         }
     }
 

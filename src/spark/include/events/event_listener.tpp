@@ -1,6 +1,8 @@
 #ifndef SPARK_EVENT_LISTENER_TPP
 #define SPARK_EVENT_LISTENER_TPP
 
+#include "event_listener.h"
+
 namespace Spark::Events {
     //------------------------------------------------------------------------------------------------------------------
     // EVENT LISTENER DATA
@@ -13,6 +15,9 @@ namespace Spark::Events {
 
             bool OnEventReceived(std::shared_ptr<Event*> eventPointer);
             void OnUpdate();
+
+            template <class EventType>
+            void AppendEventTypeAsString(std::vector<std::string>& eventTypes);
 
         private:
             /**
@@ -71,6 +76,12 @@ namespace Spark::Events {
     }
 
     template<class... EventTypes>
+    template<class EventType>
+    void EventListener<EventTypes...>::EventListenerData::AppendEventTypeAsString(std::vector<std::string> &eventTypes) {
+        eventTypes.emplace_back(Event::ConvertEventTypeToString(EventType::StaticEventType));
+    }
+
+    template<class... EventTypes>
     template <unsigned>
     bool EventListener<EventTypes...>::EventListenerData::ManagesEventType(const EventType &eventType) {
         return false;
@@ -98,6 +109,18 @@ namespace Spark::Events {
     template<class... EventTypes>
     void EventListener<EventTypes...>::OnUpdate() {
         _data->OnUpdate();
+    }
+
+    template<class... EventTypes>
+    const std::vector<std::string>& EventListener<EventTypes...>::GetEventTypesAsStrings() {
+        static bool initialized = false;
+        static std::vector<std::string> eventTypes;
+
+        if (!initialized) {
+            PARAMETER_PACK_EXPAND(_data->template AppendEventTypeAsString, EventTypes, eventTypes);
+        }
+
+        return eventTypes;
     }
 }
 

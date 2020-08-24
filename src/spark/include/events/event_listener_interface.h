@@ -15,11 +15,8 @@ namespace Spark {
                  *         False - this event was not received by this event listener.
                  */
                 virtual bool OnEventReceived(std::shared_ptr<Event*> eventPointer) = 0;
-
-                /**
-                 *
-                 */
                 virtual void OnUpdate() = 0;
+                virtual const std::vector<std::string>& GetEventTypesAsStrings() = 0;
         };
 
     }

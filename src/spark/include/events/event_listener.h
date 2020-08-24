@@ -20,6 +20,7 @@ namespace Spark {
 
             private:
                 void OnUpdate() override;
+                const std::vector<std::string>& GetEventTypesAsStrings() override;
 
                 class EventListenerData;
                 EventListenerData* _data;
