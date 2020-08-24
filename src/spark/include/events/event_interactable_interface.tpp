@@ -14,7 +14,7 @@ namespace Spark::Events {
     template<class ChildClass, class ...EventTypes>
     class IEventReceivable<ChildClass, EventTypes...>::IEventReceivableData {
         public:
-            explicit IEventReceivableData(IEventReceivable<ChildClass, EventTypes...>* parent);
+            IEventReceivableData(const char* name, IEventReceivable<ChildClass, EventTypes...>* parent);
             ~IEventReceivableData();
 
             template <class EventType>
@@ -29,13 +29,14 @@ namespace Spark::Events {
             template<class CurrentEventType>
             void GetEventOfTypeHelper(Event* baseEvent);
 
+            const char* _name;
             IEventReceivable<ChildClass, EventTypes...>* _parent;
-            Events::EventListener<EventTypes...> _eventListener { CallbackFromMemberFn(this, &IEventReceivableData::ProcessEvents) };
+            Events::EventListener<EventTypes...> _eventListener { _name, CallbackFromMemberFn(this, &IEventReceivableData::ProcessEvents) };
             Event* _currentEvent;
     };
 
     template<class ChildClass, class... EventTypes>
-    IEventReceivable<ChildClass, EventTypes...>::IEventReceivableData::IEventReceivableData(IEventReceivable<ChildClass, EventTypes...>* parent) : _parent(parent), _currentEvent(nullptr) {
+    IEventReceivable<ChildClass, EventTypes...>::IEventReceivableData::IEventReceivableData(const char* name, IEventReceivable<ChildClass, EventTypes...>* parent) : _name(name), _parent(parent), _currentEvent(nullptr) {
         dynamic_cast<IEventHubPrivate*>(ServiceLocator::GetEventHub())->AttachEventListener(&_eventListener);
     }
 
@@ -84,7 +85,7 @@ namespace Spark::Events {
     }
 
     template<class ChildClass, class... EventTypes>
-    IEventReceivable<ChildClass, EventTypes...>::IEventReceivable() : _data(new IEventReceivableData(this)) {
+    IEventReceivable<ChildClass, EventTypes...>::IEventReceivable(const char* name) : _data(new IEventReceivableData(name, this)) {
         // Nothing to do here.
     }
 }

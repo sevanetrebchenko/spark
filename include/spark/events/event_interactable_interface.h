@@ -28,7 +28,7 @@ namespace Spark {
                 bool CheckEventPointer(EventType* eventPointer);
 
             protected:
-                IEventReceivable(); // Make this class abstract.
+                explicit IEventReceivable(const char* name = "Not provided"); // Make this class abstract.
 
             private:
                 class IEventReceivableData;

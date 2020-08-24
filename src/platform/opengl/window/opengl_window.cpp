@@ -8,12 +8,14 @@
 #include <spark/core/service_locator.h>                   // ServiceLocator
 #include <spark/events/types/key_events.h>                // KeyPressedEvent, KeyReleasedEvent
 #include <spark/events/types/mouse_events.h>              // MouseScrolledEvent, MouseButtonPressedEvent, MouseButtonReleasedEvent
+#include <spark/events/types/application_events.h>        // WindowCloseEvent
+#include <spark/events/event_interactable_interface.h>    // IEventReceivable
 
 namespace Spark::Graphics {
     //------------------------------------------------------------------------------------------------------------------
     // WINDOW DATA
     //------------------------------------------------------------------------------------------------------------------
-    class OpenGLWindow::OpenGLWindowData : public UtilityBox::Logger::ILoggable {
+    class OpenGLWindow::OpenGLWindowData : public Events::IEventReceivable<OpenGLWindowData, Events::WindowResizeEvent>, public UtilityBox::Logger::ILoggable {
         public:
             OpenGLWindowData(std::string windowName, int width, int height);
             ~OpenGLWindowData();
@@ -25,6 +27,9 @@ namespace Spark::Graphics {
             _NODISCARD_ GLFWwindow* GetNativeWindow() const;
 
         private:
+            friend class Events::IEventReceivable<OpenGLWindowData, Events::WindowResizeEvent>;
+            void OnEvent(Events::WindowResizeEvent* windowResizeEvent) override;
+
             void InitializeGLFW();
             void SetupGLFWCallbacks();
 
@@ -38,6 +43,7 @@ namespace Spark::Graphics {
     OpenGLWindow::OpenGLWindowData::OpenGLWindowData(std::string windowName, int width, int height) : _windowName(std::move(windowName)),
                                                                                                       _windowWidth(width),
                                                                                                       _windowHeight(height),
+                                                                                                      IEventReceivable("OpenGL Window"),
                                                                                                       UtilityBox::Logger::ILoggable("OpenGL Window") {
         // GLFW needs to be initialized before creating a GLFW window.
         InitializeGLFW();
@@ -74,6 +80,11 @@ namespace Spark::Graphics {
 
     GLFWwindow *OpenGLWindow::OpenGLWindowData::GetNativeWindow() const {
         return _window;
+    }
+
+    void OpenGLWindow::OpenGLWindowData::OnEvent(Events::WindowResizeEvent *windowResizeEvent) {
+        _windowWidth = windowResizeEvent->GetWidth();
+        _windowHeight = windowResizeEvent->GetHeight();
     }
 
     void OpenGLWindow::OpenGLWindowData::InitializeGLFW() {
@@ -133,6 +144,21 @@ namespace Spark::Graphics {
     }
 
     void OpenGLWindow::OpenGLWindowData::SetupGLFWCallbacks() {
+        // Window close callback
+        glfwSetWindowCloseCallback(_window, [](GLFWwindow* window) {
+            ServiceLocator::GetEventHub()->Dispatch(new Events::WindowCloseEvent());
+        });
+
+        // Window resize callback.
+        glfwSetWindowSizeCallback(_window, [](GLFWwindow* window, int newWidth, int newHeight) {
+            ServiceLocator::GetEventHub()->Dispatch(new Events::WindowResizeEvent(newWidth, newHeight));
+        });
+
+        // Window minimize callback.
+        glfwSetWindowIconifyCallback(_window, [](GLFWwindow* window, int minimized){
+            ServiceLocator::GetEventHub()->Dispatch(new Events::WindowMinimizedEvent((bool)minimized));
+        });
+
         // Mouse button callback.
         glfwSetMouseButtonCallback(_window, [](GLFWwindow* window, int mouseButton, int buttonAction, int /* MODS UNUSED */) {
             if (buttonAction == GLFW_PRESS) {

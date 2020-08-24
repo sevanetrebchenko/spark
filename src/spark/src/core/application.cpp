@@ -13,7 +13,7 @@ namespace Spark {
     //------------------------------------------------------------------------------------------------------------------
     // APPLICATION DATA
     //------------------------------------------------------------------------------------------------------------------
-    class Application::ApplicationData : public UtilityBox::Logger::ILoggable, public Events::IEventReceivable<Application::ApplicationData, Events::WindowCloseEvent, Events::WindowResizeEvent> {
+    class Application::ApplicationData : public UtilityBox::Logger::ILoggable, public Events::IEventReceivable<Application::ApplicationData, Events::WindowCloseEvent, Events::WindowResizeEvent, Events::WindowMinimizedEvent> {
         public:
             ApplicationData();
             ~ApplicationData();
@@ -21,11 +21,13 @@ namespace Spark {
 
         private:
             // Allow attached IEventReceivable interface to access private OnEvent functions.
-            friend class Events::IEventReceivable<Application::ApplicationData, Events::WindowCloseEvent, Events::WindowResizeEvent>;
+            friend class Events::IEventReceivable<Application::ApplicationData, Events::WindowCloseEvent, Events::WindowResizeEvent, Events::WindowMinimizedEvent>;
             void OnEvent(Events::WindowCloseEvent* event) override;
             void OnEvent(Events::WindowResizeEvent* event) override;
+            void OnEvent(Events::WindowMinimizedEvent* event) override;
 
             bool _running;
+            bool _windowMinimized;
             float _deltaTime;
 
             Graphics::Window* _window;
@@ -33,11 +35,16 @@ namespace Spark {
             LayerStack _layerStack;
     };
 
-    Application::ApplicationData::ApplicationData() : _window(Graphics::Window::Create()), _imGuiLayer(Graphics::ImGuiLayer::Create(_window->GetNativeWindow())), UtilityBox::Logger::ILoggable("ILoggableInterfaceTest") {
+    Application::ApplicationData::ApplicationData() : UtilityBox::Logger::ILoggable("Application"),
+                                                      IEventReceivable("Application"),
+                                                      _window(Graphics::Window::Create()),
+                                                      _imGuiLayer(Graphics::ImGuiLayer::Create(_window->GetNativeWindow()))
+                                                      {
         // Attach ImGui as an overlay.
         _layerStack.PushOverlay(_imGuiLayer);
 
         _running = true;
+        _windowMinimized = false;
         _deltaTime = 0;
     }
 
@@ -51,12 +58,11 @@ namespace Spark {
         while(_running) {
             eventHub->OnUpdate();
 
-            LogError("testing testing testing testing testing testing testing testing testing testing testing ");
-
-            // Call OnUpdate for all layers.
-            for (Layer* layer : _layerStack) {
-                layer->OnUpdate(_deltaTime);
-            }
+            if (!_windowMinimized) {
+                // Call OnUpdate for all layers.
+                for (Layer* layer : _layerStack) {
+                    layer->OnUpdate(_deltaTime);
+                }
 
 //            // ImGui rendering.
 //            _imGuiLayer->BeginFrame();
@@ -64,15 +70,21 @@ namespace Spark {
 //                layer->OnImGuiRender();
 //            }
 //            _imGuiLayer->EndFrame();
+            }
 
             _window->OnUpdate();
         }
     }
 
     void Application::ApplicationData::OnEvent(Events::WindowCloseEvent *event) {
+        _running = false;
     }
 
     void Application::ApplicationData::OnEvent(Events::WindowResizeEvent *event) {
+    }
+
+    void Application::ApplicationData::OnEvent(Events::WindowMinimizedEvent *event) {
+        _windowMinimized = event->GetMinimized();
     }
 
 

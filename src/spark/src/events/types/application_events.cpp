@@ -5,7 +5,7 @@ namespace Spark::Events {
     //------------------------------------------------------------------------------------------------------------------
     // WINDOW RESIZE EVENT
     //------------------------------------------------------------------------------------------------------------------
-    WindowResizeEvent::WindowResizeEvent(unsigned int width, unsigned int height) : Event(EventType::WindowResized, EventCategory::EventCategoryApplication), _width(width), _height(height) {
+    WindowResizeEvent::WindowResizeEvent(int width, int height) : Event(EventType::WindowResized, EventCategory::EventCategoryApplication), _width(width), _height(height) {
         // Nothing to do here.
     }
 
@@ -15,11 +15,11 @@ namespace Spark::Events {
         return std::move(stream.str()); // Move string data to clear stringstream buffer.
     }
 
-    unsigned WindowResizeEvent::GetWidth() const {
+    int WindowResizeEvent::GetWidth() const {
         return _width;
     }
 
-    unsigned WindowResizeEvent::GetHeight() const {
+    int WindowResizeEvent::GetHeight() const {
         return _height;
     }
 
@@ -35,5 +35,21 @@ namespace Spark::Events {
         static std::stringstream stream;
         stream << "[WindowCloseRequested]";
         return std::move(stream.str()); // Move string data to clear stringstream buffer.
+    }
+
+
+    //------------------------------------------------------------------------------------------------------------------
+    // WINDOW MINIMIZED EVENT
+    //------------------------------------------------------------------------------------------------------------------
+    WindowMinimizedEvent::WindowMinimizedEvent(bool minimized) : Event(EventType::WindowMinimized, EventCategory::EventCategoryApplication), _minimized(minimized) {
+        // Nothing to do here.
+    }
+
+    std::string WindowMinimizedEvent::ToString() const {
+        return "[WindowMinimized]";
+    }
+
+    bool WindowMinimizedEvent::GetMinimized() const {
+        return _minimized;
     }
 }

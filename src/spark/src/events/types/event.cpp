@@ -18,7 +18,7 @@ namespace Spark::Events {
         return _eventCategory & eventCategory;
     }
 
-    std::string Event::ConvertEventTypeToString(const EventType& eventType) {
+    const char * Event::ConvertEventTypeToString(const EventType& eventType) {
         switch (eventType) {
             case EventType::None:
                 return "None";
@@ -26,6 +26,8 @@ namespace Spark::Events {
                 return "WindowCloseRequested";
             case EventType::WindowResized:
                 return "WindowResized";
+            case EventType::WindowMinimized:
+                return "WindowMinimized";
             case EventType::KeyPressed:
                 return "KeyPressed";
             case EventType::KeyReleased:
@@ -42,6 +44,7 @@ namespace Spark::Events {
                 return "EntityComponentAdd";
             case EventType::EntityComponentRemove:
                 return "EntityComponentRemove";
+
         }
     }
 

@@ -44,10 +44,10 @@ namespace Spark::Events {
 
         if (std::find(_eventListeners.cbegin(), _eventListeners.cend(), eventListener) == _eventListeners.cend()) {
             _eventListeners.emplace_back(eventListener);
-            LogDebug("Attached event listener registered with the following types: %s.", eventTypesString.c_str());
+            LogDebug("Attached event listener with name '%s' registered with the following types: %s.", eventListener->GetName(), eventTypesString.c_str());
         }
         else {
-            LogWarning("Attempting to attach an already tracked event listener. Event listener types: %s.", eventTypesString.c_str());
+            LogWarning("Event listener tracking types: %s already exists in the event hub with name: %s.", eventTypesString.c_str(), eventListener->GetName());
         }
     }
 
@@ -69,6 +69,7 @@ namespace Spark::Events {
     }
 
     void EventHub::EventHubData::Dispatch(Event* event) {
+        LogDebug("Dispatching event of type: %s.", Event::ConvertEventTypeToString(event->GetEventType()));
         std::shared_ptr<Event*> sharedPointer = std::make_shared<Event*>(event);
 
         // Dispatch event to all the listeners.
@@ -79,7 +80,7 @@ namespace Spark::Events {
 
         // No listeners are hooked up to this event.
         if (!registeredListenerOfType) {
-            LogWarning("No event listener registered to receive events of type: '%s'.", Event::ConvertEventTypeToString(event->GetEventType()).c_str());
+            LogWarning("No event listener registered to receive events of type: '%s'.", Event::ConvertEventTypeToString(event->GetEventType()));
         }
     }
 

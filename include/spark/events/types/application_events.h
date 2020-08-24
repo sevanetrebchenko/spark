@@ -12,15 +12,15 @@ namespace Spark {
         class WindowResizeEvent : public Event {
             public:
                 static inline constexpr EventType StaticEventType = EventType::WindowResized;
-                WindowResizeEvent(unsigned width, unsigned height);
+                WindowResizeEvent(int width, int height);
 
                 _NODISCARD_ std::string ToString() const override;
-                _NODISCARD_ unsigned GetWidth() const;
-                _NODISCARD_ unsigned GetHeight() const;
+                _NODISCARD_ int GetWidth() const;
+                _NODISCARD_ int GetHeight() const;
 
             private:
-                unsigned _width;
-                unsigned _height;
+                int _width;
+                int _height;
         };
 
         class WindowCloseEvent : public Event {
@@ -29,6 +29,17 @@ namespace Spark {
                 WindowCloseEvent();
 
                 _NODISCARD_ std::string ToString() const override;
+        };
+
+        class WindowMinimizedEvent : public Event {
+            public:
+                static inline constexpr EventType StaticEventType = EventType::WindowMinimized;
+                explicit WindowMinimizedEvent(bool minimized);
+
+                _NODISCARD_ std::string ToString() const override;
+                _NODISCARD_ bool GetMinimized() const;
+            private:
+                bool _minimized;
         };
 
     }

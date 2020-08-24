@@ -10,7 +10,7 @@ namespace Spark {
 
         enum class EventType {
             None = 0,
-            WindowCloseRequested, WindowResized,
+            WindowCloseRequested, WindowResized, WindowMinimized,
             KeyPressed, KeyReleased,
             MouseButtonPressed, MouseButtonReleased, MouseScrolled, MouseMoved,
             EntityComponentAdd, EntityComponentRemove,
@@ -66,7 +66,7 @@ namespace Spark {
                  */
                 _NODISCARD_ bool IsInEventCategory(EventCategory eventCategory) const;
 
-                _NODISCARD_ static std::string ConvertEventTypeToString(const EventType& eventType);
+                _NODISCARD_ static const char * ConvertEventTypeToString(const EventType& eventType);
 
             protected:
                 const EventType _eventType;

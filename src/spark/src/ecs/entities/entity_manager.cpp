@@ -397,7 +397,7 @@ namespace Spark::ECS::Entities {
         return _instance;
     }
 
-    EntityManager::EntityManager() : IEventReceivable(), _data(new EntityManagerData()) /* Throws on error, caught elsewhere. */ {
+    EntityManager::EntityManager() : IEventReceivable("Entity Manager"), _data(new EntityManagerData()) /* Throws on error, caught elsewhere. */ {
         // Nothing to do here.
     }
 

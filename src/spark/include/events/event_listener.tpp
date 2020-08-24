@@ -10,11 +10,13 @@ namespace Spark::Events {
     template <class ...EventTypes>
     class EventListener<EventTypes...>::EventListenerData {
         public:
-            explicit EventListenerData(std::function<void(std::queue<std::shared_ptr<Event*>>&)>  eventProcessingFunction);
+            EventListenerData(const char* name, std::function<void(std::queue<std::shared_ptr<Event*>>&)> eventProcessingFunction);
             ~EventListenerData();
 
-            bool OnEventReceived(std::shared_ptr<Event*> eventPointer);
+            _NODISCARD_ bool OnEventReceived(std::shared_ptr<Event*> eventPointer);
             void OnUpdate();
+
+            _NODISCARD_ const char* GetName() const;
 
             template <class EventType>
             void AppendEventTypeAsString(std::vector<std::string>& eventTypes);
@@ -27,17 +29,18 @@ namespace Spark::Events {
              *         False: Events of type 'eventType' are not registered with the EventListener.
              */
             template <unsigned INDEX, class CurrentEventType, class ...AdditionalEventTypeArgs>
-            bool ManagesEventType(const EventType& eventType);
+            _NODISCARD_ bool ManagesEventType(const EventType& eventType);
 
             template<unsigned>
-            bool ManagesEventType(const EventType& eventType);
+            _NODISCARD_ bool ManagesEventType(const EventType& eventType);
 
+            const char* _name;
             std::function<void(std::queue<std::shared_ptr<Event*>>&)> _processingFunction;
             std::queue<std::shared_ptr<Event*>> _eventQueue;
     };
 
     template<class... EventTypes>
-    EventListener<EventTypes...>::EventListenerData::EventListenerData(std::function<void(std::queue<std::shared_ptr<Event*>>&)>  eventProcessingFunction) : _processingFunction(std::move(eventProcessingFunction)) {
+    EventListener<EventTypes...>::EventListenerData::EventListenerData(const char* name, std::function<void(std::queue<std::shared_ptr<Event*>>&)>  eventProcessingFunction) : _name(name), _processingFunction(std::move(eventProcessingFunction)) {
         // Nothing to do here.
     }
 
@@ -82,6 +85,11 @@ namespace Spark::Events {
     }
 
     template<class... EventTypes>
+    const char *EventListener<EventTypes...>::EventListenerData::GetName() const {
+        return _name;
+    }
+
+    template<class... EventTypes>
     template <unsigned>
     bool EventListener<EventTypes...>::EventListenerData::ManagesEventType(const EventType &eventType) {
         return false;
@@ -92,7 +100,7 @@ namespace Spark::Events {
     // EVENT LISTENER
     //------------------------------------------------------------------------------------------------------------------
     template<class... EventTypes>
-    EventListener<EventTypes...>::EventListener(const std::function<void(std::queue<std::shared_ptr<Event*>>&)>& eventProcessingFunction) : _data(new EventListenerData(eventProcessingFunction)) {
+    EventListener<EventTypes...>::EventListener(const char* name, const std::function<void(std::queue<std::shared_ptr<Event*>>&)>& eventProcessingFunction) : _data(new EventListenerData(name, eventProcessingFunction)) {
         static_assert((std::is_base_of_v<Event, EventTypes> && ...), "Invalid template parameter passed to EventListener constructor - provided event type does not derive from 'Event' and is therefore not a valid event.");
     }
 
@@ -121,6 +129,11 @@ namespace Spark::Events {
         }
 
         return eventTypes;
+    }
+
+    template<class... EventTypes>
+    const char *EventListener<EventTypes...>::GetName() {
+        return _data->GetName();
     }
 }
 

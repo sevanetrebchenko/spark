@@ -2,6 +2,8 @@
 #ifndef SPARK_EVENT_LISTENER_INTERFACE_H
 #define SPARK_EVENT_LISTENER_INTERFACE_H
 
+#include <spark/utilitybox/tools/global_defines.h> // _NODISCARD_
+
 namespace Spark {
     namespace Events {
 
@@ -14,9 +16,11 @@ namespace Spark {
                  * @return True  - this event was received by this event listener
                  *         False - this event was not received by this event listener.
                  */
-                virtual bool OnEventReceived(std::shared_ptr<Event*> eventPointer) = 0;
+                _NODISCARD_ virtual bool OnEventReceived(std::shared_ptr<Event*> eventPointer) = 0;
+                _NODISCARD_ virtual const char* GetName() = 0;
+                _NODISCARD_ virtual const std::vector<std::string>& GetEventTypesAsStrings() = 0;
+
                 virtual void OnUpdate() = 0;
-                virtual const std::vector<std::string>& GetEventTypesAsStrings() = 0;
         };
 
     }
