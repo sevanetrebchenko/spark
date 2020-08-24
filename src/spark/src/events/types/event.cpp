@@ -18,6 +18,33 @@ namespace Spark::Events {
         return _eventCategory & eventCategory;
     }
 
+    std::string Event::ConvertEventTypeToString(const EventType& eventType) {
+        switch (eventType) {
+            case EventType::None:
+                return "None";
+            case EventType::WindowCloseRequested:
+                return "WindowCloseRequested";
+            case EventType::WindowResized:
+                return "WindowResized";
+            case EventType::KeyPressed:
+                return "KeyPressed";
+            case EventType::KeyReleased:
+                return "KeyReleased";
+            case EventType::MouseButtonPressed:
+                return "MouseButtonPressed";
+            case EventType::MouseButtonReleased:
+                return "MouseButtonReleased";
+            case EventType::MouseScrolled:
+                return "MouseScrolled";
+            case EventType::MouseMoved:
+                return "MouseMoved";
+            case EventType::EntityComponentAdd:
+                return "EntityComponentAdd";
+            case EventType::EntityComponentRemove:
+                return "EntityComponentRemove";
+        }
+    }
+
 }
 
 

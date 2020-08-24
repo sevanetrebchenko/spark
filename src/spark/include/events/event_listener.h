@@ -16,7 +16,7 @@ namespace Spark {
                 explicit EventListener(const std::function<void(std::queue<std::shared_ptr<Event*>>&)>& eventProcessingFunction);
                 ~EventListener();
 
-                void OnEventReceived(std::shared_ptr<Event*> eventPointer) override;
+                bool OnEventReceived(std::shared_ptr<Event*> eventPointer) override;
 
             private:
                 void OnUpdate() override;

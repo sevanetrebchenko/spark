@@ -66,6 +66,8 @@ namespace Spark {
                  */
                 _NODISCARD_ bool IsInEventCategory(EventCategory eventCategory) const;
 
+                _NODISCARD_ static std::string ConvertEventTypeToString(const EventType& eventType);
+
             protected:
                 const EventType _eventType;
                 const EventCategory _eventCategory;

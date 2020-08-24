@@ -1,8 +1,9 @@
 
-#include <events/event_hub.h> // EventHub
+#include <events/event_hub.h>                          // EventHub
+#include <spark/utilitybox/logger/logging_interface.h> // ILoggable
 
 namespace Spark::Events {
-    class EventHub::EventHubData {
+    class EventHub::EventHubData : public UtilityBox::Logger::ILoggable {
         public:
             EventHubData();
             ~EventHubData();
@@ -19,7 +20,7 @@ namespace Spark::Events {
     EventHub* EventHub::_instance = nullptr;
 
 
-    EventHub::EventHubData::EventHubData() {
+    EventHub::EventHubData::EventHubData() : UtilityBox::Logger::ILoggable("Event Hub") {
 
     }
 
@@ -58,8 +59,14 @@ namespace Spark::Events {
         std::shared_ptr<Event*> sharedPointer = std::make_shared<Event*>(event);
 
         // Dispatch event to all the listeners.
+        bool registeredListenerOfType = false;
         for (auto* eventListener : _eventListeners) {
-            eventListener->OnEventReceived(sharedPointer);
+            registeredListenerOfType |= eventListener->OnEventReceived(sharedPointer);
+        }
+
+        // No listeners are hooked up to this event.
+        if (!registeredListenerOfType) {
+            LogWarning("No event listener registered to receive events of type: '%s'.", Event::ConvertEventTypeToString(event->GetEventType()).c_str());
         }
     }
 
