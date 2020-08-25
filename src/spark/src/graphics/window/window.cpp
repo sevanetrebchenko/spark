@@ -6,7 +6,7 @@
 
 namespace Spark::Graphics {
 
-    Window* Window::Create() {
+    IWindow* IWindow::Create() {
         switch (IRenderingAPI::GetAPI()) {
             case IRenderingAPI::API::NONE:
                 return nullptr;

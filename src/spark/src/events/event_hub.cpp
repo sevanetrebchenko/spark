@@ -69,7 +69,7 @@ namespace Spark::Events {
     }
 
     void EventHub::EventHubData::Dispatch(Event* event) {
-        LogDebug("Dispatching event of type: %s.", Event::ConvertEventTypeToString(event->GetEventType()));
+        LogDebug("Dispatching event of type: %s. Event description: %s", Event::ConvertEventTypeToString(event->GetEventType()).c_str(), event->ToString().c_str());
         std::shared_ptr<Event*> sharedPointer = std::make_shared<Event*>(event);
 
         // Dispatch event to all the listeners.
@@ -80,7 +80,7 @@ namespace Spark::Events {
 
         // No listeners are hooked up to this event.
         if (!registeredListenerOfType) {
-            LogWarning("No event listener registered to receive events of type: '%s'.", Event::ConvertEventTypeToString(event->GetEventType()));
+            LogWarning("No event listener registered to receive events of type: '%s'.", Event::ConvertEventTypeToString(event->GetEventType()).c_str());
         }
     }
 

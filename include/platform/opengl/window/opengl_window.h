@@ -8,7 +8,7 @@
 namespace Spark {
     namespace Graphics {
 
-        class OpenGLWindow : public Window {
+        class OpenGLWindow : public IWindow {
             public:
                 OpenGLWindow(std::string windowName, int width, int height);
                 ~OpenGLWindow() override;

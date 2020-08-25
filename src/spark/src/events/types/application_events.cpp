@@ -10,9 +10,12 @@ namespace Spark::Events {
     }
 
     std::string WindowResizeEvent::ToString() const {
-        static std::stringstream stream;
-        stream << "[WindowResizeEvent] - Updated window dimensions: (" << _width << ", " << _height << ").";
-        return std::move(stream.str()); // Move string data to clear stringstream buffer.
+        static std::stringstream format;
+        static std::string formattedString;
+        format << "Updated window dimensions: (" << _width << ", " << _height << ").";
+        formattedString = format.str();
+        format.str(std::string()); // Move string data to clear stringstream buffer.
+        return std::move(formattedString);
     }
 
     int WindowResizeEvent::GetWidth() const {
@@ -32,9 +35,7 @@ namespace Spark::Events {
     }
 
     std::string WindowCloseEvent::ToString() const {
-        static std::stringstream stream;
-        stream << "[WindowCloseRequested]";
-        return std::move(stream.str()); // Move string data to clear stringstream buffer.
+        return "N/A";
     }
 
 
@@ -46,7 +47,12 @@ namespace Spark::Events {
     }
 
     std::string WindowMinimizedEvent::ToString() const {
-        return "[WindowMinimized]";
+        if (_minimized) {
+            return "Window minimized.";
+        }
+        else {
+            return "Window restored.";
+        }
     }
 
     bool WindowMinimizedEvent::GetMinimized() const {

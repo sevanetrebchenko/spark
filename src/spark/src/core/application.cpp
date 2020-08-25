@@ -30,14 +30,14 @@ namespace Spark {
             bool _windowMinimized;
             float _deltaTime;
 
-            Graphics::Window* _window;
+            Graphics::IWindow* _window;
             Graphics::IImGuiLayer* _imGuiLayer;
             LayerStack _layerStack;
     };
 
     Application::ApplicationData::ApplicationData() : UtilityBox::Logger::ILoggable("Application"),
                                                       IEventReceivable("Application"),
-                                                      _window(Graphics::Window::Create()),
+                                                      _window(Graphics::IWindow::Create()),
                                                       _imGuiLayer(Graphics::IImGuiLayer::Create(_window->GetNativeWindow()))
                                                       {
         // Attach ImGui as an overlay.

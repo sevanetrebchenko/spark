@@ -7,10 +7,10 @@
 namespace Spark {
     namespace Graphics {
 
-        class Window {
+        class IWindow {
             public:
-                static Window* Create();
-                virtual ~Window() = default;
+                static IWindow* Create();
+                virtual ~IWindow() = default;
 
                 virtual void OnUpdate() = 0;
 

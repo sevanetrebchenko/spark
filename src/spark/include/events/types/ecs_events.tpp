@@ -19,7 +19,12 @@ namespace Spark::Events {
 
     template<class ComponentType>
     std::string AddComponentEvent<ComponentType>::ToString() const {
-        return "[AddComponent]";
+        static std::stringstream format;
+        static std::string formattedString;
+        format << "Adding component of type: '" << ComponentType::Name << "' to entity with ID: " << _entityID << ".";
+        formattedString = format.str();
+        format.str(std::string()); // Move string data to clear stringstream buffer.
+        return std::move(formattedString);
     }
 
     template<class ComponentType>
@@ -41,7 +46,12 @@ namespace Spark::Events {
 
     template<class ComponentType>
     std::string RemoveComponentEvent<ComponentType>::ToString() const {
-        return "[RemoveComponent]";
+        static std::stringstream format;
+        static std::string formattedString;
+        format << "Removing component of type: '" << ComponentType::Name << "' from entity with ID: " << _entityID << ".";
+        formattedString = format.str();
+        format.str(std::string()); // Move string data to clear stringstream buffer.
+        return std::move(formattedString);
     }
 
     template<class ComponentType>
