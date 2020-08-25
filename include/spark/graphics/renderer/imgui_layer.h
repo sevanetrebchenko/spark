@@ -8,9 +8,9 @@
 namespace Spark {
     namespace Graphics {
 
-        class ImGuiLayer : public Layer {
+        class IImGuiLayer : public Layer {
             public:
-                _NODISCARD_ static ImGuiLayer* Create(void* window);
+                _NODISCARD_ static IImGuiLayer* Create(void* window);
                 virtual void BeginFrame() = 0;
                 virtual void EndFrame() = 0;
         };

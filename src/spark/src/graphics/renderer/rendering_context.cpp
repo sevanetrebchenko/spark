@@ -5,11 +5,11 @@
 #include <platform/opengl/renderer/opengl_rendering_context.h> // OpenGLRenderingContext
 
 namespace Spark::Graphics {
-    RenderingContext* RenderingContext::Create(void *window) {
-        switch (RendererAPI::GetAPI()) {
-            case RendererAPI::API::NONE:
+    IRenderingContext* IRenderingContext::Create(void *window) {
+        switch (IRenderingAPI::GetAPI()) {
+            case IRenderingAPI::API::NONE:
                 return nullptr;
-            case RendererAPI::API::OPENGL:
+            case IRenderingAPI::API::OPENGL:
                 return new OpenGLRenderingContext(static_cast<GLFWwindow*>(window));
         }
 

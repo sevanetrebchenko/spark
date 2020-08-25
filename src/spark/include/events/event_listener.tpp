@@ -79,6 +79,12 @@ namespace Spark::Events {
     }
 
     template<class... EventTypes>
+    template <unsigned>
+    bool EventListener<EventTypes...>::EventListenerData::ManagesEventType(const EventType &eventType) {
+        return false;
+    }
+
+    template<class... EventTypes>
     template<class EventType>
     void EventListener<EventTypes...>::EventListenerData::AppendEventTypeAsString(std::vector<std::string> &eventTypes) {
         eventTypes.emplace_back(Event::ConvertEventTypeToString(EventType::StaticEventType));
@@ -87,12 +93,6 @@ namespace Spark::Events {
     template<class... EventTypes>
     const char *EventListener<EventTypes...>::EventListenerData::GetName() const {
         return _name;
-    }
-
-    template<class... EventTypes>
-    template <unsigned>
-    bool EventListener<EventTypes...>::EventListenerData::ManagesEventType(const EventType &eventType) {
-        return false;
     }
 
 

@@ -31,14 +31,14 @@ namespace Spark {
             float _deltaTime;
 
             Graphics::Window* _window;
-            Graphics::ImGuiLayer* _imGuiLayer;
+            Graphics::IImGuiLayer* _imGuiLayer;
             LayerStack _layerStack;
     };
 
     Application::ApplicationData::ApplicationData() : UtilityBox::Logger::ILoggable("Application"),
                                                       IEventReceivable("Application"),
                                                       _window(Graphics::Window::Create()),
-                                                      _imGuiLayer(Graphics::ImGuiLayer::Create(_window->GetNativeWindow()))
+                                                      _imGuiLayer(Graphics::IImGuiLayer::Create(_window->GetNativeWindow()))
                                                       {
         // Attach ImGui as an overlay.
         _layerStack.PushOverlay(_imGuiLayer);

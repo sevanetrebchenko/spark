@@ -8,7 +8,7 @@
 namespace Spark {
     namespace Graphics {
 
-        class OpenGLImGuiLayer : public ImGuiLayer {
+        class OpenGLImGuiLayer : public IImGuiLayer {
             public:
                 explicit OpenGLImGuiLayer(GLFWwindow* window);
                 ~OpenGLImGuiLayer() override;

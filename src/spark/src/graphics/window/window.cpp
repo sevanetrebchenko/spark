@@ -7,10 +7,10 @@
 namespace Spark::Graphics {
 
     Window* Window::Create() {
-        switch (RendererAPI::GetAPI()) {
-            case RendererAPI::API::NONE:
+        switch (IRenderingAPI::GetAPI()) {
+            case IRenderingAPI::API::NONE:
                 return nullptr;
-            case RendererAPI::API::OPENGL:
+            case IRenderingAPI::API::OPENGL:
                 return new Graphics::OpenGLWindow("Spark Engine - OpenGL", 1080, 720);
         }
 

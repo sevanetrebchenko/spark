@@ -7,12 +7,15 @@
 namespace Spark {
     namespace Graphics {
 
-        class OpenGLRenderingContext : public RenderingContext {
+        class OpenGLRenderingContext : public IRenderingContext {
             public:
                 explicit OpenGLRenderingContext(GLFWwindow* window);
                 ~OpenGLRenderingContext() override;
 
                 void SwapBuffers() override;
+                void SetViewport(unsigned x, unsigned y, unsigned width, unsigned height) override;
+                void SetClearColor(const glm::vec4& color) override;
+                void ClearBuffers() override;
 
             private:
                 class OpenGLRenderingContextData;

@@ -5,11 +5,11 @@
 
 namespace Spark::Graphics {
 
-    ImGuiLayer *ImGuiLayer::Create(void *window) {
-        switch(RendererAPI::GetAPI()) {
-            case RendererAPI::API::NONE:
+    IImGuiLayer *IImGuiLayer::Create(void *window) {
+        switch(IRenderingAPI::GetAPI()) {
+            case IRenderingAPI::API::NONE:
                 return nullptr;
-            case RendererAPI::API::OPENGL:
+            case IRenderingAPI::API::OPENGL:
                 return new OpenGLImGuiLayer(static_cast<GLFWwindow*>(window));
         }
 

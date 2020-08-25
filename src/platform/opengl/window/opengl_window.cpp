@@ -1,4 +1,5 @@
 
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>                                   // GLFWwindow
 #include <platform/opengl/window/opengl_window.h>         // OpenGLWindow
 #include <spark/utilitybox/logger/logging_interface.h>    // ILoggable
@@ -37,7 +38,7 @@ namespace Spark::Graphics {
             int _windowWidth, _windowHeight;
 
             GLFWwindow* _window;
-            Graphics::RenderingContext* _context;
+            Graphics::IRenderingContext* _context;
     };
 
     OpenGLWindow::OpenGLWindowData::OpenGLWindowData(std::string windowName, int width, int height) : _windowName(std::move(windowName)),
@@ -60,7 +61,7 @@ namespace Spark::Graphics {
         }
 
         // Create rendering context.
-        _context = Graphics::RenderingContext::Create(_window);
+        _context = Graphics::IRenderingContext::Create(_window);
         // TODO: assert
 
         SetupGLFWCallbacks();
@@ -83,8 +84,13 @@ namespace Spark::Graphics {
     }
 
     void OpenGLWindow::OpenGLWindowData::OnEvent(Events::WindowResizeEvent *windowResizeEvent) {
+        GLint viewportData[4];
+        glGetIntegerv(GL_VIEWPORT, viewportData);
+
         _windowWidth = windowResizeEvent->GetWidth();
         _windowHeight = windowResizeEvent->GetHeight();
+
+        _context->SetViewport(viewportData[0], viewportData[1], _windowWidth, _windowHeight);
     }
 
     void OpenGLWindow::OpenGLWindowData::InitializeGLFW() {
@@ -188,6 +194,8 @@ namespace Spark::Graphics {
     void OpenGLWindow::OpenGLWindowData::OnUpdate() {
         glfwPollEvents();
         _context->SwapBuffers();
+
+        _context->ClearBuffers();
     }
 
 

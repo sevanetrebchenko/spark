@@ -2,7 +2,6 @@
 set(CORE_SOURCE_FILES
         # Platform - OpenGL # TODO: Platform specific.
         "${PROJECT_SOURCE_DIR}/src/platform/opengl/renderer/opengl_imgui_layer.cpp"
-        "${PROJECT_SOURCE_DIR}/src/platform/opengl/renderer/opengl_renderer_api.cpp"
         "${PROJECT_SOURCE_DIR}/src/platform/opengl/renderer/opengl_rendering_context.cpp"
         "${PROJECT_SOURCE_DIR}/src/platform/opengl/window/opengl_window.cpp"
         # Spark - Core
