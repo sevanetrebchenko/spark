@@ -2,7 +2,7 @@
 #ifndef SPARK_EVENT_INTERACTABLE_INTERFACE_H
 #define SPARK_EVENT_INTERACTABLE_INTERFACE_H
 
-#include <events/generators/on_event_function_generator.h> // RequireOnEventFunctionForTypes
+#include <spark/events/generators/on_event_function_generator.h> // RequireOnEventFunctionForTypes
 
 namespace Spark {
     namespace Events {
@@ -38,6 +38,6 @@ namespace Spark {
     }
 }
 
-#include <events/event_interactable_interface.tpp> // Template function definitions.
+#include <spark/events/event_interactable_interface.tpp> // Template function definitions.
 
 #endif // SPARK_EVENT_INTERACTABLE_INTERFACE_H

@@ -2,8 +2,8 @@
 #ifndef SPARK_RENDERER_API_H
 #define SPARK_RENDERER_API_H
 
-#include <glm/glm.hpp>                             // glm::vec4
-#include <utilitybox/tools/global_defines.h> // _NODISCARD_
+#include <spark/core/core.h>
+#include <glm/glm.hpp>       // glm::vec4
 
 namespace Spark {
     namespace Graphics {

@@ -16,6 +16,8 @@ namespace Spark {
             ApplicationData* _data;
     };
 
+    // To be defined in the client.
+    extern Application* CreateApplication();
 }
 
 #endif // SPARK_APPLICATION_H

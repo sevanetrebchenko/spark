@@ -2,11 +2,10 @@
 #ifndef SPARK_ENTITY_MANAGER_INTERFACE_H
 #define SPARK_ENTITY_MANAGER_INTERFACE_H
 
-#include <spark_pch.h>                                    // std::function, std::unordered_map
-#include <spark/ecs/ecs_typedefs.h>                       // EntityID, ComponentTypeID
-#include <spark/ecs/components/types/base_component.h>    // BaseComponent
-#include <spark/ecs/entities/entity_callback_type.h>      // CallbackType
-#include <utilitybox/tools/global_defines.h>        // _NODISCARD_
+#include <spark/core/core.h>
+#include <spark/ecs/ecs_typedefs.h>                    // EntityID, ComponentTypeID
+#include <spark/ecs/components/types/base_component.h> // BaseComponent
+#include <spark/ecs/entities/entity_callback_type.h>   // CallbackType
 
 namespace Spark {
     namespace ECS {

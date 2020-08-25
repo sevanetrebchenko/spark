@@ -2,8 +2,7 @@
 #ifndef SPARK_EVENT_H
 #define SPARK_EVENT_H
 
-#include <spark_pch.h>                             // std::string
-#include <utilitybox/tools/global_defines.h> // _NODISCARD_
+#include <spark/core/core.h>
 
 namespace Spark {
     namespace Events {

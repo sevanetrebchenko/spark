@@ -5,7 +5,7 @@
 #include <spark/utilitybox/logger/logging_interface.h>    // ILoggable
 #include <spark/graphics/renderer/rendering_context.h>    // RenderingContext
 #include <spark/utilitybox/logger/log_message_severity.h> // LogMessageSeverity
-#include <utilitybox/logger/logging_system.h>             // LoggingSystem
+#include <spark/utilitybox/logger/logging_system.h>       // LoggingSystem
 #include <spark/core/service_locator.h>                   // ServiceLocator
 #include <spark/events/types/key_events.h>                // KeyPressedEvent, KeyReleasedEvent
 #include <spark/events/types/mouse_events.h>              // MouseScrolledEvent, MouseButtonPressedEvent, MouseButtonReleasedEvent

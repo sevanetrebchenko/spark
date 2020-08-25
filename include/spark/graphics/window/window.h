@@ -2,7 +2,7 @@
 #ifndef SPARK_WINDOW_H
 #define SPARK_WINDOW_H
 
-#include <utilitybox/tools/global_defines.h> // _NODISCARD_
+#include <spark/core/core.h>
 
 namespace Spark {
     namespace Graphics {

@@ -2,9 +2,8 @@
 #ifndef SPARK_MOUSE_EVENTS_H
 #define SPARK_MOUSE_EVENTS_H
 
-#include <spark_pch.h>                             // std::string
-#include <spark/events/types/event.h>              // Event, EventType
-#include <utilitybox/tools/global_defines.h> // _NODISCARD_
+#include <spark/core/core.h>
+#include <spark/events/types/event.h> // Event, EventType
 
 namespace Spark {
     namespace Events {

@@ -2,8 +2,8 @@
 #ifndef SPARK_IMGUI_LAYER_H
 #define SPARK_IMGUI_LAYER_H
 
-#include <spark/core/layer.h>                      // Layer
-#include <utilitybox/tools/global_defines.h> // _NODISCARD_
+#include <spark/core/core.h>
+#include <spark/core/layer.h> // Layer
 
 namespace Spark {
     namespace Graphics {

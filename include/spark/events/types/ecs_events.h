@@ -2,10 +2,9 @@
 #ifndef SPARK_ENTITY_EVENTS_H
 #define SPARK_ENTITY_EVENTS_H
 
-#include <spark_pch.h>                             // std::string
-#include <spark/events//types/event.h>             // Event, EventType
-#include <spark/ecs/ecs_typedefs.h>                // EntityID
-#include <utilitybox/tools/global_defines.h> // _NODISCARD_
+#include <spark/core/core.h>
+#include <spark/events/types/event.h> // Event, EventType
+#include <spark/ecs/ecs_typedefs.h>   // EntityID
 
 namespace Spark {
     namespace Events {
@@ -45,6 +44,6 @@ namespace Spark {
     }
 }
 
-#include <events/types/ecs_events.tpp> // Template function definitions.
+#include <spark/events/types/ecs_events.tpp> // Template function definitions.
 
 #endif // SPARK_ENTITY_EVENTS_H

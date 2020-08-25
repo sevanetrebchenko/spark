@@ -1,8 +1,7 @@
 #ifndef SPARK_OPENGL_WINDOW_H
 #define SPARK_OPENGL_WINDOW_H
 
-#include <spark/core/core.h>                 // std::string
-#include <utilitybox/tools/global_defines.h> // _NODISCARD_
+#include <spark/core/core.h>
 #include <spark/graphics/window/window.h>    // Window
 
 namespace Spark {

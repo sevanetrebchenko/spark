@@ -2,7 +2,7 @@
 #ifndef SPARK_ECS_TYPEDEFS_H
 #define SPARK_ECS_TYPEDEFS_H
 
-#include <spark_pch.h> // std::uint32_t
+#include <spark/core/core.h>
 
 namespace Spark {
     namespace ECS {

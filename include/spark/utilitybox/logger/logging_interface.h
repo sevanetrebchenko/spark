@@ -2,7 +2,7 @@
 #ifndef SPARK_LOGGING_INTERFACE_H
 #define SPARK_LOGGING_INTERFACE_H
 
-#include <spark_pch.h> // std::string
+#include <spark/core/core.h>
 
 namespace Spark {
     namespace UtilityBox {

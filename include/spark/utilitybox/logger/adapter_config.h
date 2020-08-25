@@ -2,8 +2,7 @@
 #ifndef SPARK_ADAPTER_CONFIG_H
 #define SPARK_ADAPTER_CONFIG_H
 
-#include <spark_pch.h>                                    // std::string, std::vector
-#include <utilitybox/tools/global_defines.h>        // _NODISCARD
+#include <spark/core/core.h>
 #include <spark/utilitybox/logger/log_message_severity.h> // LogMessageSeverity
 
 namespace Spark {
