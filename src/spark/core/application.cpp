@@ -17,6 +17,10 @@ namespace Spark {
         public:
             ApplicationData();
             ~ApplicationData();
+
+            void PushLayer(Layer* layer);
+            void PushOverlay(Layer* overlay);
+
             void Run();
 
         private:
@@ -50,6 +54,14 @@ namespace Spark {
 
     Application::ApplicationData::~ApplicationData() {
         delete _window;
+    }
+
+    void Application::ApplicationData::PushLayer(Layer *layer) {
+        _layerStack.PushLayer(layer);
+    }
+
+    void Application::ApplicationData::PushOverlay(Layer *overlay) {
+        _layerStack.PushOverlay(overlay);
     }
 
     void Application::ApplicationData::Run() {
@@ -101,5 +113,13 @@ namespace Spark {
 
     void Application::Run() {
         _data->Run();
+    }
+
+    void Application::PushLayer(Layer *layer) {
+        _data->PushLayer(layer);
+    }
+
+    void Application::PushOverlay(Layer *overlay) {
+        _data->PushOverlay(overlay);
     }
 }

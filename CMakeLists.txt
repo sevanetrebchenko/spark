@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.11...3.16) # 3.11 minimum for finding OpenGL package according to NEW CMake policy.
 
 # Project information.
-project(Spark
+project(spark
         VERSION 1.0
         DESCRIPTION "Spark Engine"
         LANGUAGES C CXX)
@@ -28,3 +28,8 @@ add_subdirectory(lib)
 
 # Build engine.
 add_subdirectory(src)
+
+# Build applications.
+add_subdirectory(projects)
+
+

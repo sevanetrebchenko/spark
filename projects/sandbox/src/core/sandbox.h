@@ -1,5 +1,0 @@
-
-#ifndef SPARK_SANDBOX_H
-#define SPARK_SANDBOX_H
-
-#endif //SPARK_SANDBOX_H

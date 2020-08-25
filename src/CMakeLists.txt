@@ -42,7 +42,7 @@ set(CORE_SOURCE_FILES
         )
 
 # Make Spark Engine core library.
-add_executable(spark ${CORE_SOURCE_FILES})
+add_library(spark ${CORE_SOURCE_FILES})
 
 # Enable precompiled headers. #TODO: Check to make sure target_precompile_headers exists in CMake.
 target_precompile_headers(spark PRIVATE "../include/spark/spark_pch.h")
@@ -53,7 +53,7 @@ target_include_directories(spark PUBLIC ${SPARK_PUBLIC_INCLUDE_DIRS})
 
 # COMPILER
 # Set C++ requirements.
-target_compile_options(spark PRIVATE -std=c++17)
+target_compile_options(spark PUBLIC -std=c++17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 # Set compiler flags.
