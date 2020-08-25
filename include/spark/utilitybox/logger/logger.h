@@ -3,7 +3,7 @@
 #define SPARK_LOGGER_H
 
 #include <spark/core/core.h>
-#include <spark/utilitybox/logger/adapter.h>               // Adapter
+#include <spark/utilitybox/logger/adapter/adapter.h>               // Adapter
 #include <spark/utilitybox/logger/logging_hub_interface.h> // ILoggingHub
 #include <spark/utilitybox/logger/logging_system.h>              // LogRecord
 

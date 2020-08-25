@@ -1,5 +1,5 @@
 
-#include <spark/utilitybox/logger/adapter_config.h> // AdapterConfiguration
+#include <spark/utilitybox/logger/adapter/adapter_config.h> // AdapterConfiguration
 
 namespace Spark::UtilityBox::Logger {
     //------------------------------------------------------------------------------------------------------------------

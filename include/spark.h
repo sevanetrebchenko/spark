@@ -33,8 +33,8 @@
 //--- Utility ----------------------------------------------------------------------------------------------------------
 #include <spark/utilitybox/logger/logging_hub_interface.h>
 #include <spark/utilitybox/logger/logging_interface.h>
-#include <spark/utilitybox/logger/adapter.h>
-#include <spark/utilitybox/logger/adapter_config.h>
+#include <spark/utilitybox/logger/adapter/adapter.h>
+#include <spark/utilitybox/logger/adapter/adapter_config.h>
 #include <spark/utilitybox/logger/log_message_severity.h>
 
 #endif // SPARK_SPARK_H

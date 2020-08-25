@@ -8,6 +8,10 @@
 int main(int argc, char** argv) {
     // Setup services for service locator.
     Spark::ServiceLocator::ProvideService(Spark::Events::EventHub::GetInstance());
+
+    Spark::UtilityBox::Logger::LoggingHub* loggingHub = Spark::UtilityBox::Logger::LoggingHub::GetInstance();
+
+
     Spark::ServiceLocator::ProvideService(Spark::UtilityBox::Logger::LoggingHub::GetInstance());
     Spark::ServiceLocator::ProvideService(Spark::ECS::Entities::EntityManager::GetInstance());
 

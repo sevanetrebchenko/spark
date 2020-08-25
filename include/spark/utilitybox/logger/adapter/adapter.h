@@ -3,7 +3,7 @@
 #define SPARK_ADAPTER_H
 
 #include <spark/core/core.h>
-#include <spark/utilitybox/logger/adapter_config.h> // AdapterConfiguration
+#include <spark/utilitybox/logger/adapter/adapter_config.h> // AdapterConfiguration
 
 namespace Spark {
     namespace UtilityBox {

@@ -2,7 +2,7 @@
 #include <spark/core/core.h>
 #include <spark/utilitybox/logger/logger.h>                             // LoggingHub
 #include <spark/utilitybox/logger/invalid_format_character_exception.h> // InvalidFormatCharacterException
-#include <spark/utilitybox/logger/adapter_config.h>                     // AdapterConfiguration
+#include <spark/utilitybox/logger/adapter/adapter_config.h>                     // AdapterConfiguration
 
 namespace Spark::UtilityBox::Logger {
     //------------------------------------------------------------------------------------------------------------------

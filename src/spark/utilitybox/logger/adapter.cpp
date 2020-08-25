@@ -1,5 +1,5 @@
 
-#include <spark/utilitybox/logger/adapter.h> // Adapter
+#include <spark/utilitybox/logger/adapter/adapter.h> // Adapter
 
 namespace Spark::UtilityBox::Logger {
     // Construct an adapter with default formatting with a given name.
