@@ -2,5 +2,9 @@
 #include <sandbox_layer.h>
 
 void SandboxLayer::OnUpdate(float dt) {
-    std::cout << "updating sandbox" << std::endl;
+    LogDebug("updating sandbox");
+}
+
+SandboxLayer::SandboxLayer() : Spark::Layer("Sandbox Layer") {
+
 }

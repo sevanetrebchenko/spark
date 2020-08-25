@@ -6,7 +6,7 @@
 
 class SandboxLayer : public Spark::Layer {
     public:
-        SandboxLayer() = default;
+        SandboxLayer();
         ~SandboxLayer() override = default;
 
         void OnUpdate(float dt) override;

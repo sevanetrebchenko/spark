@@ -46,8 +46,9 @@ namespace Spark::Graphics {
             std::pair<double, double> _mousePosition;   // Mouse position : (x, y)
     };
 
-    OpenGLImGuiLayer::OpenGLImGuiLayerData::OpenGLImGuiLayerData(GLFWwindow* window) : _window(window) {
-        // todo : check window is not null
+    OpenGLImGuiLayer::OpenGLImGuiLayerData::OpenGLImGuiLayerData(GLFWwindow* window) : Events::IEventReceivable<OpenGLImGuiLayerData, Events::MouseScrolledEvent>("OpenGL ImGui Layer"),
+                                                                                       _window(window) {
+        SP_ASSERT(window, "Window is null");
     }
 
     // Void GLFW callback functions and clean up ImGui state.

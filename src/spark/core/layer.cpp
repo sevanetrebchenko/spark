@@ -4,7 +4,7 @@
 
 namespace Spark {
 
-    Layer::Layer(std::string name) : _name(std::move(name)) {
+    Layer::Layer(std::string name) : UtilityBox::Logger::ILoggable(name), _name(std::move(name)) {
         // Nothing to do here.
     }
 

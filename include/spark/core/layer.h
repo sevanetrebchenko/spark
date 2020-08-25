@@ -3,10 +3,11 @@
 #define SPARK_LAYER_H
 
 #include <spark/core/core.h>
+#include <spark/utilitybox/logger/logging_interface.h> // ILoggable
 
 namespace Spark {
 
-    class Layer {
+    class Layer : public UtilityBox::Logger::ILoggable {
         public:
             /**
              * Construct a new layer with a given name.

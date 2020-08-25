@@ -8,14 +8,14 @@ namespace Spark::UtilityBox::Logger {
     // ILOGGABLE DATA
     //------------------------------------------------------------------------------------------------------------------
     struct ILoggable::ILoggableData {
-        explicit ILoggableData(const char* systemName);
+        explicit ILoggableData(const std::string& name);
         ~ILoggableData() = default;
 
         const char* _systemName;
         UtilityBox::Logger::LoggingSystem _loggingSystem { _systemName };
     };
 
-    ILoggable::ILoggableData::ILoggableData(const char *systemName) : _systemName(systemName) {
+    ILoggable::ILoggableData::ILoggableData(const std::string& name) : _systemName(name.c_str()) {
         // Nothing to do here.
     }
 
@@ -23,12 +23,8 @@ namespace Spark::UtilityBox::Logger {
     //------------------------------------------------------------------------------------------------------------------
     // ILOGGABLE
     //------------------------------------------------------------------------------------------------------------------
-    ILoggable::ILoggable(const char *systemName) : _data(new ILoggableData(systemName)) {
+    ILoggable::ILoggable(const std::string& systemName) : _data(new ILoggableData(systemName)) {
         // Nothing to do here.
-    }
-
-    ILoggable::ILoggable(const std::string& systemName) : _data(new ILoggableData(systemName.c_str())){
-
     }
 
     void ILoggable::LogDebug(const char *formatString, ...) const {
