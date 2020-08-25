@@ -63,12 +63,16 @@ target_compile_options(spark PRIVATE -pthread) # Link with threading library.
 # DEPENDENCIES
 # Link Glad.
 # Glad gives access to both OpenGL extensions and the modern version of the core OpenGL API.
-target_link_libraries(spark PUBLIC spark-glad)
+target_link_libraries(spark spark-glad)
 
 # Link GLFW
 # GLFW does not depend on OpenGL - OpenGL/Vulkan dependencies get loaded in at runtime.
 find_package(OpenGL REQUIRED) # Ensure OpenGL exists on the system.
-target_link_libraries(spark PUBLIC glfw)
+target_link_libraries(spark OpenGL::GL)
+target_link_libraries(spark glfw)
 
 # ImGui.
-target_link_libraries(spark PUBLIC spark-imgui)
+target_link_libraries(spark spark-imgui)
+
+# GLM.
+target_link_libraries(spark glm)

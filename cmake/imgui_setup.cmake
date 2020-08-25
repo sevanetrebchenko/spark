@@ -24,7 +24,8 @@ add_library(spark-imgui STATIC "${SOURCE_FILES}")
 
 # Set includes for targets using library.
 target_include_directories(spark-imgui PUBLIC "${IMGUI_INCLUDE_DIRS}")
-target_link_libraries(spark-imgui PUBLIC spark-glad) # Link Glad # TODO: cross platform?
+target_link_libraries(spark-imgui spark-glad) # Link Glad
+target_link_libraries(spark-imgui glfw)       # Link GLFW
 
 # Use Glad for ImGui.
 target_compile_definitions(spark-imgui PUBLIC IMGUI_IMPL_OPENGL_LOADER_GLAD)

@@ -1,3 +1,5 @@
 *.idea
 /bin/debug/*
 /bin/release/*
+/cmake-build-debug/*
+/cmake-build-release/*
