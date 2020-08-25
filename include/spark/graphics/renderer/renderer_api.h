@@ -3,7 +3,7 @@
 #define SPARK_RENDERER_API_H
 
 #include <glm/glm.hpp>                             // glm::vec4
-#include <spark/utilitybox/tools/global_defines.h> // _NODISCARD_
+#include <utilitybox/tools/global_defines.h> // _NODISCARD_
 
 namespace Spark {
     namespace Graphics {

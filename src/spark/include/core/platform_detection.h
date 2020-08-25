@@ -45,21 +45,6 @@
 // Unknown platform.
 #else
 	#error "Unknown platform!"
-
 #endif // End of platform detection.
-
-#ifdef SP_DEBUG
-    // Enable debug breaks.
-    #if defined(SP_PLATFORM_LINUX)
-        #include <signal.h>
-        #define SP_DEBUGBREAK() raise(SIGTRAP)
-    #else
-        #error "Debug breaks are not suppported on the current platform."
-    #endif
-    #define SP_ENABLE_ASSERTS
-#else
-    #define SP_DEBUGBREAK()
-#endif
-
 
 #endif // SPARK_CONFIGURATION_H

@@ -3,7 +3,7 @@
 #define SPARK_ADAPTER_H
 
 #include <spark_pch.h>                              // std::string, std::vector
-#include <spark/utilitybox/tools/global_defines.h>  // _NODISCARD
+#include <utilitybox/tools/global_defines.h>  // _NODISCARD
 #include <spark/utilitybox/logger/adapter_config.h> // AdapterConfiguration
 
 namespace Spark {

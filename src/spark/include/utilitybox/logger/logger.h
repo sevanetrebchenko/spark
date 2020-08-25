@@ -4,7 +4,7 @@
 
 #include <spark_pch.h>                                     // std::chrono
 #include <spark/utilitybox/logger/adapter.h>               // Adapter
-#include <spark/utilitybox/tools/global_defines.h>         // _NODISCARD_
+#include <utilitybox/tools/global_defines.h>         // _NODISCARD_
 #include <spark/utilitybox/logger/logging_hub_interface.h> // ILoggingHub
 #include <utilitybox/logger/logging_system.h>              // LogRecord
 

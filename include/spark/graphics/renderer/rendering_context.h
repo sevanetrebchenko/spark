@@ -2,7 +2,7 @@
 #ifndef SPARK_RENDERING_CONTEXT_H
 #define SPARK_RENDERING_CONTEXT_H
 
-#include <spark/utilitybox/tools/global_defines.h> // _NODISCARD_
+#include <utilitybox/tools/global_defines.h> // _NODISCARD_
 #include <spark/graphics/renderer/renderer_api.h>  // RenderingAPI
 
 namespace Spark {

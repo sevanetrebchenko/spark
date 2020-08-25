@@ -1,5 +1,5 @@
 
-#include <spark/utilitybox/tools/assert_dev.h>                    // Asserts
+#include <utilitybox/tools/assert_dev.h>                    // Asserts
 #include <utilitybox/logger/logger.h>                             // LoggingHub
 #include <utilitybox/logger/invalid_format_character_exception.h> // InvalidFormatCharacterException
 #include <spark/utilitybox/logger/adapter_config.h>               // AdapterConfiguration

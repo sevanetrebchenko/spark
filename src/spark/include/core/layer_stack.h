@@ -3,7 +3,7 @@
 #define SPARK_LAYER_STACK_H
 
 #include <spark_pch.h>                             // std::string, std::vector
-#include <spark/utilitybox/tools/global_defines.h> // _NODISCARD_
+#include <utilitybox/tools/global_defines.h> // _NODISCARD_
 #include <spark/core/layer.h>                      // Layer
 
 namespace Spark {

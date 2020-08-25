@@ -1,5 +1,5 @@
 
-#include <spark/utilitybox/tools/assert_dev.h>          // Asserts
+#include <utilitybox/tools/assert_dev.h>          // Asserts
 #include <utilitybox/memory/memory_formatter.h>         // MemoryFormatter
 #include <utilitybox/memory/segmented_pool_allocator.h> // SegmentedPoolAllocator
 

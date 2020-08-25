@@ -1,8 +1,7 @@
 
-#include <spark_pch.h>                                   // memset
+#include <spark/core/core.h>                             // SP_ASSERT
 #include <utilitybox/memory/memory_formatter.h>          // MemoryFormatter
 #include <utilitybox/memory/contiguous_pool_allocator.h> // ContiguousPoolAllocator
-#include <spark/utilitybox/tools/assert_dev.h>           // Asserts
 
 namespace Spark::UtilityBox::Memory {
     class ContiguousPoolAllocator::AllocatorData {
@@ -227,7 +226,7 @@ namespace Spark::UtilityBox::Memory {
         void* pageBase = malloc(pageSize);
 
         if (isReallocation) {
-            ASSERT(pageBase != nullptr, "Failed to reallocate memory block of size %i for pool allocator.", pageSize);
+            SP_ASSERT(pageBase != nullptr, "Failed to reallocate memory block of size %i for pool allocator.", pageSize);
 
             // Offset by the page header pointer to get to the first data block.
             void* dataBase = static_cast<char*>(pageBase) + sizeof(PageHeader);
@@ -254,7 +253,7 @@ namespace Spark::UtilityBox::Memory {
             ConstructPageFreeList(dataBase);
         }
         else {
-            ASSERT(pageBase != nullptr, "Failed to allocate memory block of size %i for pool allocator.", pageSize);
+            SP_ASSERT(pageBase != nullptr, "Failed to allocate memory block of size %i for pool allocator.", pageSize);
 
             // Placement new construct header.
             _pageHeader = new (pageBase) PageHeader();

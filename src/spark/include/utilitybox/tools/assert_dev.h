@@ -2,10 +2,8 @@
 #ifndef SPARK_ASSERT_DEV_H
 #define SPARK_ASSERT_DEV_H
 
-#include <spark_pch.h> // std::cerr, fprintf
-
 // Function used when more parameters are passed with the message (printf-style assert).
-#define ASSERT_VARIADIC(function, file, line, check, formatString, ...)                                                                        \
+#define SP_ASSERT_VARIADIC(function, file, line, check, formatString, ...)                                                                     \
     do {                                                                                                                                       \
         if (!(check)) {                                                                                                                        \
             std::cerr << "Assert of condition: " << #check << " failed in function: " << function << ", " << file << ":" << line << std::endl; \
@@ -13,20 +11,20 @@
             fprintf(stderr, formatString, ##__VA_ARGS__);                                                                                      \
             std::cerr << std::endl;                                                                                                            \
             std::cerr << "Aborting program execution." << std::endl;                                                                           \
-            exit(0);                                                                                                                           \
+            SP_DEBUGBREAK();                                                                                                                   \
         }                                                                                                                                      \
     }                                                                                                                                          \
     while (false)                                                                                                                              \
 
 // Function used when only a message (string) is passed with the assert.
-#define ASSERT_FIXED(function, file, line, check, formatString)                                                                                \
+#define SP_ASSERT_FIXED(function, file, line, check, formatString)                                                                             \
     do {                                                                                                                                       \
         if (!(check)) {                                                                                                                        \
             std::cerr << "Assert of condition: " << #check << " failed in function: " << function << ", " << file << ":" << line << std::endl; \
             std::cerr << "Assertion message: " << formatString;                                                                                \
             std::cerr << std::endl;                                                                                                            \
             std::cerr << "Aborting program execution." << std::endl;                                                                           \
-            exit(0);                                                                                                                           \
+            SP_DEBUGBREAK();                                                                                                                   \
         }                                                                                                                                      \
     }                                                                                                                                          \
     while (false)                                                                                                                              \
@@ -76,7 +74,6 @@
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
 // Definition for ASSERT
-#define ASSERT(check, formatString, ...) _GET_FUNCTION_SIGNATURE(ASSERT, __PRETTY_FUNCTION__, __FILENAME__, __LINE__, check, formatString, ##__VA_ARGS__)
-
+#define SP_ASSERT(check, formatString, ...) _GET_FUNCTION_SIGNATURE(SP_ASSERT, __PRETTY_FUNCTION__, __FILENAME__, __LINE__, check, formatString, ##__VA_ARGS__)
 
 #endif // SPARK_ASSERT_DEV_H

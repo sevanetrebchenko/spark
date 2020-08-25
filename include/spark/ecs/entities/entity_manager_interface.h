@@ -6,7 +6,7 @@
 #include <spark/ecs/ecs_typedefs.h>                       // EntityID, ComponentTypeID
 #include <spark/ecs/components/types/base_component.h>    // BaseComponent
 #include <spark/ecs/entities/entity_callback_type.h>      // CallbackType
-#include <spark/utilitybox/tools/global_defines.h>        // _NODISCARD_
+#include <utilitybox/tools/global_defines.h>        // _NODISCARD_
 
 namespace Spark {
     namespace ECS {

@@ -3,7 +3,7 @@
 #define SPARK_COMPONENT_MANAGER_TPP
 
 #include <spark_pch.h>                                  // std::string, std::bad_alloc, std::is_base_of
-#include <spark/utilitybox/tools/global_defines.h>      // _NODISCARD_
+#include <utilitybox/tools/global_defines.h>      // _NODISCARD_
 #include <spark/utilitybox/logger/logging_interface.h>  // ILoggable
 #include <spark/ecs/components/types/base_component.h>  // BaseComponent
 #include <utilitybox/memory/segmented_pool_allocator.h> // SegmentedPoolAllocator

@@ -2,7 +2,7 @@
 #ifndef SPARK_LOGGING_HUB_INTERFACE_H
 #define SPARK_LOGGING_HUB_INTERFACE_H
 
-#include <spark/utilitybox/tools/global_defines.h> // _NODISCARD
+#include <utilitybox/tools/global_defines.h> // _NODISCARD
 #include <spark/utilitybox/logger/adapter.h>       // Adapter
 #include <utilitybox/logger/logging_system.h>      // LoggingSystem
 

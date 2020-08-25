@@ -2,7 +2,7 @@
 #ifndef SPARK_EVENT_LISTENER_INTERFACE_H
 #define SPARK_EVENT_LISTENER_INTERFACE_H
 
-#include <spark/utilitybox/tools/global_defines.h> // _NODISCARD_
+#include <utilitybox/tools/global_defines.h> // _NODISCARD_
 
 namespace Spark {
     namespace Events {

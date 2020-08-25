@@ -2,7 +2,7 @@
 #ifndef SPARK_MEMORY_FORMATTER_H
 #define SPARK_MEMORY_FORMATTER_H
 
-#include <spark/utilitybox/tools/global_defines.h> // _NODISCARD_
+#include <utilitybox/tools/global_defines.h> // _NODISCARD_
 
 namespace Spark {
     namespace UtilityBox {

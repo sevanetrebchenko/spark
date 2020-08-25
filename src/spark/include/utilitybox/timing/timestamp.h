@@ -3,7 +3,7 @@
 #define SPARK_TIMESTAMP_H
 
 #include <spark_pch.h>                             // std::chrono, std::ostream
-#include <spark/utilitybox/tools/global_defines.h> // _NODISCARD_
+#include <utilitybox/tools/global_defines.h> // _NODISCARD_
 
 namespace Spark {
     namespace UtilityBox {

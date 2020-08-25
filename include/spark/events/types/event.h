@@ -3,7 +3,7 @@
 #define SPARK_EVENT_H
 
 #include <spark_pch.h>                             // std::string
-#include <spark/utilitybox/tools/global_defines.h> // _NODISCARD_
+#include <utilitybox/tools/global_defines.h> // _NODISCARD_
 
 namespace Spark {
     namespace Events {

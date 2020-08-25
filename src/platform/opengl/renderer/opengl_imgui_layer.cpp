@@ -1,16 +1,16 @@
 
 #include <imgui.h>
 #include <examples/imgui_impl_opengl3.h>                 // ImGui_ImplOpenGL3_Init, ImGui_ImplOpenGL3_NewFrame, ImGui_ImplOpenGL3_RenderDrawData
-#include <spark_pch.h>                                   // std::pair
 #include <platform/opengl/renderer/opengl_imgui_layer.h> // OpenGLImGuiLayer
 #include <spark/core/service_locator.h>                  // ServiceLocator
-#include <spark/events/types/mouse_events.h>             // MouseMovedEvent
+#include <spark/events/types/mouse_events.h>             // MouseMovedEvent, MouseScrolledEvent
+#include <spark/events/event_interactable_interface.h>   // IEventReceivable
 
 namespace Spark::Graphics {
     //------------------------------------------------------------------------------------------------------------------
     // OPENGL IMGUI LAYER DATA
     //------------------------------------------------------------------------------------------------------------------
-    class OpenGLImGuiLayer::OpenGLImGuiLayerData {
+    class OpenGLImGuiLayer::OpenGLImGuiLayerData : public Events::IEventReceivable<OpenGLImGuiLayerData, Events::MouseScrolledEvent> {
         public:
             explicit OpenGLImGuiLayerData(GLFWwindow* window);
             ~OpenGLImGuiLayerData();
@@ -24,6 +24,9 @@ namespace Spark::Graphics {
             void EndFrame();
 
         private:
+            friend class Events::IEventReceivable<OpenGLImGuiLayerData, Events::MouseScrolledEvent>;
+            void OnEvent(Events::MouseScrolledEvent* event) override;
+
             void SetupImGuiOpenGLEnvironment();
             void SetupGLFWCallbacks();
             void SetupKeyMap();
@@ -66,6 +69,12 @@ namespace Spark::Graphics {
     void OpenGLImGuiLayer::OpenGLImGuiLayerData::EndFrame() {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    }
+
+    void OpenGLImGuiLayer::OpenGLImGuiLayerData::OnEvent(Events::MouseScrolledEvent *event) {
+        ImGuiIO& io = ImGui::GetIO();
+        io.MouseWheelH += (float)event->GetScrollX();
+        io.MouseWheel += (float)event->GetScrollY();
     }
 
     // Initialize back-end ImGui renderer and environment.

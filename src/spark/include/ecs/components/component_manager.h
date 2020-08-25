@@ -3,7 +3,7 @@
 #define SPARK_COMPONENT_MANAGER_H
 
 #include <ecs/components/component_manager_interface.h> // ComponentManagerInterface
-#include <spark/utilitybox/tools/global_defines.h>      // _NODISCARD_
+#include <utilitybox/tools/global_defines.h>      // _NODISCARD_
 
 namespace Spark {
     namespace ECS {

@@ -4,7 +4,7 @@
 
 #include <spark_pch.h>                                   // std::bad_alloc, std::is_same_v, std::is_base_of, std::unordered_map
 #include <spark/utilitybox/logger/logging_interface.h>   // ILoggable
-#include <spark/utilitybox/tools/global_defines.h>       // _NODISCARD_
+#include <utilitybox/tools/global_defines.h>       // _NODISCARD_
 #include <utilitybox/tools/utility_functions.h>          // PARAMETER_PACK_EXPAND
 #include <ecs/components/component_manager_collection.h> // ComponentManagerCollection
 #include <ecs/components/component_manager_interface.h>  // ComponentManagerInterface
