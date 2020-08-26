@@ -13,4 +13,4 @@ class Sandbox : public Spark::Application {
 
 };
 
-#endif //SPARK_SANDBOX_H
+#endif // SPARK_SANDBOX_H

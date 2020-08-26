@@ -15,13 +15,9 @@ set(CORE_SOURCE_FILES
 add_executable(sandbox ${CORE_SOURCE_FILES})
 
 # Link to Spark engine.
-target_link_libraries(sandbox PRIVATE spark)
+target_link_libraries(sandbox spark)
 
 # Set Sandbox public include directories.
 set(SANDBOX_PUBLIC_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include")
 target_include_directories(sandbox PUBLIC ${SANDBOX_PUBLIC_INCLUDE_DIRS})
-
-# Spark and platform-specific include directories.
-set(SANDBOX_PRIVATE_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/include")
-target_include_directories(sandbox PRIVATE ${SANDBOX_PRIVATE_INCLUDE_DIRS})
 
