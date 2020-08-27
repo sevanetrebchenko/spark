@@ -13,7 +13,15 @@ namespace Spark {
                 static constexpr const char* Name = "Base";
 
                 virtual ~BaseComponent() = default;
+                virtual void OnImGuiRender() = 0;
+
                 bool _enabled = true;
+            };
+
+            struct TestComponent : public BaseComponent {
+                void OnImGuiRender() override {
+                    //std::cout << "rendering test component imgui" << std::endl;
+                }
             };
 
         }

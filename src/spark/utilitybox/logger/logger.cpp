@@ -1,61 +1,11 @@
 
 #include <spark/core/core.h>
-#include <spark/utilitybox/logger/logger.h>                             // LoggingHub
-#include <spark/utilitybox/logger/invalid_format_character_exception.h> // InvalidFormatCharacterException
-#include <spark/utilitybox/logger/adapter/adapter_config.h>                     // AdapterConfiguration
+#include <spark/utilitybox/logger/logger.h>                                // LoggingHub
+#include <spark/utilitybox/logger/invalid_format_character_exception.h>    // InvalidFormatCharacterException
+#include <spark/utilitybox/logger/adapter/adapter_config.h>                // AdapterConfiguration
+#include <spark/utilitybox/logger/adapter/types/standard_output_adapter.h> // StandardOutputAdapter
 
 namespace Spark::UtilityBox::Logger {
-    //------------------------------------------------------------------------------------------------------------------
-    // STANDARD ADAPTER
-    //------------------------------------------------------------------------------------------------------------------
-    class StandardOutputAdapter final : public Adapter {
-        public:
-            /**
-             * Construct an adapter for a standard output stream.
-             * @param name   - Name of the adapter.
-             * @param stream - Stream to print to.
-             */
-            explicit StandardOutputAdapter(const char* name, std::ostream* stream);
-
-            /**
-             * Clear formatted messages and flush remaining messages into the stream.
-             */
-            ~StandardOutputAdapter() override;
-
-            /**
-             * Print all messages in the formatted messages buffer to the stream. Separates concurrent messages with
-             * a newline to aid in clarity.
-             */
-            void OutputMessage(std::vector<std::string> messages) override;
-
-        private:
-            std::ostream* _stream; // Standard output stream this adapter prints to.
-    };
-
-    // Construct an adapter for a standard output stream.
-    StandardOutputAdapter::StandardOutputAdapter(const char* name, std::ostream* stream) : Adapter(name), _stream(stream) {
-        GetConfiguration()->SetFormattingString("%x\n[%c] | %d | [ %s ]\n\tLogged through system: %n\n%x\n\t[ %t ] - %m\n");
-        GetConfiguration()->SetTimestampFormattingString("%mm %ss %lms");
-    }
-
-    // Print all messages in the formatted messages buffer to the stream. Separates concurrent messages with a newline to aid in clarity.
-    void StandardOutputAdapter::OutputMessage(std::vector<std::string> messages) {
-        ++_logCount;
-
-        for (auto& message : messages) {
-            (*_stream) << message;
-        }
-
-        // Append this message with another newline character to better separate concurrent messages.
-        (*_stream) << std::endl;
-    }
-
-    // Clear formatted messages and flush remaining messages into the stream.
-    StandardOutputAdapter::~StandardOutputAdapter() {
-        (*_stream).flush();
-    }
-
-
     //------------------------------------------------------------------------------------------------------------------
     // LOGGING HUB DATA
     //------------------------------------------------------------------------------------------------------------------
@@ -80,15 +30,15 @@ namespace Spark::UtilityBox::Logger {
 
             /**
              * Add a custom adapter to receive messages.
-             * @param adapter - Adapter instance to add.
+             * @param adapter - IAdapter instance to add.
              */
-            void AttachAdapter(Adapter* adapter);
+            void AttachAdapter(IAdapter* adapter);
 
             /**
              * Remove a custom adapter from receiving messages. Calls destructor for the adapter.
-             * @param adapter - Adapter instance to remove.
+             * @param adapter - IAdapter instance to remove.
              */
-            void DetachAdapter(Adapter* adapter);
+            void DetachAdapter(IAdapter* adapter);
 
             /**
              * Get an adapter instance with a given name.
@@ -96,7 +46,7 @@ namespace Spark::UtilityBox::Logger {
              * @return On success: returns a pointer to the adapter.
              *         On failure: returns a null pointer.
              */
-            Adapter* GetAdapter(const char* name);
+            IAdapter* GetAdapter(const char* name);
 
             /**
              * Transfer (move) log message data into internal data stores in the LoggingHub.
@@ -124,18 +74,18 @@ namespace Spark::UtilityBox::Logger {
              */
             void SwitchBuffers();
 
-            _NODISCARD_ std::vector<std::string> ProcessMessage(Adapter* adapter, LogRecord* logRecord);
+            _NODISCARD_ std::vector<std::string> ProcessMessage(IAdapter* adapter, LogRecord* logRecord);
             _NODISCARD_ std::vector<std::string> FormatMessage(const std::string &message, int characterStart, int characterEnd);
             _NODISCARD_ std::string FormatCalendarInformation(const char *calendarFormatString);
             _NODISCARD_ std::string FormatLogCount(int logCount);
             _NODISCARD_ std::string FormatSeverity(const LogMessageSeverity &messageSeverity);
-            _NODISCARD_ std::string FormatTimestamp(const Adapter *adapter, const Timing::TimeStamp &timeStamp);
+            _NODISCARD_ std::string FormatTimestamp(const IAdapter *adapter, const Timing::TimeStamp &timeStamp);
             _NODISCARD_ std::string FormatSeparator(int lineLength);
 
-            // Adapter data
-            std::vector<Adapter*> _customAdapters;              // User-created custom adapters.
-            StandardOutputAdapter* _cout;                       // Adapter for standard output (stdout)
-            StandardOutputAdapter* _cerr;                       // Adapter for standard error (stderr)
+            // IAdapter data
+            std::vector<IAdapter*> _adapterList;              // User-created custom adapters.
+            StandardOutputAdapter* _cout;                       // IAdapter for standard output (stdout)
+            StandardOutputAdapter* _cerr;                       // IAdapter for standard error (stderr)
 
             std::queue<std::string> _formattedErrorMessages;    // Storage for exception/error message - used during processing.
 
@@ -165,7 +115,10 @@ namespace Spark::UtilityBox::Logger {
                                                                                                                                    _initializationTime(initTimestamp),
                                                                                                                                    _reset(false)
                                                                                                                                    {
-        _cerr->GetConfiguration()->SetMessageSeverityCutoff(LogMessageSeverity::SEVERE);
+        _cerr->GetConfiguration()->SetMessageSeverityCutoff(LogMessageSeverity::ERROR);
+
+        AttachAdapter(_cout);
+        AttachAdapter(_cerr);
 
         // Start worker thread last when all the other data is ready.
         _distributingThread = std::move(std::thread(&LoggingHub::LoggingHubData::DistributeMessages, this));
@@ -174,7 +127,7 @@ namespace Spark::UtilityBox::Logger {
     // Clean up the data related to the LoggingHub.
     LoggingHub::LoggingHubData::~LoggingHubData() {
         // Delete adapters.
-        for (auto* adapter : _customAdapters) {
+        for (auto* adapter : _adapterList) {
             delete adapter;
         }
 
@@ -207,28 +160,46 @@ namespace Spark::UtilityBox::Logger {
     }
 
     // Add a custom adapter to receive messages.
-    void LoggingHub::LoggingHubData::AttachAdapter(Adapter* adapter) {
-        _customAdapters.emplace_back(adapter);
+    void LoggingHub::LoggingHubData::AttachAdapter(IAdapter* adapter) {
+        try {
+            adapter->Initialize();
+        }
+        catch (const std::runtime_error& exception) {
+            LogRecord errorLogRecord;
+            errorLogRecord.message = exception.what();
+            errorLogRecord.messageSeverity = LogMessageSeverity::ERROR;
+            errorLogRecord.loggingSystemName = "Logging Hub";
+
+            static LogRecord* errorMessageAddress = &errorLogRecord;
+
+            _cout->OutputMessage(ProcessMessage(_cout, errorMessageAddress));
+            _cerr->OutputMessage(ProcessMessage(_cerr, errorMessageAddress));
+
+            // Do not attach adapter.
+            return;
+        }
+
+        _adapterList.emplace_back(adapter);
     }
 
     // Remove a custom adapter from receiving messages. Calls destructor for the adapter.
-    void LoggingHub::LoggingHubData::DetachAdapter(Adapter* adapter) {
-        auto it = std::find(_customAdapters.begin(), _customAdapters.end(), adapter);
-        if (it != _customAdapters.end()) {
-            _customAdapters.erase(it);
+    void LoggingHub::LoggingHubData::DetachAdapter(IAdapter* adapter) {
+        auto it = std::find(_adapterList.begin(), _adapterList.end(), adapter);
+        if (it != _adapterList.end()) {
+            _adapterList.erase(it);
             delete *it;
         }
     }
 
     // Get an adapter instance with a given name.
-    Adapter* LoggingHub::LoggingHubData::GetAdapter(const char* name) {
-        for (auto* adapter : _customAdapters) {
+    IAdapter* LoggingHub::LoggingHubData::GetAdapter(const char* name) {
+        for (auto* adapter : _adapterList) {
             if (!strcmp(adapter->GetConfiguration()->GetAdapterName(), name)) {
                 return adapter;
             }
         }
 
-        // Adapter doesn't exist, return nullptr.
+        // IAdapter doesn't exist, return nullptr.
         return nullptr;
     }
 
@@ -260,25 +231,22 @@ namespace Spark::UtilityBox::Logger {
                 // Process message for standard output and standard error.
                 static std::vector<std::string> formattedMessages;
 
-                _cout->OutputMessage(ProcessMessage(_cout, currentMessageAddress));
-                _cerr->OutputMessage(ProcessMessage(_cerr, currentMessageAddress));
-
                 // Process message for all custom adapters.
-                for (auto* adapter : _customAdapters) {
+                for (auto* adapter : _adapterList) {
                     try {
-                        adapter->OutputMessage(ProcessMessage(adapter, currentMessageAddress));
+                        adapter->OutputMessage(std::move(ProcessMessage(adapter, currentMessageAddress)));
                     }
                     // If the adapter's formatting string contains an invalid character, an exception is thrown and caught here.
                     catch (const InvalidFormatCharacterException& exceptionData) {
                         LogRecord errorLogRecord;
                         errorLogRecord.message = exceptionData.what();
-                        errorLogRecord.messageSeverity = LogMessageSeverity::SEVERE;
+                        errorLogRecord.messageSeverity = LogMessageSeverity::ERROR;
                         errorLogRecord.loggingSystemName = "Logging Hub";
 
                         static LogRecord* errorMessageAddress = &errorLogRecord;
 
-                        _cout->OutputMessage(ProcessMessage(_cout, errorMessageAddress));
-                        _cerr->OutputMessage(ProcessMessage(_cerr, errorMessageAddress));
+                        _cout->OutputMessage(std::move(ProcessMessage(_cout, errorMessageAddress)));
+                        _cerr->OutputMessage(std::move(ProcessMessage(_cerr, errorMessageAddress)));
 
                         // Delete faulty adapter from the custom adapters list.
                         DetachAdapter(adapter);
@@ -300,7 +268,7 @@ namespace Spark::UtilityBox::Logger {
         }
     }
 
-    std::vector<std::string> LoggingHub::LoggingHubData::ProcessMessage(Adapter *adapter, LogRecord *logRecord) {
+    std::vector<std::string> LoggingHub::LoggingHubData::ProcessMessage(IAdapter *adapter, LogRecord *logRecord) {
         static std::vector<std::string> processedMessages;
 
         if (logRecord->messageSeverity >= adapter->GetConfiguration()->GetMessageSeverityCutoff()) {
@@ -365,7 +333,7 @@ namespace Spark::UtilityBox::Logger {
                         break;
                         // Logged system name.
                     case 'n':
-                        appendedElement = adapter->GetConfiguration()->GetAdapterName();
+                        appendedElement = logRecord->loggingSystemName;
                         format << appendedElement;
                         currentCharacterCount += appendedElement.length();
                         break;
@@ -495,13 +463,13 @@ namespace Spark::UtilityBox::Logger {
 
         switch (messageSeverity) {
             case LogMessageSeverity::DEBUG:
-                format << "DEBUG";
+                format << "  DEBUG  ";
                 break;
             case LogMessageSeverity::WARNING:
-                format << "WARNING";
+                format << " WARNING ";
                 break;
-            case LogMessageSeverity::SEVERE:
-                format << "SEVERE";
+            case LogMessageSeverity::ERROR:
+                format << "  ERROR  ";
                 break;
         }
 
@@ -510,7 +478,7 @@ namespace Spark::UtilityBox::Logger {
         return std::move(formattedMessage);
     }
 
-    std::string LoggingHub::LoggingHubData::FormatTimestamp(const Adapter *adapter, const Timing::TimeStamp &timeStamp) {
+    std::string LoggingHub::LoggingHubData::FormatTimestamp(const IAdapter *adapter, const Timing::TimeStamp &timeStamp) {
         static std::stringstream format;
 
         for (const char* traversalIndex = adapter->GetConfiguration()->GetTimestampFormattingString(); *traversalIndex != '\0'; ++traversalIndex) {
@@ -575,15 +543,15 @@ namespace Spark::UtilityBox::Logger {
     }
 
     // Attach a custom adapter to process and receive messages through the LoggingHub.
-    void Logger::LoggingHub::AttachCustomAdapter(Adapter* adapter) {
+    void Logger::LoggingHub::AttachCustomAdapter(IAdapter* adapter) {
         _data->AttachAdapter(adapter);
     }
 
-    Adapter* Logger::LoggingHub::GetCustomAdapter(const char* adapterName) {
+    IAdapter* Logger::LoggingHub::GetCustomAdapter(const char* adapterName) {
         return _data->GetAdapter(adapterName);
     }
 
-    void LoggingHub::DetachCustomAdapter(Adapter *adapter) {
+    void LoggingHub::DetachCustomAdapter(IAdapter *adapter) {
         _data->DetachAdapter(adapter);
     }
 

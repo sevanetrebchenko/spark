@@ -45,7 +45,7 @@ namespace Spark {
                                                       _imGuiLayer(Graphics::IImGuiLayer::Create(_window->GetNativeWindow()))
                                                       {
         // Attach ImGui as an overlay.
-        _layerStack.PushOverlay(_imGuiLayer);
+        PushOverlay(_imGuiLayer);
 
         _running = true;
         _windowMinimized = false;
@@ -58,10 +58,12 @@ namespace Spark {
 
     void Application::ApplicationData::PushLayer(Layer *layer) {
         _layerStack.PushLayer(layer);
+        layer->OnAttach();
     }
 
     void Application::ApplicationData::PushOverlay(Layer *overlay) {
         _layerStack.PushOverlay(overlay);
+        overlay->OnAttach();
     }
 
     void Application::ApplicationData::Run() {
@@ -76,12 +78,12 @@ namespace Spark {
                     layer->OnUpdate(_deltaTime);
                 }
 
-//            // ImGui rendering.
-//            _imGuiLayer->BeginFrame();
-//            for (Layer* layer : _layerStack) {
-//                layer->OnImGuiRender();
-//            }
-//            _imGuiLayer->EndFrame();
+                // ImGui rendering.
+                _imGuiLayer->BeginFrame();
+                for (Layer* layer : _layerStack) {
+                    layer->OnImGuiRender();
+                }
+                _imGuiLayer->EndFrame();
             }
 
             _window->OnUpdate();

@@ -9,7 +9,7 @@ namespace Spark {
             enum class LogMessageSeverity {
                 DEBUG,
                 WARNING,
-                SEVERE
+                ERROR
             };
 
         }

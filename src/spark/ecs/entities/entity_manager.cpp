@@ -47,12 +47,18 @@ namespace Spark::ECS::Entities {
             void RegisterCallback(CallbackType callbackType, const std::function<void(EntityID)>& callbackFunction);
 
             /**
+            * Retrieve a map of all entities and their attached components.
+            * @return A map of all entities and their attached components.
+            */
+            _NODISCARD_ const std::unordered_map<EntityID, std::unordered_map<ComponentTypeID, Components::BaseComponent *>>& GetComponentMap() const;
+
+            /**
             * Retrieve the list of components that are attached to an entity with the provided ID, given that such an
             * entity exists in the Entity Manager.
             * @param ID - ID of the entity to get the components of.
             * @return List of attached components to the entity at the provided ID.
             */
-            const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& GetComponents(EntityID ID) const;
+            _NODISCARD_ const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& GetComponents(EntityID ID) const;
 
             /**
             * Retrieve the list of components that are attached to an entity with the provided name, given that such an
@@ -60,7 +66,7 @@ namespace Spark::ECS::Entities {
             * @param name - Name of the entity to get the components of.
             * @return List of attached components to the entity at the provided name.
             */
-            const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& GetComponents(std::string name) const;
+            _NODISCARD_ const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& GetComponents(std::string name) const;
 
             /**
             * Attach a component to an entity at the provided ID, given that it exists and the entity doesn't already
@@ -161,7 +167,7 @@ namespace Spark::ECS::Entities {
         LogDebug("Entity name converted to lowercase: '%s.'", name.c_str());
 
         // Entity name cannot be a name of any component.
-        LogDebug("Checking name against the names of all bin-in component names.");
+        LogDebug("Checking name against the names of all built-in component names.");
 
         if (CheckEntityName<ALL_COMPONENTS>(name)) {
             LogError("Exception thrown: Provided entity name: '%s' cannot match a built-in component name.", name.c_str());
@@ -385,6 +391,10 @@ namespace Spark::ECS::Entities {
         }
     }
 
+    const std::unordered_map<EntityID, std::unordered_map<ComponentTypeID, Components::BaseComponent *>>& EntityManager::EntityManagerData::GetComponentMap() const {
+        return _entityComponents;
+    }
+
 
     //------------------------------------------------------------------------------------------------------------------
     // ENTITY MANAGER
@@ -445,12 +455,16 @@ namespace Spark::ECS::Entities {
         return _data->GetComponents(std::move(name));
     }
 
-    void EntityManager::OnEvent(Events::AddComponentEvent<Components::BaseComponent> *event) {
-        _data->AddComponent<Components::BaseComponent>(event->GetEntityID());
+    void EntityManager::OnEvent(Events::AddComponentEvent<Components::TestComponent> *event) {
+        _data->AddComponent<Components::TestComponent>(event->GetEntityID());
     }
 
-    void EntityManager::OnEvent(Events::RemoveComponentEvent<Components::BaseComponent> *event) {
-        _data->RemoveComponent<Components::BaseComponent>(event->GetEntityID());
+    void EntityManager::OnEvent(Events::RemoveComponentEvent<Components::TestComponent> *event) {
+        _data->RemoveComponent<Components::TestComponent>(event->GetEntityID());
+    }
+
+    const std::unordered_map<EntityID, std::unordered_map<ComponentTypeID, Components::BaseComponent *>>& EntityManager::GetComponentMap() const {
+        return _data->GetComponentMap();
     }
 
 }

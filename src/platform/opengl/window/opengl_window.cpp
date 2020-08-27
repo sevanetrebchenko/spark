@@ -56,14 +56,13 @@ namespace Spark::Graphics {
 
         // Create window.
         _window = glfwCreateWindow(_windowWidth, _windowHeight, _windowName.c_str(), nullptr, nullptr);
-        if (!_window) {
-            throw std::runtime_error("GLFW window creation failed.");
-        }
+        SP_ASSERT(_window != nullptr, "Failed to initialize GLFW window.");
 
         // Create rendering context.
         _context = Graphics::IRenderingContext::Create(_window);
-        // TODO: assert
+        SP_ASSERT(_context != nullptr, "Context was not initialized - unsupported graphics API selected.");
 
+        _context->SetClearColor(glm::vec4(0.45f, 0.55f, 0.60f, 1.00f));
         SetupGLFWCallbacks();
     }
 
@@ -109,43 +108,43 @@ namespace Spark::Graphics {
 
             switch (errorCode) {
                 case GLFW_NO_ERROR:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_NO_ERROR (error code: %i).", errorCode);
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_NO_ERROR (error code: %i).", errorCode);
                     break;
                 case GLFW_NOT_INITIALIZED:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_NOT_INITIALIZED (error code: %i).", errorCode);
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_NOT_INITIALIZED (error code: %i).", errorCode);
                     break;
                 case GLFW_NO_CURRENT_CONTEXT:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_NO_CURRENT_CONTEXT (error code: %i).", errorCode);
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_NO_CURRENT_CONTEXT (error code: %i).", errorCode);
                     break;
                 case GLFW_INVALID_ENUM:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_INVALID_ENUM (error code: %i).", errorCode);
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_INVALID_ENUM (error code: %i).", errorCode);
                     break;
                 case GLFW_INVALID_VALUE:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_INVALID_VALUE (error code: %i).", errorCode);
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_INVALID_VALUE (error code: %i).", errorCode);
                     break;
                 case GLFW_OUT_OF_MEMORY:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_OUT_OF_MEMORY (error code: %i).", errorCode);
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_OUT_OF_MEMORY (error code: %i).", errorCode);
                     break;
                 case GLFW_API_UNAVAILABLE:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_API_UNAVAILABLE (error code: %i).", errorCode);
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_API_UNAVAILABLE (error code: %i).", errorCode);
                     break;
                 case GLFW_VERSION_UNAVAILABLE:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_VERSION_UNAVAILABLE (error code: %i).", errorCode);
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_VERSION_UNAVAILABLE (error code: %i).", errorCode);
                     break;
                 case GLFW_PLATFORM_ERROR:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_PLATFORM_ERROR (error code: %i).", errorCode);
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_PLATFORM_ERROR (error code: %i).", errorCode);
                     break;
                 case GLFW_FORMAT_UNAVAILABLE:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_FORMAT_UNAVAILABLE (error code: %i).", errorCode);
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_FORMAT_UNAVAILABLE (error code: %i).", errorCode);
                     break;
                 case GLFW_NO_WINDOW_CONTEXT:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "GLFW error occurred: GLFW_NO_WINDOW_CONTEXT (error code: %i).", errorCode);
+                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_NO_WINDOW_CONTEXT (error code: %i).", errorCode);
                     break;
                 default:
                     break;
             }
 
-            errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::SEVERE, "Provided error description: %s.", errorDescription);
+            errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "Provided error description: %s.", errorDescription);
         });
     }
 

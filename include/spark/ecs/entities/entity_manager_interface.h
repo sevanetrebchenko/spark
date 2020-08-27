@@ -18,6 +18,8 @@ namespace Spark {
                     virtual void DestroyEntity(EntityID ID) = 0;
                     virtual void DestroyEntity(std::string name) = 0;
                     _NODISCARD_ virtual EntityID GetEntityIDFromName(const std::string& entityName) const = 0;
+
+                    _NODISCARD_ virtual const std::unordered_map<EntityID, std::unordered_map<ComponentTypeID, Components::BaseComponent*>>& GetComponentMap() const = 0;
                     _NODISCARD_ virtual const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& GetComponents(EntityID ID) const = 0;
                     _NODISCARD_ virtual const std::unordered_map<ComponentTypeID, Components::BaseComponent*>& GetComponents(std::string name) const = 0;
             };

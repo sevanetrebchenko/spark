@@ -3,7 +3,7 @@
 #define SPARK_LOGGING_HUB_INTERFACE_H
 
 #include <spark/core/core.h>
-#include <spark/utilitybox/logger/adapter/adapter.h>       // Adapter
+#include <spark/utilitybox/logger/adapter/adapter.h>       // IAdapter
 #include <spark/utilitybox/logger/logging_system.h>      // LoggingSystem
 
 namespace Spark {
@@ -12,9 +12,9 @@ namespace Spark {
 
             class ILoggingHub {
                 public:
-                    virtual void AttachCustomAdapter(Adapter* adapter) = 0;
-                    _NODISCARD_ virtual Adapter* GetCustomAdapter(const char* name) = 0;
-                    virtual void DetachCustomAdapter(Adapter* adapter) = 0;
+                    virtual void AttachCustomAdapter(IAdapter* adapter) = 0;
+                    _NODISCARD_ virtual IAdapter* GetCustomAdapter(const char* name) = 0;
+                    virtual void DetachCustomAdapter(IAdapter* adapter) = 0;
 
                     _NODISCARD_ virtual const std::chrono::time_point<std::chrono::high_resolution_clock>& GetInitializationTime() = 0;
 

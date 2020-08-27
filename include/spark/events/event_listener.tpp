@@ -38,7 +38,7 @@ namespace Spark::Events {
     };
 
     template<class... EventTypes>
-    EventListener<EventTypes...>::EventListenerData::EventListenerData(const char* name, std::function<void(std::queue<std::shared_ptr<Event*>>&)>  eventProcessingFunction) : _name(name), _processingFunction(std::move(eventProcessingFunction)) {
+    EventListener<EventTypes...>::EventListenerData::EventListenerData(const char* name, std::function<void(std::queue<std::shared_ptr<Event*>>&)> eventProcessingFunction) : _name(name), _processingFunction(std::move(eventProcessingFunction)) {
         // Nothing to do here.
     }
 

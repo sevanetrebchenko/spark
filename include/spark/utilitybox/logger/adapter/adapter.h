@@ -9,10 +9,13 @@ namespace Spark {
     namespace UtilityBox {
         namespace Logger {
 
-            class Adapter {
+            class IAdapter {
                 public:
-                    explicit Adapter(const char* name = "Unnamed Adapter");
-                    virtual ~Adapter();
+                    explicit IAdapter(const char* name = "Unnamed IAdapter");
+                    explicit IAdapter(const std::string& adapterName = "Unnamed IAdapter");
+                    virtual ~IAdapter() = default;
+
+                    virtual void Initialize() = 0;
                     virtual void OutputMessage(std::vector<std::string> messages) = 0;
 
                     _NODISCARD_ AdapterConfiguration* GetConfiguration() const;

@@ -4,6 +4,6 @@
 
 // Component includes go here:
 
-#define ALL_COMPONENTS Spark::ECS::Components::BaseComponent // temporary
+#define ALL_COMPONENTS Spark::ECS::Components::TestComponent // temporary
 
 #endif // SPARK_ALL_COMPONENTS_H

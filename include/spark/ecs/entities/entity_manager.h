@@ -57,6 +57,12 @@ namespace Spark {
                     _NODISCARD_ EntityID GetEntityIDFromName(const std::string& entityName) const override;
 
                     /**
+                     * Retrieve a map of all entities and their attached components.
+                     * @return A map of all entities and their attached components.
+                     */
+                    _NODISCARD_ const std::unordered_map<EntityID, std::unordered_map<ComponentTypeID, Components::BaseComponent*>>& GetComponentMap() const override;
+
+                    /**
                     * Retrieve the list of components that are attached to an entity with the provided ID, given that such an
                     * entity exists in the Entity Manager.
                     * @param ID - ID of the entity to get the components of.
@@ -83,8 +89,8 @@ namespace Spark {
                     static EntityManager* _instance;
 
                     friend Events::IEventReceivable<EntityManager, Events::GenerateAddComponentsForTypes<ALL_COMPONENTS>::Type, Events::GenerateRemoveComponentsForTypes<ALL_COMPONENTS>::Type>;
-                    void OnEvent(Events::AddComponentEvent<Components::BaseComponent>* event) override;
-                    void OnEvent(Events::RemoveComponentEvent<Components::BaseComponent>* event) override;
+                    void OnEvent(Events::AddComponentEvent<Components::TestComponent>* event) override;
+                    void OnEvent(Events::RemoveComponentEvent<Components::TestComponent>* event) override;
 
                     // Storage for EntityManager data, back-end functionality, and helper functions.
                     class EntityManagerData;

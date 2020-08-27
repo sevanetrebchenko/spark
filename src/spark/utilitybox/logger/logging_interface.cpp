@@ -8,14 +8,14 @@ namespace Spark::UtilityBox::Logger {
     // ILOGGABLE DATA
     //------------------------------------------------------------------------------------------------------------------
     struct ILoggable::ILoggableData {
-        explicit ILoggableData(const std::string& name);
+        explicit ILoggableData(std::string name);
         ~ILoggableData() = default;
 
-        const char* _systemName;
-        UtilityBox::Logger::LoggingSystem _loggingSystem { _systemName };
+        std::string _systemName;
+        UtilityBox::Logger::LoggingSystem _loggingSystem { _systemName.c_str() };
     };
 
-    ILoggable::ILoggableData::ILoggableData(const std::string& name) : _systemName(name.c_str()) {
+    ILoggable::ILoggableData::ILoggableData(std::string name) : _systemName(std::move(name)) {
         // Nothing to do here.
     }
 
@@ -23,7 +23,7 @@ namespace Spark::UtilityBox::Logger {
     //------------------------------------------------------------------------------------------------------------------
     // ILOGGABLE
     //------------------------------------------------------------------------------------------------------------------
-    ILoggable::ILoggable(const std::string& systemName) : _data(new ILoggableData(systemName)) {
+    ILoggable::ILoggable(std::string systemName) : _data(new ILoggableData(std::move(systemName))) {
         // Nothing to do here.
     }
 
@@ -44,7 +44,7 @@ namespace Spark::UtilityBox::Logger {
     void ILoggable::LogError(const char *formatString, ...) const {
         std::va_list argsList;
         va_start(argsList, formatString);
-        _data->_loggingSystem.Log(LogMessageSeverity::SEVERE, formatString, argsList);
+        _data->_loggingSystem.Log(LogMessageSeverity::ERROR, formatString, argsList);
         va_end(argsList);
     }
 

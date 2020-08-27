@@ -16,7 +16,7 @@ namespace Spark {
 
                 protected:
                     // Make this class abstract.
-                    explicit ILoggable(const std::string& systemName = "Not provided.");
+                    explicit ILoggable(std::string systemName = "Not provided.");
                     ~ILoggable();
 
                 private:
