@@ -6,8 +6,7 @@ namespace Spark::UtilityBox::Logger {
 
     FileAdapter::FileAdapter(const char *fileName) : IAdapter(std::string("File Adapter: ") + std::string(fileName)),
                                                      _fileName(fileName) {
-        //GetConfiguration()->SetFormattingString("[%c] | [%s] | %d | - [ %t ] - %m\n");
-        GetConfiguration()->SetFormattingString("[%n] | [%s] | %d | - [ %t ] - %m\n");
+        GetConfiguration()->SetFormattingString("[%c] | [%s] | %d | - [ %t ] - %m\n");
         GetConfiguration()->SetTimestampFormattingString("%mm %ss %lms");
         GetConfiguration()->SetMessageWrapLimit(200);
     }
