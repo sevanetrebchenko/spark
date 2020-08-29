@@ -39,7 +39,7 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/memory/segmented_pool_allocator.cpp"
         # Timing
         "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/timing/timestamp.cpp"
-        ../include/spark/utilitybox/logger/adapter/types/standard_output_adapter.h spark/utilitybox/logger/adapter/types/standard_output_adapter.cpp spark/utilitybox/logger/adapter/types/file_adapter.cpp)
+        ../include/spark/utilitybox/logger/adapter/types/standard_output_adapter.h spark/utilitybox/logger/adapter/types/standard_output_adapter.cpp spark/utilitybox/logger/adapter/types/file_adapter.cpp ../include/spark/graphics/renderer/orthographic_camera.h ../include/spark/graphics/renderer/vertex_array_object.h ../include/spark/graphics/renderer/vertex_buffer_object.h ../include/spark/graphics/renderer/index_buffer_object.h ../include/spark/graphics/renderer/shader_data_type.h spark/graphics/renderer/shader_data_type.cpp ../include/spark/graphics/renderer/vertex_buffer_layout.h spark/graphics/renderer/vertex_buffer_layout.cpp spark/graphics/renderer/vertex_buffer_object.cpp ../include/platform/opengl/renderer/opengl_vertex_buffer_object.h platform/opengl/renderer/opengl_vertex_buffer_object.cpp spark/graphics/renderer/index_buffer_object.cpp ../include/platform/opengl/renderer/opengl_index_buffer_object.h platform/opengl/renderer/opengl_index_buffer_object.cpp spark/graphics/renderer/vertex_array_object.cpp ../include/platform/opengl/renderer/opengl_vertex_array_object.h platform/opengl/renderer/opengl_vertex_array_object.cpp)
 
 # Make Spark Engine core library.
 add_library(spark ${CORE_SOURCE_FILES})

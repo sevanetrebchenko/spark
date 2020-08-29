@@ -44,6 +44,8 @@ namespace Spark::Events {
                 return "EntityComponentAdd";
             case EventType::EntityComponentRemove:
                 return "EntityComponentRemove";
+            default:
+                SP_ASSERT(false, ""); // TODO
         }
     }
 
