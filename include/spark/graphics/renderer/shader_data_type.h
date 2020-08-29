@@ -9,13 +9,12 @@ namespace Spark {
 
         enum class ShaderDataType {
             NONE,
-            BOOL,
-            INT, INT2, INT3, INT4,
-            FLOAT, FLOAT2, FLOAT3, FLOAT4,
+            BOOL, INT, FLOAT,
+            VEC2, VEC3, VEC4,
             MAT2, MAT3, MAT4,
         };
 
-        static unsigned ShaderDataTypeSize(ShaderDataType shaderDataType);
+        static std::size_t ShaderDataTypeSize(ShaderDataType shaderDataType);
 
     }
 }

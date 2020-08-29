@@ -68,6 +68,17 @@ namespace Spark {
         }
     }
 
+    /**
+     * Convert a given string to all lowercase.
+     * @param string - String to convert.
+     */
+    void ConvertToLowercase(std::string& string) {
+        // Character by character traversal + conversion.
+        for (char& character : string) {
+            character = static_cast<char>(tolower(character));
+        }
+    }
+
 }
 
 #define _NODISCARD_ [[nodiscard]]

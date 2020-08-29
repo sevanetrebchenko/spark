@@ -34,16 +34,13 @@ namespace Spark::Graphics {
             case ShaderDataType::INT:
             case ShaderDataType::FLOAT:
                 return 1;
-            case ShaderDataType::INT2:
-            case ShaderDataType::FLOAT2:
+            case ShaderDataType::VEC2:
             case ShaderDataType::MAT2:
                 return 2;
-            case ShaderDataType::INT3:
-            case ShaderDataType::FLOAT3:
+            case ShaderDataType::VEC3:
             case ShaderDataType::MAT3:
                 return 3;
-            case ShaderDataType::INT4:
-            case ShaderDataType::FLOAT4:
+            case ShaderDataType::VEC4:
             case ShaderDataType::MAT4:
                 return 4;
             default:

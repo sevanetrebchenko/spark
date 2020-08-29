@@ -12,7 +12,7 @@ namespace Spark::Graphics {
         unsigned _bufferID;
         unsigned _vboAttributeIndex;
         std::vector<IVertexBufferObject*> _vertexBuffers;
-        const IIndexBufferObject* _indexBuffer;
+        IIndexBufferObject* _indexBuffer;
     };
 
     OpenGLVertexArrayObject::OpenGLVertexArrayObjectData::OpenGLVertexArrayObjectData() : _bufferID(0),
@@ -26,14 +26,11 @@ namespace Spark::Graphics {
             case ShaderDataType::BOOL:
                 return GL_BOOL;
             case ShaderDataType::INT:
-            case ShaderDataType::INT2:
-            case ShaderDataType::INT3:
-            case ShaderDataType::INT4:
                 return GL_INT;
             case ShaderDataType::FLOAT:
-            case ShaderDataType::FLOAT2:
-            case ShaderDataType::FLOAT3:
-            case ShaderDataType::FLOAT4:
+            case ShaderDataType::VEC2:
+            case ShaderDataType::VEC3:
+            case ShaderDataType::VEC4:
             case ShaderDataType::MAT2:
             case ShaderDataType::MAT3:
             case ShaderDataType::MAT4:
@@ -69,13 +66,10 @@ namespace Spark::Graphics {
             switch (vertexBufferElement.GetShaderDataType()) {
                 case ShaderDataType::BOOL:
                 case ShaderDataType::INT:
-                case ShaderDataType::INT2:
-                case ShaderDataType::INT3:
-                case ShaderDataType::INT4:
                 case ShaderDataType::FLOAT:
-                case ShaderDataType::FLOAT2:
-                case ShaderDataType::FLOAT3:
-                case ShaderDataType::FLOAT4:
+                case ShaderDataType::VEC2:
+                case ShaderDataType::VEC3:
+                case ShaderDataType::VEC4:
                     glEnableVertexAttribArray(_data->_vboAttributeIndex);
                     glVertexAttribPointer(_data->_vboAttributeIndex,
                                           vertexBufferElement.GetComponentCount(),

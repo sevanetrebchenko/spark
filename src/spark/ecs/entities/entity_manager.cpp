@@ -101,12 +101,6 @@ namespace Spark::ECS::Entities {
             bool CheckEntityName(const std::string& name) const;
 
             /**
-            * Convert a given string to lowercase.
-            * @param string - String to convert to lowercase.
-            */
-            void ConvertToLowercase(std::string& string) const;
-
-            /**
             * Convert an instance of an EntityManager::CallbackType object to a string to use in debug messages.
             * @param callbackType - Type of callback function to convert.
             * @return String representation of the callback function type.
@@ -365,14 +359,6 @@ namespace Spark::ECS::Entities {
         // Return true if strcasecmp returns 0 (names are equal). Strcasecmp is used to ensure lowercase letters for both
         // entity names and component names are both lowercase.
         return (!(strcasecmp(entityName.c_str(), ComponentTypes::Name)) || ...);
-    }
-
-    // Convert a given string to lowercase.
-    void EntityManager::EntityManagerData::ConvertToLowercase(std::string& string) const {
-        // Character by character traversal + conversion.
-        for (char& character : string) {
-            character = static_cast<char>(tolower(character));
-        }
     }
 
     // Convert an instance of an EntityManager::CallbackType object to a string to use in debug messages.
