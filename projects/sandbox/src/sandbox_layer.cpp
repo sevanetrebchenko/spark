@@ -6,5 +6,4 @@ void SandboxLayer::OnUpdate(float dt) {
 }
 
 SandboxLayer::SandboxLayer() : Spark::Layer("Sandbox Layer") {
-
 }

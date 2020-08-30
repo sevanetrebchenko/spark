@@ -29,8 +29,12 @@
 #ifdef SP_ENABLE_ASSERTS
     #include <spark/utilitybox/tools/assert_dev.h>
 #else
-    // Does nothing.
-    #define SP_ASSERT(check, formatString, ...)
+    #define SP_ASSERT(check, formatString, ...)  \
+    do {                                         \
+        if (!(check)) {                          \
+        }                                        \
+    }                                            \
+    while (false)
 #endif
 
 namespace Spark {
@@ -45,7 +49,7 @@ namespace Spark {
      * @return Member function callable from outside of the class.
      */
     template <class Class, typename ReturnType, typename ...FunctionArguments>
-    static auto CallbackFromMemberFn(Class* classInstance, ReturnType(Class::*memberFunction)(FunctionArguments...)) {
+    inline auto CallbackFromMemberFn(Class* classInstance, ReturnType(Class::*memberFunction)(FunctionArguments...)) {
         return [classInstance, memberFunction](FunctionArguments... additionalArguments) {
             // 'this' argument gets passed implicitly into member functions. Mimic this same behavior explicitly
             // to be able to call the class member function directly.
@@ -72,7 +76,7 @@ namespace Spark {
      * Convert a given string to all lowercase.
      * @param string - String to convert.
      */
-    void ConvertToLowercase(std::string& string) {
+    inline void ConvertToLowercase(std::string& string) {
         // Character by character traversal + conversion.
         for (char& character : string) {
             character = static_cast<char>(tolower(character));
