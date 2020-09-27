@@ -39,21 +39,30 @@
 
 namespace Spark {
 
-    /**
-     * Construct a standalone function pointer from a class member function.
-     * @tparam Class              - Class holding the member function.
-     * @tparam ReturnType         - Member function return type.
-     * @tparam FunctionArguments  - Member function parameters.
-     * @param classInstance       - Class instance / 'this' pointer.
-     * @param memberFunction      - Pointer to member function.
-     * @return Member function callable from outside of the class.
-     */
-    template <class Class, typename ReturnType, typename ...FunctionArguments>
-    inline auto CallbackFromMemberFn(Class* classInstance, ReturnType(Class::*memberFunction)(FunctionArguments...)) {
-        return [classInstance, memberFunction](FunctionArguments... additionalArguments) {
+//    /**
+//     * Construct a standalone function pointer from a class member function.
+//     * @tparam Class              - Class holding the member function.
+//     * @tparam ReturnType         - Member function return type.
+//     * @tparam FunctionArguments  - Member function parameters.
+//     * @param classInstance       - Class instance / 'this' pointer.
+//     * @param memberFunction      - Pointer to member function.
+//     * @return Member function callable from outside of the class.
+//     */
+//    template <class Class, typename ReturnType, typename ...FunctionArguments>
+//    inline auto CallbackFromMemberFn(Class* classInstance, ReturnType(Class::*memberFunction)(FunctionArguments...)) {
+//        return [classInstance, memberFunction](FunctionArguments... additionalArguments) {
+//            // 'this' argument gets passed implicitly into member functions. Mimic this same behavior explicitly
+//            // to be able to call the class member function directly.
+//            (ReturnType)(std::mem_fn(memberFunction)(classInstance, additionalArguments...));
+//        };
+//    }
+
+    template <class Class, class FunctionArgument>
+    inline auto CallbackFromMemberFn(Class* classInstance, void(Class::*memberFunction)(FunctionArgument)) {
+        return [classInstance, memberFunction](FunctionArgument additionalArgument) {
             // 'this' argument gets passed implicitly into member functions. Mimic this same behavior explicitly
             // to be able to call the class member function directly.
-            (ReturnType)(std::mem_fn(memberFunction)(classInstance, additionalArguments...));
+            (void)(std::mem_fn(memberFunction)(classInstance, additionalArgument));
         };
     }
 

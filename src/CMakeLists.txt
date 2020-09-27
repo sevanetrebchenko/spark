@@ -2,7 +2,11 @@
 set(CORE_SOURCE_FILES
         # Platform - OpenGL # TODO: Platform specific.
         "${PROJECT_SOURCE_DIR}/src/platform/opengl/renderer/opengl_imgui_layer.cpp"
+        "${PROJECT_SOURCE_DIR}/src/platform/opengl/renderer/opengl_index_buffer_object.cpp"
         "${PROJECT_SOURCE_DIR}/src/platform/opengl/renderer/opengl_rendering_context.cpp"
+        "${PROJECT_SOURCE_DIR}/src/platform/opengl/renderer/opengl_shader.cpp"
+        "${PROJECT_SOURCE_DIR}/src/platform/opengl/renderer/opengl_vertex_array_object.cpp"
+        "${PROJECT_SOURCE_DIR}/src/platform/opengl/renderer/opengl_vertex_buffer_object.cpp"
         "${PROJECT_SOURCE_DIR}/src/platform/opengl/window/opengl_window.cpp"
         # Spark - Core
         "${PROJECT_SOURCE_DIR}/src/spark/core/application.cpp"
@@ -22,8 +26,15 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/spark/events/null_event_hub.cpp"
         # Spark - Graphics
         "${PROJECT_SOURCE_DIR}/src/spark/graphics/renderer/imgui_layer.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/graphics/renderer/index_buffer_object.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/graphics/renderer/orthographic_camera.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/graphics/renderer/renderer_api.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/graphics/renderer/rendering_context.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/graphics/renderer/shader.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/graphics/renderer/shader_data_type.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/graphics/renderer/vertex_array_object.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/graphics/renderer/vertex_buffer_layout.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/graphics/renderer/vertex_buffer_object.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/graphics/window/window.cpp"
         # Spark - UtilityBox
         # Logger
@@ -41,7 +52,7 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/memory/segmented_pool_allocator.cpp"
         # Timing
         "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/timing/timestamp.cpp"
-        )
+        spark/graphics/renderer/orthographic_camera.cpp ../include/spark/ecs/components/types/transform_component.h spark/ecs/components/types/transform_component.cpp ../include/spark/ecs/components/types/orthographic_camera_component.h)
 
 # Make Spark Engine core library.
 add_library(spark ${CORE_SOURCE_FILES})
