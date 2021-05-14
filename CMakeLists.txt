@@ -1,38 +1,37 @@
-cmake_minimum_required(VERSION 3.10)
-project(Spark)
+# CMake version.
+cmake_minimum_required(VERSION 3.11...3.16) # 3.11 minimum for finding OpenGL package according to NEW CMake policy.
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED true)
+# Project information.
+project(spark
+        VERSION 1.0
+        DESCRIPTION "Spark Engine"
+        LANGUAGES C CXX)
 
-# GLFW3
-## use pkg-config to find glfw3 config file that was installed with GLFW binaries
-#find_package(PkgConfig REQUIRED)
-#pkg_search_module(GLFW REQUIRED glfw3)
+# Target platform - Linux
+# TODO: Support for other systems
+if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    message(FATAL_ERROR "Spark Engine is currently only supported by Linux systems.")
+endif()
 
-# SDL2
-# find SDL2 so it's location is known to the compiler
-#find_package(SDL2 REQUIRED)
-#include_directories(${SDL2_INCLUDE_DIRS})
-#message("Including SLD2 libraries found at: ${SDL2_INCLUDE_DIRS}")
+# Set directory for .cmake includes.
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
-set(SOURCE_FILES main.cpp
-        UtilityBox/Memory/src/segmented_pool_allocator.cpp
-        UtilityBox/Memory/src/contiguous_pool_allocator.cpp
-        UtilityBox/Memory/src/memory_formatter.cpp
-        UtilityBox/Logger/src/logger.cpp
-        UtilityBox/Logger/src/timestamp.cpp
-        UtilityBox/Logger/src/log_message.cpp
-        UtilityBox/Logger/src/logging_system.cpp
-        UtilityBox/Logger/src/adapter.cpp
-        UtilityBox/Logger/src/adapter_config.cpp
-        # ECS/Components/component_manager.cpp
-        ECS/Entities/src/entity_manager.cpp
-        ECS/Entities/src/entity_manager_data.cpp
-        World/world.cpp
-        )
+# OnUpdate git submodules
+include(submodule_setup
+        RESULT_VARIABLE SUBMODULE_SETUP_RESULT)
+if(SUBMODULE_SETUP_RESULT STREQUAL "NOTFOUND")
+    message(FATAL_ERROR "CMake module 'submodule_setup' was not found. Project submodules may be out of date.")
+endif()
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} -pthread)
-## link SDL2 libraries to work with the project
-#target_link_libraries(${PROJECT_NAME} ${GLFW3_LIBRARIES} -pthread)
-#message("Linking GLFW3 libraries with flag: ${GLFW3_LIBRARIES}")
+# Build dependencies.
+add_subdirectory(lib)
+
+# Build engine.
+add_subdirectory(src)
+
+# Build applications.
+add_subdirectory(projects)
+
+
+
