@@ -9,21 +9,26 @@
     #define SP_DEBUG
 #endif
 
-// Enable debug builds.
-#ifdef SP_DEBUG
-    // Enable debug breaks.
-    #if defined(SP_PLATFORM_LINUX)
-        #include <csignal>
-        #define SP_DEBUGBREAK() raise(SIGTRAP)
-    #else
-        #error "Debug breaks are not suppported on the current platform."
-    #endif
+//// Enable debug builds.
+//#ifdef SP_DEBUG
+//    // Enable debug breaks.
+//    #if defined(SP_PLATFORM_LINUX)
+//        #include <csignal>
+//        #define SP_DEBUGBREAK() raise(SIGTRAP)
+//    #else
+//        #error "Debug breaks are not suppported on the current platform."
+//    #endif
+//
+//    #define SP_ENABLE_ASSERTS
+//#else
+//    // Does nothing.
+//    #define SP_DEBUGBREAK()
+//#endif
 
-    #define SP_ENABLE_ASSERTS
-#else
-    // Does nothing.
-    #define SP_DEBUGBREAK()
-#endif
+// Temporary.
+#include <csignal>
+#define SP_DEBUGBREAK() raise(SIGINT)
+#define SP_ENABLE_ASSERTS
 
 // Enable asserts
 #ifdef SP_ENABLE_ASSERTS

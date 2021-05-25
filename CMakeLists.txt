@@ -9,13 +9,12 @@ project(spark
 
 # Target platform - Linux
 # TODO: Support for other systems
-if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    message(FATAL_ERROR "Spark Engine is currently only supported by Linux systems.")
-endif()
+# if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+#    message(FATAL_ERROR "Spark Engine is currently only supported by Linux systems.")
+# endif()
 
 # Set directory for .cmake includes.
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
 # OnUpdate git submodules
 include(submodule_setup

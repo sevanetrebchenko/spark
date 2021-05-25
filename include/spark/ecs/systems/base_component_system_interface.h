@@ -7,7 +7,7 @@ namespace Spark {
         namespace Systems {
 
             // Interface for making ComponentSystems polymorphic at runtime + making system storage easier.
-            class BaseComponentSystemInterface {
+            class IBaseComponentSystem {
                 public:
                     virtual void Initialize() = 0;
                     virtual void Update(float dt) = 0;

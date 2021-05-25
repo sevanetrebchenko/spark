@@ -4,73 +4,55 @@
 
 #include <spark/core/core.h>
 #include <spark/utilitybox/logger/logging_interface.h>   // ILoggable
-#include <spark/ecs/systems/base_component_system_interface.h> // BaseComponentSystemInterface
+#include <spark/ecs/systems/base_component_system_interface.h> // IBaseComponentSystem
 
 namespace Spark {
     namespace ECS {
         namespace Systems {
 
             template <class ...ComponentTypes>
-            class BaseComponentSystem : public BaseComponentSystemInterface, UtilityBox::Logger::ILoggable {
+            class BaseComponentSystem : public IBaseComponentSystem, UtilityBox::Logger::ILoggable {
                 public:
-                    /**
-                    * Constructs the necessary fundamentals for a component system, including automatic entity filtering and
-                    * logging system instance. Enforces all component types managed by this system are derived from BaseComponent.
-                    * @param systemName - Name for this component system.
-                    */
-                    explicit BaseComponentSystem(std::string systemName);
-
-                    /**
-                    * Destructor.
-                    */
+                    explicit BaseComponentSystem(const std::string& systemName);
                     ~BaseComponentSystem();
 
-                    /**
-                    * Initialize the logging system and any supplemental back-end functionality.
-                    */
                     void Initialize() override;
-
-                    /**
-                    * Update.
-                    * @param dt - Time-step since last frame.
-                    */
                     void Update(float dt) override;
-
-                    /**
-                    * Shutdown any resources associated with this component system.
-                    */
                     void Shutdown() override;
 
                 protected:
                     using BaseSystem = BaseComponentSystem<ComponentTypes...>;
                     using ComponentTuple = std::tuple<ComponentTypes*...>; // Tuple of component pointers.
 
-                    /**
-                    * Get a specific component pointer from the tuple at the provided index. Function ensures the desired
-                    * component is managed by the system.
-                    * @tparam ComponentType - Desired component type to retrieve.
-                    * @param index          - Index into the component tuple array to get the component from.
-                    * @return Pointer to the desired component type.
-                    */
                     template <typename ComponentType>
                     ComponentType* GetComponent(unsigned index);
 
-                    /**
-                    * Get a specific component pointer from the tuple at the provided index. Function ensures the desired
-                    * component is managed by the system.
-                    * @tparam ComponentType  - Desired component type to retrieve.
-                    * @param  componentTuple - Component tuple to get the component from.
-                    * @return Pointer to the desired component type.
-                    */
                     template <typename ComponentType>
                     ComponentType* GetComponent(const ComponentTuple& componentTuple);
 
                     std::vector<ComponentTuple> _filteredEntities; // Array of component tuples of entities managed by this system.
 
                 private:
-                    // Storage for BaseComponentSystem data, back-end functionality, and helper functions.
-                    class BaseComponentSystemData;
-                    BaseComponentSystemData* _data = nullptr;
+                    void OnEntityCreate(EntityID ID);
+                    void OnEntityDestroy(EntityID ID);
+                    void OnEntityComponentAdd(EntityID ID);
+                    void OnEntityComponentRemove(EntityID ID);
+
+                    template <class DesiredComponentType, unsigned INDEX, class ComponentType, class ...AdditionalComponentArgs>
+                    DesiredComponentType* GetComponentHelper(const ComponentTuple& componentTuple);
+
+                    void VerifyEntity(EntityID ID);
+                    std::pair<bool, ComponentTuple> FilterEntity(ECS::EntityID ID);
+                    void RemoveEntity(const std::unordered_map<EntityID, unsigned>::const_iterator& entityToDeleteIterator);
+
+                    template <unsigned INDEX, class ComponentType, class ...AdditionalComponentArgs>
+                    bool ProcessEntityComponent(ComponentTypeID componentTypeID, Components::BaseComponent* component, ComponentTuple& componentTuple);
+
+                    template <unsigned>
+                    bool ProcessEntityComponent(ComponentTypeID, Components::BaseComponent*, ComponentTuple&);
+
+                    std::unordered_map<EntityID, unsigned> _entityIDToContainerIndex; // Mapping from entity ID to index in filtered entities vector.
+                    std::unordered_map<unsigned, EntityID> _containerIndexToEntityID; // Mapping from index in filtered entities vector to entity ID.
             };
 
         }
