@@ -4,13 +4,14 @@
 
 #include <spark/core/core.h>
 #include <spark/ecs/components/component_manager_interface.h> // ComponentManagerInterface
+#include <spark/utilitybox/memory/segmented_pool_allocator.h> // SegmentedPoolAllocator
 
 namespace Spark {
     namespace ECS {
         namespace Components {
 
             template<class ComponentType>
-            class ComponentManager : public ComponentManagerInterface {
+            class ComponentManager : public ComponentManagerInterface, public UtilityBox::Logger::ILoggable {
                 public:
                     ComponentManager();
                     ~ComponentManager() override;
@@ -19,9 +20,7 @@ namespace Spark {
                     void DeleteComponent(ComponentType *component);
 
                 private:
-                    // Storage for ComponentManager data, back-end functionality, and helper functions.
-                    class ComponentManagerData;
-                    ComponentManagerData *_data;
+                    UtilityBox::Memory::SegmentedPoolAllocator _allocator { sizeof(ComponentType) }; // Memory allocator.
             };
 
         }
