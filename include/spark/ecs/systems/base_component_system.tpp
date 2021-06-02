@@ -223,9 +223,6 @@ namespace Spark::ECS::Systems {
         return false;
     }
 
-    //------------------------------------------------------------------------------------------------------------------
-    // BASE COMPONENT SYSTEM
-    //------------------------------------------------------------------------------------------------------------------
     // Constructs the necessary fundamentals for a component system, including automatic entity filtering and logging
     // system instance. Enforces all component types managed by this system are derived from BaseComponent.
     template <class... ComponentTypes>

@@ -62,12 +62,12 @@ namespace Spark {
 //        };
 //    }
 
-    template <class Class, class FunctionArgument>
-    inline auto CallbackFromMemberFn(Class* classInstance, void(Class::*memberFunction)(FunctionArgument)) {
-        return [classInstance, memberFunction](FunctionArgument additionalArgument) {
+    template <class Class, class ...FunctionArgument>
+    inline auto CallbackFromMemberFn(Class* classInstance, void(Class::*memberFunction)(FunctionArgument...)) {
+        return [classInstance, memberFunction](FunctionArgument... additionalArgument) {
             // 'this' argument gets passed implicitly into member functions. Mimic this same behavior explicitly
             // to be able to call the class member function directly.
-            (void)(std::mem_fn(memberFunction)(classInstance, additionalArgument));
+            (void)(std::mem_fn(memberFunction)(classInstance, additionalArgument...));
         };
     }
 

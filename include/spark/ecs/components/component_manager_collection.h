@@ -9,44 +9,24 @@ namespace Spark {
         namespace Components {
 
             template <class ...ComponentTypes>
-            class ComponentManagerCollection {
+            class ComponentManagerCollection : public UtilityBox::Logger::ILoggable {
                 public:
-                    /**
-                    * Returns singleton instance of the ComponentManagerCollection. Instantiates singleton if necessary.
-                    * @return Pointer to singleton instance of the ComponentManagerCollection.
-                    */
                     static ComponentManagerCollection* GetInstance();
 
-                    /**
-                    * Direct call to initialize resources necessary for the ComponentManagerCollection to function properly.
-                    */
-                    static void Initialize();
-
-                    /**
-                    * Get a ComponentManager for a specific component type. Function ensures the desired component type is
-                    * present and managed by the ComponentManagerCollection.
-                    * @tparam ComponentType - Desired type of the Component Manager.
-                    * @return Pointer to component manager.
-                    */
                     template <class ComponentType>
                     ComponentManager<ComponentType>* GetComponentManager();
 
                 private:
-                    /**
-                    * Private constructor for singleton class instance.
-                    */
                     ComponentManagerCollection();
-
-                    /**
-                    * Private destructor for singleton class instance.
-                    */
                     ~ComponentManagerCollection();
 
-                    static ComponentManagerCollection* _componentManagerCollection; // Singleton.
+                    template <class ComponentType>
+                    void CreateComponentSystem();
 
-                    // Storage for ComponentManager data, back-end functionality, and helper functions.
-                    class ComponentManagerCollectionData;
-                    ComponentManagerCollectionData* _data = nullptr;
+                    template <class ComponentType>
+                    void DestroyComponentSystem();
+
+                    std::unordered_map<ComponentTypeID, ComponentManagerInterface*> _componentManagerMap;
             };
 
         }
