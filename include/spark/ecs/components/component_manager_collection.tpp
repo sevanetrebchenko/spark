@@ -5,7 +5,7 @@
 #include <spark/core/core.h>
 #include <spark/utilitybox/logger/logging_interface.h>         // ILoggable
 #include <spark/ecs/components/component_manager_collection.h> // ComponentManagerCollection
-#include <spark/ecs/components/component_manager_interface.h>  // ComponentManagerInterface
+#include <spark/ecs/components/component_manager_interface.h>  // IComponentManager
 
 namespace Spark::ECS::Components {
 

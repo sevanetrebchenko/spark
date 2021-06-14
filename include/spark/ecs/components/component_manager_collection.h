@@ -26,7 +26,7 @@ namespace Spark {
                     template <class ComponentType>
                     void DestroyComponentSystem();
 
-                    std::unordered_map<ComponentTypeID, ComponentManagerInterface*> _componentManagerMap;
+                    std::unordered_map<ComponentTypeID, IComponentManager*> _componentManagerMap;
             };
 
         }

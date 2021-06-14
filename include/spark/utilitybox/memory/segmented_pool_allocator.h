@@ -3,49 +3,51 @@
 #define SPARK_SEGMENTED_POOL_ALLOCATOR_H
 
 #include <spark/core/core.h>
+#include <spark/utilitybox/memory/allocator_interface.h> // IAllocator
 
 namespace Spark {
     namespace UtilityBox {
         namespace Memory {
 
-            class SegmentedPoolAllocator final {
+            class SegmentedPoolAllocator : public IAllocator {
                 public:
-                    /**
-                    * Create a fixed-size block memory manager. Provides basic memory debugging information, along with
-                    * checks for memory corruption. Sets up the bare necessities for the memory manager, but does not
-                    * initialize data.
-                    * Note: Initialize() must be called in order for the memory manager to work properly.
-                    */
                     explicit SegmentedPoolAllocator(unsigned blockSize);
-
-                    /**
-                    * Cleans up all pages and returns all memory manager memory back to the OS.
-                    */
                     ~SegmentedPoolAllocator();
 
-                    /**
-                    * Retrieve a free block of memory. Construct additional data stores should there not be any more memory
-                    * available on the previously allocated page.
-                    * @return - Pointer to the allocated block of memory.
-                    */
-                    _NODISCARD_ void* RetrieveBlock();
-
-                    /**
-                    * Return a block back to the memory manager.
-                    * Note: This operation does not call destructors for the block - ensure that the data that the block
-                    * held has been properly cleaned up to avoid memory leaks.
-                    * @param blockAddress - Address of the block (given out by RetrieveBlock()) to return.
-                    */
-                    void ReturnBlock(void* blockAddress);
+                    _NODISCARD_ void* RetrieveBlock() override;
+                    void ReturnBlock(void* blockAddress) override;
 
                 private:
-                    // Storage for SegmentedPoolAllocator data, back-end functionality, and helper functions.
-                    class AllocatorData;
-                    AllocatorData* _data = nullptr;
+                    // Holds data about the blocks in one specific page. Creates a linked list with pages.
+                    struct PageHeader {
+                        PageHeader* _next = nullptr; // Next page pointer.
+                        unsigned _numInUse = 0;      // Number of blocks that are in use in this page.
+                    };
+
+                    // Helper object to make linking pages easier.
+                    struct GenericObject {
+                        GenericObject *_next = nullptr;
+                    };
+
+                    void ConstructPage();
+                    void SetBlockHeader(void* blockAddress, void* pageHeader) const;
+                    void ConstructPageFreeList(void* dataBase);
+                    void FreeEmptyPages();
+
+                    GenericObject* _freeList; // List from which blocks are pulled from to give back to the user upon request.
+                    PageHeader* _pageList;    // Linked list of pages.
+
+                    unsigned _blockDataSize;                                           // Size of only the user data block.
+                    MemoryFormatter _formatter { _blockDataSize, true }; // memory formatter functions.
+
+                    const unsigned _blocksPerPage = 10;  // Number of blocks per page.
+                    const unsigned _numPaddingBytes = 4; // Number of padding bytes on either side of the user data block.
+                    unsigned _numPages;                  // Current number of pages in use.
+                    unsigned _totalBlockSize;            // Size of an entire block (header, padding, and user data included).
             };
 
-        } // namespace Memory
-    } // namespace UtilityBox
-} // namespace Spark
+        }
+    }
+}
 
 #endif // SPARK_SEGMENTED_POOL_ALLOCATOR_H

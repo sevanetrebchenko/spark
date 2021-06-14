@@ -3,7 +3,7 @@
 #define SPARK_COMPONENT_MANAGER_H
 
 #include <spark/core/core.h>
-#include <spark/ecs/components/component_manager_interface.h> // ComponentManagerInterface
+#include <spark/ecs/components/component_manager_interface.h> // IComponentManager
 #include <spark/utilitybox/memory/segmented_pool_allocator.h> // SegmentedPoolAllocator
 
 namespace Spark {
@@ -11,7 +11,7 @@ namespace Spark {
         namespace Components {
 
             template<class ComponentType>
-            class ComponentManager : public ComponentManagerInterface, public UtilityBox::Logger::ILoggable {
+            class ComponentManager : public IComponentManager, public UtilityBox::Logger::ILoggable {
                 public:
                     ComponentManager();
                     ~ComponentManager() override;

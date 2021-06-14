@@ -7,9 +7,9 @@ namespace Spark {
         namespace Components {
 
             // Virtual abstract interface so that component managers can be polymorphic at runtime.
-            class ComponentManagerInterface {
+            class IComponentManager {
                 public:
-                    virtual ~ComponentManagerInterface() = default;
+                    virtual ~IComponentManager() = default;
             };
 
         }
