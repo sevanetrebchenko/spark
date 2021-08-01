@@ -18,7 +18,7 @@ namespace Spark {
 
                 void SetData(const void* dataBase, unsigned dataSize) override;
 
-                _NODISCARD_ const VertexBufferLayout& GetBufferLayout() const override;
+                NODISCARD const VertexBufferLayout& GetBufferLayout() const override;
                 void SetBufferLayout(const VertexBufferLayout& layout) override;
 
             private:

@@ -2,7 +2,7 @@
 #ifndef SPARK_EVENT_LISTENER_H
 #define SPARK_EVENT_LISTENER_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/events/types/event.h>        // Event
 #include <spark/events/event_listener_interface.h> // IEventListener
 
@@ -13,18 +13,30 @@ namespace Spark {
         template <class ...EventTypes>
         class EventListener : public IEventListener {
             public:
-                explicit EventListener(const char* name, const std::function<void(std::queue<std::shared_ptr<Event*>>&)>& eventProcessingFunction);
+                explicit EventListener(const std::string& name, const std::function<void(std::queue<std::shared_ptr<IEvent*>>&)>& eventProcessingFunction);
                 ~EventListener();
 
-                _NODISCARD_ bool OnEventReceived(std::shared_ptr<Event*> eventPointer) override;
-                _NODISCARD_ const char* GetName() override;
+                NODISCARD bool OnEventReceived(std::shared_ptr<IEvent*> eventPointer) override;
+                NODISCARD const char* GetName() override;
 
             private:
                 void OnUpdate() override;
-                _NODISCARD_ const std::vector<std::string>& GetEventTypesAsStrings() override;
+                NODISCARD const std::vector<std::string>& GetEventTypesAsStrings() override;
 
-                class EventListenerData;
-                EventListenerData* _data;
+                NODISCARD const char* GetName() const;
+
+                template <class EventType>
+                void AppendEventTypeAsString(std::vector<std::string>& eventTypes);
+
+                template <class EventType1, class EventType2, class ...AdditionalEventTypes>
+                NODISCARD bool ManagesEventType(const EventType& eventType);
+
+                template<class EventType>
+                NODISCARD bool ManagesEventType(const EventType& eventType);
+
+                std::string _name;
+                std::function<void(std::queue<std::shared_ptr<IEvent*>>&)> _processingFunction;
+                std::queue<std::shared_ptr<IEvent*>> _eventQueue;
         };
 
     }

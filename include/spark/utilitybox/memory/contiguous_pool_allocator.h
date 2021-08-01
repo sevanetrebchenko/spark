@@ -2,8 +2,8 @@
 #ifndef SPARK_CONTIGUOUS_POOL_ALLOCATOR_H
 #define SPARK_CONTIGUOUS_POOL_ALLOCATOR_H
 
-#include <spark/core/core.h>
-#include <spark/utilitybox/memory/allocator_interface.h>
+#include <spark/core/rename.h>
+#include <spark/utilitybox/memory/allocator.h>
 
 namespace Spark {
     namespace UtilityBox {
@@ -14,8 +14,8 @@ namespace Spark {
                     ContiguousPoolAllocator(unsigned blockSize, unsigned numBlocks, bool reallocateOnFull);
                     ~ContiguousPoolAllocator();
 
-                    _NODISCARD_ void* RetrieveBlock() override;
-                    _NODISCARD_ void* operator[](unsigned index) const;
+                    NODISCARD void* RetrieveBlock() override;
+                    NODISCARD void* operator[](unsigned index) const;
                     void ReturnBlock(void* blockAddress) override;
 
                 private:

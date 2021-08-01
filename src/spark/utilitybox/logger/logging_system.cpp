@@ -7,8 +7,8 @@ namespace Spark::UtilityBox::Logger {
         public:
             explicit LoggingSystemData(const char* name);
 
-            _NODISCARD_ const char* ProcessMessage(const char* formatString, std::va_list argsList);
-            _NODISCARD_ const char* GetSystemName() const;
+            NODISCARD const char* ProcessMessage(const char* formatString, std::va_list argsList);
+            NODISCARD const char* GetSystemName() const;
 
         private:
             const char* _systemName;

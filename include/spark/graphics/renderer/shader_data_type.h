@@ -2,7 +2,7 @@
 #ifndef SPARK_SHADER_DATA_TYPE_H
 #define SPARK_SHADER_DATA_TYPE_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 
 namespace Spark {
     namespace Graphics {

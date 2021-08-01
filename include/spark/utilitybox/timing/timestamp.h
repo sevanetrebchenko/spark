@@ -2,7 +2,7 @@
 #ifndef SPARK_TIMESTAMP_H
 #define SPARK_TIMESTAMP_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 
 namespace Spark {
     namespace UtilityBox {
@@ -31,19 +31,19 @@ namespace Spark {
                     * Get only the millisecond portion of this timestamp.
                     * @return Millisecond portion of this timestamp.
                     */
-                    _NODISCARD_ unsigned GetMillis() const;
+                    NODISCARD unsigned GetMillis() const;
 
                     /**
                     * Get only the second portion of this timestamp.
                     * @return Second portion of this timestamp.
                     */
-                    _NODISCARD_ unsigned GetSeconds() const;
+                    NODISCARD unsigned GetSeconds() const;
 
                     /**
                     * Get only the minute portion of this timestamp.
                     * @return Minute portion of this timestamp.
                     */
-                    _NODISCARD_ unsigned GetMinutes() const;
+                    NODISCARD unsigned GetMinutes() const;
 
                     /**
                     * Print this timestamp to the provided stream.

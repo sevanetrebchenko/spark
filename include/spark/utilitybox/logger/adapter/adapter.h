@@ -2,7 +2,7 @@
 #ifndef SPARK_ADAPTER_H
 #define SPARK_ADAPTER_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/utilitybox/logger/adapter/adapter_config.h> // AdapterConfiguration
 
 namespace Spark {
@@ -18,8 +18,8 @@ namespace Spark {
                     virtual void Initialize() = 0;
                     virtual void OutputMessage(std::vector<std::string> messages) = 0;
 
-                    _NODISCARD_ AdapterConfiguration* GetConfiguration() const;
-                    _NODISCARD_ int GetLogCount() const;
+                    NODISCARD AdapterConfiguration* GetConfiguration() const;
+                    NODISCARD int GetLogCount() const;
 
                 protected:
                     AdapterConfiguration* _config;

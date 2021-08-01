@@ -4,15 +4,13 @@
 
 namespace Spark {
     namespace ECS {
-        namespace Components {
 
-            // Virtual abstract interface so that component managers can be polymorphic at runtime.
-            class IComponentManager {
-                public:
-                    virtual ~IComponentManager() = default;
-            };
+        // Virtual abstract interface so that component managers can be polymorphic at runtime.
+        class IComponentManager {
+            public:
+                virtual ~IComponentManager() = default;
+        };
 
-        }
     }
 }
 

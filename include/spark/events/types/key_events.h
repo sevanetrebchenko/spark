@@ -2,7 +2,7 @@
 #ifndef SPARK_KEY_EVENTS_H
 #define SPARK_KEY_EVENTS_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/events/types/event.h> // Event, EventType
 
 namespace Spark {
@@ -13,8 +13,8 @@ namespace Spark {
                 static inline constexpr EventType StaticEventType = EventType::KeyPressed;
                 explicit KeyPressEvent(int keyCode);
 
-                _NODISCARD_ std::string ToString() const override;
-                _NODISCARD_ int GetKeyCode() const;
+                NODISCARD std::string ToString() const override;
+                NODISCARD int GetKeyCode() const;
 
             private:
                 int _keyCode;
@@ -25,8 +25,8 @@ namespace Spark {
                 static inline constexpr EventType StaticEventType = EventType::KeyReleased;
                 explicit KeyReleaseEvent(int keyCode);
 
-                _NODISCARD_ std::string ToString() const override;
-                _NODISCARD_ int GetKeyCode() const;
+                NODISCARD std::string ToString() const override;
+                NODISCARD int GetKeyCode() const;
 
             private:
                 int _keyCode;

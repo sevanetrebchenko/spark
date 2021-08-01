@@ -2,7 +2,7 @@
 #ifndef SPARK_LOGGING_INTERFACE_H
 #define SPARK_LOGGING_INTERFACE_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 
 namespace Spark {
     namespace UtilityBox {

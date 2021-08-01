@@ -1,7 +1,7 @@
 #ifndef SPARK_OPENGL_WINDOW_H
 #define SPARK_OPENGL_WINDOW_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/graphics/window/window.h>    // Window
 
 namespace Spark {
@@ -14,9 +14,9 @@ namespace Spark {
 
                 void OnUpdate() override;
 
-                _NODISCARD_ int GetWidth() const override;
-                _NODISCARD_ int GetHeight() const override;
-                _NODISCARD_ void* GetNativeWindow() const override;
+                NODISCARD int GetWidth() const override;
+                NODISCARD int GetHeight() const override;
+                NODISCARD void* GetNativeWindow() const override;
 
             private:
                 class OpenGLWindowData;

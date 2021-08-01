@@ -10,7 +10,7 @@ namespace Spark::Events {
 
             void AttachEventListener(IEventListener* eventListener);
             void DetachEventListener(IEventListener* eventListener);
-            void Dispatch(Event* event);
+            void Dispatch(IEvent* event);
             void Update();
 
         private:
@@ -68,9 +68,9 @@ namespace Spark::Events {
         }
     }
 
-    void EventHub::EventHubData::Dispatch(Event* event) {
-        LogDebug("Dispatching event of type: %s. Event description: %s", Event::ConvertEventTypeToString(event->GetEventType()).c_str(), event->ToString().c_str());
-        std::shared_ptr<Event*> sharedPointer = std::make_shared<Event*>(event);
+    void EventHub::EventHubData::Dispatch(IEvent* event) {
+        LogDebug("Dispatching event of type: %s. Event description: %s", IEvent::ConvertEventTypeToString(event->GetEventType()).c_str(), event->ToString().c_str());
+        std::shared_ptr<IEvent*> sharedPointer = std::make_shared<IEvent*>(event);
 
         // Dispatch event to all the listeners.
         bool registeredListenerOfType = false;
@@ -80,7 +80,7 @@ namespace Spark::Events {
 
         // No listeners are hooked up to this event.
         if (!registeredListenerOfType) {
-            LogWarning("No event listener registered to receive events of type: '%s'.", Event::ConvertEventTypeToString(event->GetEventType()).c_str());
+            LogWarning("No event listener registered to receive events of type: '%s'.", IEvent::ConvertEventTypeToString(event->GetEventType()).c_str());
         }
     }
 
@@ -114,7 +114,7 @@ namespace Spark::Events {
         _data->DetachEventListener(eventListener);
     }
 
-    void EventHub::Dispatch(Event *event) {
+    void EventHub::Dispatch(IEvent *event) {
         _data->Dispatch(event);
     }
 

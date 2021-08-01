@@ -2,7 +2,7 @@
 #ifndef SPARK_MEMORY_FORMATTER_H
 #define SPARK_MEMORY_FORMATTER_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 
 namespace Spark {
     namespace UtilityBox {
@@ -15,7 +15,7 @@ namespace Spark {
                 void SetBlockMemorySignatures(void* blockAddress) const;
                 void SetBlockDataSignature(void* blockAddress, unsigned char memorySignature) const;
                 bool ValidatePaddingBytes(void* blockAddress) const;
-                _NODISCARD_ unsigned CalculateMemorySignatureBlockSize() const;
+                NODISCARD unsigned CalculateMemorySignatureBlockSize() const;
 
                 const unsigned _numPaddingBytes = 4; // Number of padding bytes on either side of the user data block.
                 unsigned _blockDataSize;             // Size of only the user data block.

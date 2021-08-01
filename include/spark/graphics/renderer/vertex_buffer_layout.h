@@ -2,7 +2,7 @@
 #ifndef SPARK_VERTEX_BUFFER_LAYOUT_H
 #define SPARK_VERTEX_BUFFER_LAYOUT_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/graphics/renderer/shader_data_type.h>
 
 namespace Spark {
@@ -13,13 +13,13 @@ namespace Spark {
                 VertexBufferElement(ShaderDataType shaderDataType, std::string elementName);
                 ~VertexBufferElement() = default;
 
-                _NODISCARD_ unsigned GetComponentCount() const;
+                NODISCARD unsigned GetComponentCount() const;
 
-                _NODISCARD_ const std::string& GetElementName() const;
+                NODISCARD const std::string& GetElementName() const;
                 void SetElementName(std::string elementName) const;
-                _NODISCARD_ const ShaderDataType& GetShaderDataType() const;
+                NODISCARD const ShaderDataType& GetShaderDataType() const;
                 void SetShaderDataType(ShaderDataType shaderDataType);
-                _NODISCARD_ size_t GetBufferOffset() const;
+                NODISCARD size_t GetBufferOffset() const;
                 void SetBufferOffset(unsigned bufferOffset);
 
             private:
@@ -33,8 +33,8 @@ namespace Spark {
                 VertexBufferLayout(const std::initializer_list<VertexBufferElement>& bufferElements);
                 ~VertexBufferLayout() = default;
 
-                _NODISCARD_ const std::vector<VertexBufferElement>& GetBufferElements() const;
-                _NODISCARD_ unsigned GetStride() const;
+                NODISCARD const std::vector<VertexBufferElement>& GetBufferElements() const;
+                NODISCARD unsigned GetStride() const;
 
                 std::vector<VertexBufferElement>::iterator begin();
                 std::vector<VertexBufferElement>::iterator end();

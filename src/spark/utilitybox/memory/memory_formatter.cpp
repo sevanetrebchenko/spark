@@ -1,5 +1,5 @@
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/utilitybox/memory/memory_formatter.h> // MemoryFormatter
 
 namespace Spark::UtilityBox::Memory {

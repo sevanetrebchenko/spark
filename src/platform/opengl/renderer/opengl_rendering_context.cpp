@@ -1,7 +1,7 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <platform/opengl/renderer/opengl_rendering_context.h> // OpenGLRenderingContext
 #include <spark/utilitybox/logger/logging_interface.h>         // ILoggable
 

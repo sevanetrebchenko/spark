@@ -10,12 +10,12 @@ namespace Spark::UtilityBox::Logger {
             explicit AdapterConfigurationData(const char* adapterName);
             ~AdapterConfigurationData() = default;
 
-            _NODISCARD_ const char* GetAdapterName() const;
-            _NODISCARD_ int GetMessageWrapLimit() const;
-            _NODISCARD_ LogMessageSeverity GetMessageSeverityCutoff() const;
-            _NODISCARD_ const char* GetFormattingString() const;
-            _NODISCARD_ const char* GetCalendarFormatString() const;
-            _NODISCARD_ const char* GetTimestampFormattingString() const;
+            NODISCARD const char* GetAdapterName() const;
+            NODISCARD int GetMessageWrapLimit() const;
+            NODISCARD LogMessageSeverity GetMessageSeverityCutoff() const;
+            NODISCARD const char* GetFormattingString() const;
+            NODISCARD const char* GetCalendarFormatString() const;
+            NODISCARD const char* GetTimestampFormattingString() const;
 
             void SetAdapterName(const char* adapterName);
             void SetMessageWrapLimit(int newLimit);

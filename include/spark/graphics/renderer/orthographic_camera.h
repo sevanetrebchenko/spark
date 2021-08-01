@@ -3,7 +3,7 @@
 #define SPARK_ORTHOGRAPHIC_CAMERA_H
 
 #include <glm/glm.hpp>
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 
 namespace Spark {
     namespace Graphics {
@@ -13,7 +13,7 @@ namespace Spark {
                 explicit OrthographicCamera(float aspectRatio);
                 ~OrthographicCamera();
 
-                _NODISCARD_ glm::mat4 GetCameraMatrix() const;
+                NODISCARD glm::mat4 GetCameraMatrix() const;
 
             private:
                 class OrthographicCameraData;

@@ -6,7 +6,23 @@
 #include <spark/core/application.h>            // CreateApplication
 #include <spark/utilitybox/logger/adapter/types/file_adapter.h> // FileAdapter
 
+#include <spark/utilitybox/memory/allocator.h>
+
+#include <spark/ecs/systems/base_component_system.h>
+
+#define ALLOC(TYPE, RESOURCE) Spark::UtilityBox::Memory::IAllocator<TYPE, Spark::UtilityBox::Memory::RESOURCE>
+
 int main(int argc, char** argv) {
+
+    std::vector<int, Spark::UtilityBox::Memory::IAllocator<int, Spark::UtilityBox::Memory::IMemoryResource1>> vec1;
+    std::vector<int, Spark::UtilityBox::Memory::IAllocator<int, Spark::UtilityBox::Memory::IMemoryResource2>> vec2;
+
+    Spark::UtilityBox::Memory::IAllocator<int, Spark::UtilityBox::Memory::IMemoryResource1> alloc1;
+    Spark::UtilityBox::Memory::IAllocator<int, Spark::UtilityBox::Memory::IMemoryResource2> alloc2;
+
+
+    Spark::ECS::BaseComponentSystem<> a("ehe");
+
     // Setup services for service locator.
     Spark::ServiceLocator::ProvideService(Spark::Events::EventHub::GetInstance());
 
@@ -29,7 +45,7 @@ int main(int argc, char** argv) {
     loggingHub->AttachCustomAdapter(errorFileAdapter);
 
     Spark::ServiceLocator::ProvideService(loggingHub);
-    Spark::ServiceLocator::ProvideService(Spark::ECS::Entities::EntityManager::GetInstance());
+    Spark::ServiceLocator::ProvideService(Spark::ECS::EntityManager::GetInstance());
 
     // Application.
     auto* application = Spark::CreateApplication();

@@ -2,7 +2,7 @@
 #ifndef SPARK_STANDARD_OUTPUT_ADAPTER_H
 #define SPARK_STANDARD_OUTPUT_ADAPTER_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/utilitybox/logger/adapter/adapter.h> // IAdapter
 
 namespace Spark {

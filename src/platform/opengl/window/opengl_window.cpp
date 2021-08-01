@@ -23,9 +23,9 @@ namespace Spark::Graphics {
 
             void OnUpdate();
 
-            _NODISCARD_ int GetWidth() const;
-            _NODISCARD_ int GetHeight() const;
-            _NODISCARD_ GLFWwindow* GetNativeWindow() const;
+            NODISCARD int GetWidth() const;
+            NODISCARD int GetHeight() const;
+            NODISCARD GLFWwindow* GetNativeWindow() const;
 
         private:
             friend class Events::IEventReceivable<OpenGLWindowData, Events::WindowResizeEvent>;

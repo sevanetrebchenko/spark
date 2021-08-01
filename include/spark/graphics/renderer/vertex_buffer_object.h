@@ -2,7 +2,7 @@
 #ifndef SPARK_VERTEX_BUFFER_OBJECT_H
 #define SPARK_VERTEX_BUFFER_OBJECT_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/graphics/renderer/vertex_buffer_layout.h> // VertexBufferLayout, VertexBufferElement
 
 namespace Spark {
@@ -19,7 +19,7 @@ namespace Spark {
 
                 virtual void SetData(const void* dataBase, unsigned dataSize) = 0;
 
-                _NODISCARD_ virtual const VertexBufferLayout& GetBufferLayout() const = 0;
+                NODISCARD virtual const VertexBufferLayout& GetBufferLayout() const = 0;
                 virtual void SetBufferLayout(const VertexBufferLayout& layout) = 0;
         };
 

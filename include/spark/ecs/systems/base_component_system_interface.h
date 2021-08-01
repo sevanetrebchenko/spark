@@ -4,17 +4,15 @@
 
 namespace Spark {
     namespace ECS {
-        namespace Systems {
 
-            // Interface for making ComponentSystems polymorphic at runtime + making system storage easier.
-            class IBaseComponentSystem {
-                public:
-                    virtual void Initialize() = 0;
-                    virtual void Update(float dt) = 0;
-                    virtual void Shutdown() = 0;
-            };
+        // Interface for making ComponentSystems polymorphic at runtime + making system storage easier.
+        class IBaseComponentSystem {
+            public:
+                virtual void Initialize() = 0;
+                virtual void Update(float dt) = 0;
+                virtual void Shutdown() = 0;
+        };
 
-        }
     }
 }
 

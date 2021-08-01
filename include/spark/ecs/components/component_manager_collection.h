@@ -6,30 +6,28 @@
 
 namespace Spark {
     namespace ECS {
-        namespace Components {
 
-            template <class ...ComponentTypes>
-            class ComponentManagerCollection : public UtilityBox::Logger::ILoggable {
-                public:
-                    static ComponentManagerCollection* GetInstance();
+        template <class ...ComponentTypes>
+        class ComponentManagerCollection : public UtilityBox::Logger::ILoggable {
+            public:
+                static ComponentManagerCollection* GetInstance();
 
-                    template <class ComponentType>
-                    ComponentManager<ComponentType>* GetComponentManager();
+                template <class ComponentType>
+                ComponentManager<ComponentType>* GetComponentManager();
 
-                private:
-                    ComponentManagerCollection();
-                    ~ComponentManagerCollection();
+            private:
+                ComponentManagerCollection();
+                ~ComponentManagerCollection();
 
-                    template <class ComponentType>
-                    void CreateComponentSystem();
+                template <class ComponentType>
+                void CreateComponentSystem();
 
-                    template <class ComponentType>
-                    void DestroyComponentSystem();
+                template <class ComponentType>
+                void DestroyComponentSystem();
 
-                    std::unordered_map<ComponentTypeID, IComponentManager*> _componentManagerMap;
-            };
+                std::unordered_map<ComponentTypeID, IComponentManager*> componentManagerMap_;
+        };
 
-        }
     }
 }
 

@@ -16,18 +16,18 @@ namespace Spark {
                     TransformComponent();
                     void OnImGuiRender() override;
 
-                    _NODISCARD_ glm::mat4 GetModelMatrix();
+                    NODISCARD glm::mat4 GetModelMatrix();
 
                     void SetParentTransform(TransformComponent* parent);
 
-                    _NODISCARD_ glm::vec3 GetLocalPosition() const;
-                    _NODISCARD_ glm::vec3 GetPosition() const;
+                    NODISCARD glm::vec3 GetLocalPosition() const;
+                    NODISCARD glm::vec3 GetPosition() const;
 
-                    _NODISCARD_ glm::vec2 GetLocalScale() const;
-                    _NODISCARD_ glm::vec2 GetScale() const;
+                    NODISCARD glm::vec2 GetLocalScale() const;
+                    NODISCARD glm::vec2 GetScale() const;
 
-                    _NODISCARD_ float GetLocalRotation() const;
-                    _NODISCARD_ float GetRotation() const;
+                    NODISCARD float GetLocalRotation() const;
+                    NODISCARD float GetRotation() const;
 
                 private:
                     TransformComponent* _parentTransform;

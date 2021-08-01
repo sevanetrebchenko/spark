@@ -2,7 +2,7 @@
 #ifndef SPARK_LAYER_STACK_H
 #define SPARK_LAYER_STACK_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/core/layer.h> // Layer
 
 namespace Spark {
@@ -18,15 +18,15 @@ namespace Spark {
             void PushLayer(Layer* layer);
             void PopLayer(Layer* layer);
 
-            _NODISCARD_ std::vector<Layer*>::iterator begin();
-            _NODISCARD_ std::vector<Layer*>::iterator end();
-            _NODISCARD_ std::vector<Layer*>::reverse_iterator rbegin();
-            _NODISCARD_ std::vector<Layer*>::reverse_iterator rend();
+            NODISCARD std::vector<Layer*>::iterator begin();
+            NODISCARD std::vector<Layer*>::iterator end();
+            NODISCARD std::vector<Layer*>::reverse_iterator rbegin();
+            NODISCARD std::vector<Layer*>::reverse_iterator rend();
 
-            _NODISCARD_ std::vector<Layer*>::const_iterator cbegin() const;
-            _NODISCARD_ std::vector<Layer*>::const_iterator cend() const;
-            _NODISCARD_ std::vector<Layer*>::const_reverse_iterator crbegin() const;
-            _NODISCARD_ std::vector<Layer*>::const_reverse_iterator crend() const;
+            NODISCARD std::vector<Layer*>::const_iterator cbegin() const;
+            NODISCARD std::vector<Layer*>::const_iterator cend() const;
+            NODISCARD std::vector<Layer*>::const_reverse_iterator crbegin() const;
+            NODISCARD std::vector<Layer*>::const_reverse_iterator crend() const;
 
         private:
             class LayerStackData;

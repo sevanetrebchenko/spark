@@ -18,8 +18,8 @@ namespace Spark {
                 void AddVertexBuffer(IVertexBufferObject* vertexBuffer) override;
                 void SetIndexBuffer(IIndexBufferObject* indexBuffer) override;
 
-                _NODISCARD_ const std::vector<IVertexBufferObject*>& GetVertexBuffers() const override;
-                _NODISCARD_ const IIndexBufferObject* GetIndexBuffer() const override;
+                NODISCARD const std::vector<IVertexBufferObject*>& GetVertexBuffers() const override;
+                NODISCARD const IIndexBufferObject* GetIndexBuffer() const override;
 
             private:
                 class OpenGLVertexArrayObjectData;

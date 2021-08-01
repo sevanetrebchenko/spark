@@ -7,7 +7,7 @@
 //-------------------------------
 
 //--- Core -------------------------------------------------------------------------------------------------------------
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/core/application.h>
 #include <spark/core/service_locator.h>
 #include <spark/core/layer.h>

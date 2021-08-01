@@ -6,9 +6,9 @@
 #define SP_ASSERT_VARIADIC(function, file, line, check, formatString, ...)                                                                     \
     do {                                                                                                                                       \
         if (!(check)) {                                                                                                                        \
-            std::cerr << "Assert of condition: " << #check << " failed in function: " << function << ", " << file << ":" << line << std::endl; \
+            std::cerr << "Assert of condition: " << #check << " failed in function: " << (function) << ", " << (file) << ":" << (line) << std::endl; \
             std::cerr << "Assertion message: ";                                                                                                \
-            fprintf(stderr, formatString, ##__VA_ARGS__);                                                                                      \
+            fprintf(stderr, (formatString), ##__VA_ARGS__);                                                                                      \
             std::cerr << std::endl;                                                                                                            \
             std::cerr << "Aborting program execution." << std::endl;                                                                           \
             SP_DEBUGBREAK();                                                                                                                   \
@@ -17,20 +17,20 @@
     while (false)                                                                                                                              \
 
 // Function used when only a message (string) is passed with the assert.
-#define SP_ASSERT_FIXED(function, file, line, check, formatString)                                                                             \
-    do {                                                                                                                                       \
-        if (!(check)) {                                                                                                                        \
-            std::cerr << "Assert of condition: " << #check << " failed in function: " << function << ", " << file << ":" << line << std::endl; \
-            std::cerr << "Assertion message: " << formatString;                                                                                \
-            std::cerr << std::endl;                                                                                                            \
-            std::cerr << "Aborting program execution." << std::endl;                                                                           \
-            SP_DEBUGBREAK();                                                                                                                   \
-        }                                                                                                                                      \
-    }                                                                                                                                          \
-    while (false)                                                                                                                              \
+#define SP_ASSERT_FIXED(function, file, line, check, formatString)                                                                                   \
+    do {                                                                                                                                             \
+        if (!(check)) {                                                                                                                              \
+            std::cerr << "Assert of condition: " << #check << " failed in function: " << (function) << ", " << (file) << ":" << (line) << std::endl; \
+            std::cerr << "Assertion message: " << (formatString);                                                                                    \
+        std::cerr << std::endl;                                                                                                                      \
+            std::cerr << "Aborting program execution." << std::endl;                                                                                 \
+            SP_DEBUGBREAK();                                                                                                                         \
+        }                                                                                                                                            \
+    }                                                                                                                                                \
+    while (false)                                                                                                                                    \
 
 // The argument look-up table returns the element in MACRO_DECORATION that falls in the RESULT position.
-#define ARG_TABLE(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10,          \
+#define ARG_TABLE( arg1,  arg2,  arg3,  arg4,  arg5,  arg6,  arg7,  arg8,  arg9, arg10, \
                   arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, \
                   arg21, arg22, arg23, arg24, arg25, arg26, arg27, arg28, arg29, arg30, \
                   arg31, arg32, arg33, arg34, arg35, arg36, arg37, arg38, arg39, arg40, \
@@ -64,16 +64,16 @@
 #define NUM_ARGS(...) ARG_TABLE(__VA_ARGS__)
 
 // Wrapper function to combine the above look-up tables. __VA_ARGS__ is offset by 1 so that 0 arguments are passed correctly.
-#define GET_NUM_ARGS(...) NUM_ARGS(_, ##__VA_ARGS__, MACRO_DECORATION())
+#define GET_NUM_ARGS(TABLE, ...) NUM_ARGS(_, ##__VA_ARGS__, TABLE())
 
 // Generate macro decoration based on the number of parameters.
-#define _APPEND_SUFFIX(_FUNCTION_BASE, _SUFFIX) _FUNCTION_BASE##_##_SUFFIX
-#define _ASSERT_TYPE(_FUNCTION_BASE, _SUFFIX) _APPEND_SUFFIX(_FUNCTION_BASE, _SUFFIX)
-#define _GET_FUNCTION_SIGNATURE(_FUNCTION_BASE, function, file, line, check, formatString, ...) _ASSERT_TYPE(_FUNCTION_BASE, GET_NUM_ARGS(__VA_ARGS__))(function, file, line, check, formatString, ##__VA_ARGS__)
+#define APPEND_SUFFIX(FUNCTION_BASE, SUFFIX) FUNCTION_BASE##_##SUFFIX
+#define ASSERT_TYPE(FUNCTION_BASE, SUFFIX) APPEND_SUFFIX(FUNCTION_BASE, SUFFIX)
+#define GET_FUNCTION_SIGNATURE(FUNCTION_BASE, function, file, line, check, formatString, ...) ASSERT_TYPE(FUNCTION_BASE, GET_NUM_ARGS(MACRO_DECORATION, __VA_ARGS__))(function, file, line, check, formatString, ##__VA_ARGS__)
 
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
 // Definition for ASSERT
-#define SP_ASSERT(check, formatString, ...) _GET_FUNCTION_SIGNATURE(SP_ASSERT, __PRETTY_FUNCTION__, __FILENAME__, __LINE__, check, formatString, ##__VA_ARGS__)
+#define SP_ASSERT(check, formatString, ...) GET_FUNCTION_SIGNATURE(SP_ASSERT, __PRETTY_FUNCTION__, __FILENAME__, __LINE__, check, formatString, ##__VA_ARGS__)
 
 #endif // SPARK_ASSERT_DEV_H

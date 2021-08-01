@@ -2,23 +2,24 @@
 #include <spark/events/types/event.h> // Event
 
 namespace Spark::Events {
-    Event::Event(EventType eventType, EventCategory eventCategory) : _eventType(eventType), _eventCategory(eventCategory) {
+
+    IEvent::Event(EventType eventType, EventCategory eventCategory) : _eventType(eventType), _eventCategory(eventCategory) {
         // Nothing to do here.
     }
 
-    const EventType& Event::GetEventType() const {
+    const EventType& IEvent::GetEventType() const {
         return _eventType;
     }
 
-    const EventCategory& Event::GetEventCategory() const {
+    const EventCategory& IEvent::GetEventCategory() const {
         return _eventCategory;
     }
 
-    bool Event::IsInEventCategory(EventCategory eventCategory) const {
+    bool IEvent::IsInEventCategory(EventCategory eventCategory) const {
         return _eventCategory & eventCategory;
     }
 
-    std::string Event::ConvertEventTypeToString(const EventType& eventType) {
+    std::string IEvent::ConvertEventTypeToString(const EventType& eventType) {
         switch (eventType) {
             case EventType::None:
                 return "None";

@@ -4,17 +4,15 @@
 
 namespace Spark {
     namespace ECS {
-        namespace Entities {
 
-            // Component system callback function types.
-            enum class CallbackType {
-                ENTITY_CREATE,
-                ENTITY_DELETE,
-                COMPONENT_ADD,
-                COMPONENT_REMOVE
-            };
+        // Component system callback function types.
+        enum class CallbackType {
+            ENTITY_CREATE,
+            ENTITY_DELETE,
+            COMPONENT_ADD,
+            COMPONENT_REMOVE
+        };
 
-        }
     }
 }
 

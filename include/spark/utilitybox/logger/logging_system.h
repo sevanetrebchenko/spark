@@ -2,7 +2,7 @@
 #ifndef SPARK_LOGGING_SYSTEM_H
 #define SPARK_LOGGING_SYSTEM_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/utilitybox/logger/logging_interface.h>    // ILoggable
 #include <spark/utilitybox/logger/log_message_severity.h> // LogMessageSeverity
 #include <spark/utilitybox/timing/timestamp.h>                  // TimeStamp

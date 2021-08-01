@@ -2,7 +2,7 @@
 #ifndef SPARK_ADAPTER_CONFIG_H
 #define SPARK_ADAPTER_CONFIG_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/utilitybox/logger/log_message_severity.h> // LogMessageSeverity
 
 namespace Spark {
@@ -14,12 +14,12 @@ namespace Spark {
                     explicit AdapterConfiguration(const char* adapterName);
                     ~AdapterConfiguration();
 
-                    _NODISCARD_ const char* GetAdapterName() const;
-                    _NODISCARD_ int GetMessageWrapLimit() const;
-                    _NODISCARD_ LogMessageSeverity GetMessageSeverityCutoff() const;
-                    _NODISCARD_ const char* GetFormattingString() const;
-                    _NODISCARD_ const char* GetCalendarFormatString() const;
-                    _NODISCARD_ const char* GetTimestampFormattingString() const;
+                    NODISCARD const char* GetAdapterName() const;
+                    NODISCARD int GetMessageWrapLimit() const;
+                    NODISCARD LogMessageSeverity GetMessageSeverityCutoff() const;
+                    NODISCARD const char* GetFormattingString() const;
+                    NODISCARD const char* GetCalendarFormatString() const;
+                    NODISCARD const char* GetTimestampFormattingString() const;
 
 
                     void SetAdapterName(const char* adapterName);

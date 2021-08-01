@@ -2,7 +2,7 @@
 #ifndef SPARK_LOGGER_H
 #define SPARK_LOGGER_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/utilitybox/logger/adapter/adapter.h>               // IAdapter
 #include <spark/utilitybox/logger/logging_hub_interface.h> // ILoggingHub
 #include <spark/utilitybox/logger/logging_system.h>              // LogRecord
@@ -16,10 +16,10 @@ namespace Spark {
                     static LoggingHub* GetInstance();
 
                     void AttachCustomAdapter(IAdapter *adapter) override;
-                    _NODISCARD_ IAdapter* GetCustomAdapter(const char* adapterName) override;
+                    NODISCARD IAdapter* GetCustomAdapter(const char* adapterName) override;
                     void DetachCustomAdapter(IAdapter* adapter) override;
 
-                    _NODISCARD_ const std::chrono::time_point<std::chrono::high_resolution_clock>& GetInitializationTime() override;
+                    NODISCARD const std::chrono::time_point<std::chrono::high_resolution_clock>& GetInitializationTime() override;
 
                 private:
                     LoggingHub();

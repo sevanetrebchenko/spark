@@ -20,4 +20,5 @@ namespace Spark::ECS::Components {
 
         return _modelMatrix;
     }
+
 }

@@ -6,7 +6,7 @@ namespace Spark::Events {
     // Declaration.
     static std::string KeyButtonToString(int keyCode);
 
-    KeyPressEvent::KeyPressEvent(int keyCode) : Event(EventType::KeyPressed, EventCategory::EventCategoryInput), _keyCode(keyCode) {
+    KeyPressEvent::KeyPressEvent(int keyCode) : IEvent(EventType::KeyPressed, EventCategory::EventCategoryInput), _keyCode(keyCode) {
         // Nothing to do here.
     }
 
@@ -31,7 +31,7 @@ namespace Spark::Events {
     }
 
 
-    KeyReleaseEvent::KeyReleaseEvent(int keyCode) : Event(EventType::KeyReleased, EventCategory::EventCategoryInput), _keyCode(keyCode) {
+    KeyReleaseEvent::KeyReleaseEvent(int keyCode) : IEvent(EventType::KeyReleased, EventCategory::EventCategoryInput), _keyCode(keyCode) {
         // Nothing to do here.
     }
 

@@ -5,7 +5,7 @@ namespace Spark::Events {
     //------------------------------------------------------------------------------------------------------------------
     // WINDOW RESIZE EVENT
     //------------------------------------------------------------------------------------------------------------------
-    WindowResizeEvent::WindowResizeEvent(int width, int height) : Event(EventType::WindowResized, EventCategory::EventCategoryApplication), _width(width), _height(height) {
+    WindowResizeEvent::WindowResizeEvent(int width, int height) : IEvent(EventType::WindowResized, EventCategory::EventCategoryApplication), _width(width), _height(height) {
         // Nothing to do here.
     }
 
@@ -30,7 +30,7 @@ namespace Spark::Events {
     //------------------------------------------------------------------------------------------------------------------
     // WINDOW CLOSE EVENT
     //------------------------------------------------------------------------------------------------------------------
-    WindowCloseEvent::WindowCloseEvent() : Event(EventType::WindowCloseRequested, EventCategory::EventCategoryApplication) {
+    WindowCloseEvent::WindowCloseEvent() : IEvent(EventType::WindowCloseRequested, EventCategory::EventCategoryApplication) {
         // Nothing to do here.
     }
 
@@ -42,7 +42,7 @@ namespace Spark::Events {
     //------------------------------------------------------------------------------------------------------------------
     // WINDOW MINIMIZED EVENT
     //------------------------------------------------------------------------------------------------------------------
-    WindowMinimizedEvent::WindowMinimizedEvent(bool minimized) : Event(EventType::WindowMinimized, EventCategory::EventCategoryApplication), _minimized(minimized) {
+    WindowMinimizedEvent::WindowMinimizedEvent(bool minimized) : IEvent(EventType::WindowMinimized, EventCategory::EventCategoryApplication), _minimized(minimized) {
         // Nothing to do here.
     }
 

@@ -2,7 +2,7 @@
 #ifndef SPARK_INDEX_BUFFER_OBJECT_H
 #define SPARK_INDEX_BUFFER_OBJECT_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 
 namespace Spark {
     namespace Graphics {
@@ -15,7 +15,7 @@ namespace Spark {
                 virtual void Bind() const = 0;
                 virtual void Unbind() const = 0;
 
-                _NODISCARD_ virtual unsigned GetIndexCount() const = 0;
+                NODISCARD virtual unsigned GetIndexCount() const = 0;
         };
 
     }

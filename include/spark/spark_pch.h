@@ -22,6 +22,11 @@
 #include <cstdlib>
 #include <atomic>
 #include <thread>
+#include <tuple>
+#include <list>
+#include <forward_list>
+#include <set>
+#include <unordered_set>
 
 // STL Containers
 #include <tuple>

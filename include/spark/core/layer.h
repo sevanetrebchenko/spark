@@ -2,7 +2,7 @@
 #ifndef SPARK_LAYER_H
 #define SPARK_LAYER_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/utilitybox/logger/logging_interface.h> // ILoggable
 
 namespace Spark {
@@ -45,7 +45,7 @@ namespace Spark {
              * Get the name of this layer.
              * @return Layer name.
              */
-            _NODISCARD_ const std::string& GetName() const;
+            NODISCARD const std::string& GetName() const;
 
         protected:
             std::string _name;

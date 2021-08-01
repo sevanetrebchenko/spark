@@ -15,7 +15,7 @@ namespace Spark {
                 void Bind() const override;
                 void Unbind() const override;
 
-                _NODISCARD_ unsigned GetIndexCount() const override;
+                NODISCARD unsigned GetIndexCount() const override;
 
             private:
                 class OpenGLIndexBufferData;

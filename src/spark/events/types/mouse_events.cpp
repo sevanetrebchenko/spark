@@ -7,7 +7,7 @@ namespace Spark::Events {
     // Declaration.
     static std::string MouseButtonToString(int mouseButton);
 
-    MouseButtonPressedEvent::MouseButtonPressedEvent(int mouseButtonCode) : Event(EventType::MouseButtonPressed, EventCategory::EventCategoryInput), _mouseButtonCode(mouseButtonCode) {
+    MouseButtonPressedEvent::MouseButtonPressedEvent(int mouseButtonCode) : IEvent(EventType::MouseButtonPressed, EventCategory::EventCategoryInput), _mouseButtonCode(mouseButtonCode) {
         // Nothing to do here.
     }
 
@@ -31,7 +31,7 @@ namespace Spark::Events {
         return _mouseButtonCode;
     }
 
-    MouseButtonReleasedEvent::MouseButtonReleasedEvent(int mouseButtonCode) : Event(EventType::MouseButtonReleased, EventCategory::EventCategoryInput), _mouseButtonCode(mouseButtonCode) {
+    MouseButtonReleasedEvent::MouseButtonReleasedEvent(int mouseButtonCode) : IEvent(EventType::MouseButtonReleased, EventCategory::EventCategoryInput), _mouseButtonCode(mouseButtonCode) {
         // Nothing to do here.
     }
 
@@ -55,7 +55,7 @@ namespace Spark::Events {
         return _mouseButtonCode;
     }
 
-    MouseScrolledEvent::MouseScrolledEvent(double scrollX, double scrollY) : Event(EventType::MouseScrolled, EventCategory::EventCategoryInput), _scrollX(scrollX), _scrollY(scrollY) {
+    MouseScrolledEvent::MouseScrolledEvent(double scrollX, double scrollY) : IEvent(EventType::MouseScrolled, EventCategory::EventCategoryInput), _scrollX(scrollX), _scrollY(scrollY) {
         // Nothing to do here.
     }
 
@@ -76,7 +76,7 @@ namespace Spark::Events {
         return _scrollY;
     }
 
-    MouseMovedEvent::MouseMovedEvent(int mouseX, int mouseY) : Event(EventType::MouseMoved, EventCategory::EventCategoryInput), _mouseX(mouseX), _mouseY(mouseY) {
+    MouseMovedEvent::MouseMovedEvent(int mouseX, int mouseY) : IEvent(EventType::MouseMoved, EventCategory::EventCategoryInput), _mouseX(mouseX), _mouseY(mouseY) {
         // Nothing to do here.
     }
 

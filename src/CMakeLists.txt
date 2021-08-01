@@ -20,6 +20,7 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/spark/events/types/event.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/events/types/mouse_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/events/types/application_events.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/events/types/ecs_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/events/types/key_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/events/types/mouse_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/events/event_hub.cpp"

@@ -1,5 +1,5 @@
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/core/layer.h> // Layer
 
 namespace Spark {

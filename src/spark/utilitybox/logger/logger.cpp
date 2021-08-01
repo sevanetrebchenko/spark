@@ -1,5 +1,5 @@
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/utilitybox/logger/logger.h>                                // LoggingHub
 #include <spark/utilitybox/logger/invalid_format_character_exception.h>    // InvalidFormatCharacterException
 #include <spark/utilitybox/logger/adapter/adapter_config.h>                // AdapterConfiguration
@@ -74,13 +74,13 @@ namespace Spark::UtilityBox::Logger {
              */
             void SwitchBuffers();
 
-            _NODISCARD_ std::vector<std::string> ProcessMessage(IAdapter* adapter, LogRecord* logRecord);
-            _NODISCARD_ std::vector<std::string> FormatMessage(const std::string &message, int characterStart, int characterEnd);
-            _NODISCARD_ std::string FormatCalendarInformation(const char *calendarFormatString);
-            _NODISCARD_ std::string FormatLogCount(int logCount);
-            _NODISCARD_ std::string FormatSeverity(const LogMessageSeverity &messageSeverity);
-            _NODISCARD_ std::string FormatTimestamp(const IAdapter *adapter, const Timing::TimeStamp &timeStamp);
-            _NODISCARD_ std::string FormatSeparator(int lineLength);
+            NODISCARD std::vector<std::string> ProcessMessage(IAdapter* adapter, LogRecord* logRecord);
+            NODISCARD std::vector<std::string> FormatMessage(const std::string &message, int characterStart, int characterEnd);
+            NODISCARD std::string FormatCalendarInformation(const char *calendarFormatString);
+            NODISCARD std::string FormatLogCount(int logCount);
+            NODISCARD std::string FormatSeverity(const LogMessageSeverity &messageSeverity);
+            NODISCARD std::string FormatTimestamp(const IAdapter *adapter, const Timing::TimeStamp &timeStamp);
+            NODISCARD std::string FormatSeparator(int lineLength);
 
             // IAdapter data
             std::vector<IAdapter*> _adapterList;              // User-created custom adapters.

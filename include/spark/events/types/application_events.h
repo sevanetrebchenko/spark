@@ -2,41 +2,41 @@
 #ifndef SPARK_APPLICATION_EVENTS_H
 #define SPARK_APPLICATION_EVENTS_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/events/types/event.h> // Event, EventType
 
 namespace Spark {
     namespace Events {
 
-        class WindowResizeEvent : public Event {
+        class WindowResizeEvent : public IEvent {
             public:
                 static inline constexpr EventType StaticEventType = EventType::WindowResized;
                 WindowResizeEvent(int width, int height);
 
-                _NODISCARD_ std::string ToString() const override;
-                _NODISCARD_ int GetWidth() const;
-                _NODISCARD_ int GetHeight() const;
+                NODISCARD std::string ToString() const override;
+                NODISCARD int GetWidth() const;
+                NODISCARD int GetHeight() const;
 
             private:
                 int _width;
                 int _height;
         };
 
-        class WindowCloseEvent : public Event {
+        class WindowCloseEvent : public IEvent {
             public:
                 static inline constexpr EventType StaticEventType = EventType::WindowCloseRequested;
                 WindowCloseEvent();
 
-                _NODISCARD_ std::string ToString() const override;
+                NODISCARD std::string ToString() const override;
         };
 
-        class WindowMinimizedEvent : public Event {
+        class WindowMinimizedEvent : public IEvent {
             public:
                 static inline constexpr EventType StaticEventType = EventType::WindowMinimized;
                 explicit WindowMinimizedEvent(bool minimized);
 
-                _NODISCARD_ std::string ToString() const override;
-                _NODISCARD_ bool GetMinimized() const;
+                NODISCARD std::string ToString() const override;
+                NODISCARD bool GetMinimized() const;
             private:
                 bool _minimized;
         };

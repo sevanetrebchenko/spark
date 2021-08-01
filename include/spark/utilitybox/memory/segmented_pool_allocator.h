@@ -2,20 +2,20 @@
 #ifndef SPARK_SEGMENTED_POOL_ALLOCATOR_H
 #define SPARK_SEGMENTED_POOL_ALLOCATOR_H
 
-#include <spark/core/core.h>
-#include <spark/utilitybox/memory/allocator_interface.h> // IAllocator
+#include <spark/core/rename.h>
+#include <spark/utilitybox/memory/allocator.h> // IAllocator
 
 namespace Spark {
     namespace UtilityBox {
         namespace Memory {
 
-            class SegmentedPoolAllocator : public IAllocator {
+            class SegmentedPoolAllocator {
                 public:
                     explicit SegmentedPoolAllocator(unsigned blockSize);
                     ~SegmentedPoolAllocator();
 
-                    _NODISCARD_ void* RetrieveBlock() override;
-                    void ReturnBlock(void* blockAddress) override;
+                    NODISCARD void* RetrieveBlock();
+                    void ReturnBlock(void* blockAddress);
 
                 private:
                     // Holds data about the blocks in one specific page. Creates a linked list with pages.
@@ -38,7 +38,7 @@ namespace Spark {
                     PageHeader* _pageList;    // Linked list of pages.
 
                     unsigned _blockDataSize;                                           // Size of only the user data block.
-                    MemoryFormatter _formatter { _blockDataSize, true }; // memory formatter functions.
+                    // MemoryFormatter _formatter { _blockDataSize, true }; // memory formatter functions.
 
                     const unsigned _blocksPerPage = 10;  // Number of blocks per page.
                     const unsigned _numPaddingBytes = 4; // Number of padding bytes on either side of the user data block.

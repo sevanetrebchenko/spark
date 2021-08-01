@@ -2,7 +2,7 @@
 #ifndef SPARK_WINDOW_H
 #define SPARK_WINDOW_H
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 
 namespace Spark {
     namespace Graphics {
@@ -14,9 +14,9 @@ namespace Spark {
 
                 virtual void OnUpdate() = 0;
 
-                _NODISCARD_ virtual int GetWidth() const = 0;
-                _NODISCARD_ virtual int GetHeight() const = 0;
-                _NODISCARD_ virtual void* GetNativeWindow() const = 0;
+                NODISCARD virtual int GetWidth() const = 0;
+                NODISCARD virtual int GetHeight() const = 0;
+                NODISCARD virtual void* GetNativeWindow() const = 0;
         };
 
     }

@@ -1,5 +1,5 @@
 
-#include <spark/core/core.h>
+#include <spark/core/rename.h>
 #include <spark/utilitybox/memory/memory_formatter.h>          // MemoryFormatter
 #include <spark/utilitybox/memory/contiguous_pool_allocator.h> // ContiguousPoolAllocator
 
@@ -44,7 +44,7 @@ namespace Spark::UtilityBox::Memory {
              * available on the previously allocated page.
              * @return - Pointer to the allocated block of memory.
              */
-            _NODISCARD_ void* RetrieveBlock();
+            NODISCARD void* RetrieveBlock();
 
             /**
              * Subscript operator.
@@ -52,7 +52,7 @@ namespace Spark::UtilityBox::Memory {
              * @return On success: Pointer to the location at the provided index.
              *         On failure: nullptr.
              */
-            _NODISCARD_ void* operator[](unsigned index);
+            NODISCARD void* operator[](unsigned index);
 
             /**
              * Return a block back to the memory manager.

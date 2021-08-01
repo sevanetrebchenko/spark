@@ -39,7 +39,7 @@ namespace Spark {
                 void SetMat3(const std::string& shaderName, const glm::mat3& matrix) override;
                 void SetMat4(const std::string& shaderName, const glm::mat4& matrix) override;
 
-                _NODISCARD_ const std::string& GetName() const override;
+                NODISCARD const std::string& GetName() const override;
 
             private:
                 class OpenGLShaderData;

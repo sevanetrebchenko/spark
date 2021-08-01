@@ -11,7 +11,7 @@ namespace Spark::Graphics {
     //------------------------------------------------------------------------------------------------------------------
     // OPENGL IMGUI LAYER DATA
     //------------------------------------------------------------------------------------------------------------------
-    class OpenGLImGuiLayer::OpenGLImGuiLayerData : public Events::IEventReceivable<OpenGLImGuiLayerData, Events::MouseScrolledEvent> {
+    class OpenGLImGuiLayer::OpenGLImGuiLayerData : public Events::IEventReceivable<Events::MouseScrolledEvent> {
         public:
             explicit OpenGLImGuiLayerData(GLFWwindow* window);
             ~OpenGLImGuiLayerData();
@@ -47,7 +47,7 @@ namespace Spark::Graphics {
             std::pair<double, double> _mousePosition;   // Mouse position : (x, y)
     };
 
-    OpenGLImGuiLayer::OpenGLImGuiLayerData::OpenGLImGuiLayerData(GLFWwindow* window) : Events::IEventReceivable<OpenGLImGuiLayerData, Events::MouseScrolledEvent>("OpenGL ImGui Layer"),
+    OpenGLImGuiLayer::OpenGLImGuiLayerData::OpenGLImGuiLayerData(GLFWwindow* window) : Events::IEventReceivable<Events::MouseScrolledEvent>("OpenGL ImGui Layer"),
                                                                                        _window(window) {
         SP_ASSERT(window, "Window is null");
     }

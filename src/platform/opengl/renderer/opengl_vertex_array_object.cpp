@@ -7,7 +7,7 @@ namespace Spark::Graphics {
     struct OpenGLVertexArrayObject::OpenGLVertexArrayObjectData {
         OpenGLVertexArrayObjectData();
 
-        _NODISCARD_ GLenum ConvertShaderDataTypeToOpenGLDataType(ShaderDataType shaderDataType) const;
+        NODISCARD GLenum ConvertShaderDataTypeToOpenGLDataType(ShaderDataType shaderDataType) const;
 
         unsigned _bufferID;
         unsigned _vboAttributeIndex;
