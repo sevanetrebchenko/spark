@@ -5,17 +5,18 @@
 #include <spark/core/rename.h>
 #include <spark/ecs/components/types/base_component.h>          // BaseComponent
 #include <spark/events/event_interactable_interface.h>          // IEventReceivable
-#include <spark/ecs/components/all_components.h>                // ALL_COMPONENTS
+#include <spark/ecs/components/all_components.h>                // COMPONENT_TYPES
 #include "../../events/types/ecs_events.h"
 #include "../utility.h"
 #include "../components/component_manager_collection.h"
+#include <spark/events/utility.h>
 
 namespace Spark {
     namespace ECS {
 
         class EntityManager : public Singleton<EntityManager>,
                               UtilityBox::Logger::ILoggable,
-                              REGISTER_EVENTS(EntityManager, WRAP(Events::AddComponentEvent, ALL_COMPONENTS), WRAP(Events::RemoveComponentEvent, ALL_COMPONENTS))
+                              REGISTER_EVENTS(EntityManager, WRAP(Events::AddComponentEvent, COMPONENT_TYPES), WRAP(Events::RemoveComponentEvent, COMPONENT_TYPES))
                               {
             public:
                 REGISTER_SINGLETON(EntityManager);
@@ -34,8 +35,8 @@ namespace Spark {
                 NODISCARD const EntityComponentMap* GetEntityComponentMap(EntityID entityID) const;
 
             private:
-                void OnEvent(Events::AddComponentEvent<TestComponent>* event) override;
-                void OnEvent(Events::RemoveComponentEvent<TestComponent>* event) override;
+                // Register AddComponentEvent/RemoveComponentEvent event function overrides for all registered components.
+                REGISTER_COMPONENT_TYPE_OVERRIDES(COMPONENT_TYPES);
 
                 NODISCARD std::string GetValidEntityName(const std::string& entityName) const;
 

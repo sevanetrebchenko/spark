@@ -13,8 +13,6 @@ namespace Spark::Events {
 
     template<class ComponentType>
     std::string AddComponentEvent<ComponentType>::ToString() const {
-        static std::stringstream format;
-        static std::string formattedString;
         return std::string(); // TODO
     }
 
@@ -32,8 +30,6 @@ namespace Spark::Events {
 
     template<class ComponentType>
     std::string RemoveComponentEvent<ComponentType>::ToString() const {
-        static std::stringstream format;
-        static std::string formattedString;
         return std::string(); // TODO
     }
 

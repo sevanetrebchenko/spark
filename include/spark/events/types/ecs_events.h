@@ -35,7 +35,7 @@ namespace Spark {
                 ECS::EntityID entityID_;
         };
 
-        template <class ComponentType>
+        template <typename ComponentType>
         class AddComponentEvent : public IEvent {
             public:
                 static inline constexpr EventType StaticEventType = EventType::EntityComponentAdd;
@@ -49,7 +49,7 @@ namespace Spark {
                 ECS::EntityID entityID_;
         };
 
-        template <class ComponentType>
+        template <typename ComponentType>
         class RemoveComponentEvent : public IEvent {
             public:
                 static inline constexpr EventType StaticEventType = EventType::EntityComponentRemove;
@@ -63,9 +63,22 @@ namespace Spark {
                 ECS::EntityID entityID_;
         };
 
+        class RefreshObjectComponentListEvent : public IEvent {
+            public:
+                static inline constexpr EventType StaticEventType = EventType::SystemRefreshObjectComponentList;
+
+                explicit RefreshObjectComponentListEvent(ECS::EntityID ID);
+
+                NODISCARD std::string ToString() const override;
+                NODISCARD const ECS::EntityID& GetEntityID() const;
+
+            private:
+                ECS::EntityID entityID_;
+        };
+
     }
 }
 
-#include <spark/events/types/ecs_events.tpp> // Template function definitions.
+#include <spark/events/types/ecs_events.tpp>
 
 #endif // SPARK_ENTITY_EVENTS_H

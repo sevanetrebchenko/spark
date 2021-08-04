@@ -13,6 +13,7 @@ namespace Spark {
             KeyPressed, KeyReleased,
             MouseButtonPressed, MouseButtonReleased, MouseScrolled, MouseMoved,
             EntityCreate, EntityDestroy, EntityComponentAdd, EntityComponentRemove,
+            SystemRefreshObjectComponentList,
         };
 
         enum class EventCategory {

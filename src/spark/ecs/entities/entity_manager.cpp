@@ -39,19 +39,11 @@ namespace Spark::ECS {
         DestroyEntity(GetEntityIDFromName(entityName));
     }
 
-    void EntityManager::OnEvent(Events::AddComponentEvent<TestComponent> *event) {
-        AddComponent<TestComponent>(event->GetEntityID());
-    }
-
-    void EntityManager::OnEvent(Events::RemoveComponentEvent<TestComponent> *event) {
-        RemoveComponent<TestComponent>(event->GetEntityID());
-    }
-
     std::string EntityManager::GetValidEntityName(const std::string& entityName) const {
         unsigned long appendNum = 1;
         std::string current = entityName;
 
-        while (EntityNameMatchesComponentName<ALL_COMPONENTS>(current) || EntityNameMatchesEntityName(current)) {
+        while (EntityNameMatchesComponentName<COMPONENT_TYPES>(current) || EntityNameMatchesEntityName(current)) {
             current = entityName; // Reset for next append.
             current += std::to_string(appendNum++);
         }

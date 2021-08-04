@@ -2,28 +2,23 @@
 #ifndef SPARK_EVENT_HUB_H
 #define SPARK_EVENT_HUB_H
 
-#include <spark/events/event_hub_private_interface.h> // IEventHubPrivate
 #include <spark/events/event_listener_interface.h>    // IEventListener
+#include <spark/utilitybox/tools/singleton.h>
 
 namespace Spark {
     namespace Events {
 
-            class EventHub : public IEventHubPrivate {
+            class EventHub : Singleton<EventHub> {
                 public:
-                    static EventHub* GetInstance();
-                    void AttachEventListener(IEventListener* eventListener) override;
-                    void DetachEventListener(IEventListener* eventListener) override;
-                    void Dispatch(Event* event) override;
-                    void OnUpdate() override;
+                    REGISTER_SINGLETON(EventHub);
+
+                    void AttachEventListener(IEventListener* eventListener);
+                    void DetachEventListener(IEventListener* eventListener);
+                    void Dispatch(IEvent* event);
+                    void OnUpdate();
 
                 private:
-                    EventHub();
-                    ~EventHub();
-
-                    static EventHub* _instance;
-
-                    class EventHubData;
-                    EventHubData* _data;
+                    std::vector<IEventListener*> _eventListeners;
             };
 
     }

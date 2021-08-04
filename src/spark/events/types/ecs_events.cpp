@@ -32,4 +32,17 @@ namespace Spark::Events {
         return entityID_;
     }
 
+    // RefreshObjectComponentListEvent
+    RefreshObjectComponentListEvent::RefreshObjectComponentListEvent(ECS::EntityID ID) : IEvent(EventType::SystemRefreshObjectComponentList, EventCategory::EventCategoryECS),
+                                                                                         entityID_(ID)
+                                                                                         {
+    }
+
+    std::string RefreshObjectComponentListEvent::ToString() const {
+        return std::string(); // TODO
+    }
+
+    const ECS::EntityID &RefreshObjectComponentListEvent::GetEntityID() const {
+        return entityID_;
+    }
 }

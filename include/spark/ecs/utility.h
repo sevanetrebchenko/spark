@@ -18,8 +18,19 @@ namespace Spark {
         NODISCARD bool StringCompare(const std::string& first, const std::string& second);
         NODISCARD EntityID GetEntityIDFromName(const std::string& entityName);
 
+        namespace Internal {
+            // Generates comma separated list of given components without trailing comma.
+            template <typename ComponentType>
+            std::string CommaSeparatedList();
+
+            template <typename ComponentType1, typename ComponentType2, typename... AdditionalComponentTypes>
+            std::string CommaSeparatedList();
+        }
+
     }
 }
+
+#include <spark/ecs/utility.tpp>
 
 #define REGISTER_COMPONENT(ClassName)                                         \
 public:                                                                       \

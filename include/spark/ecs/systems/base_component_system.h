@@ -8,7 +8,7 @@
 
 #include <spark/events/event_interactable_interface.h>
 #include <spark/events/types/ecs_events.h>
-#include <spark/ecs/components/utility.h>
+#include <spark/events/utility.h>
 
 namespace Spark {
     namespace ECS {
@@ -16,7 +16,7 @@ namespace Spark {
         template <class ...ComponentTypes>
         class BaseComponentSystem : public IBaseComponentSystem,
                                     UtilityBox::Logger::ILoggable,
-                                    REGISTER_EVENTS(BaseComponentSystem<ComponentTypes...>, Events::DestroyEntityEvent, Events::AddComponentSystemConfigEvent, Events::RemoveComponentSystemConfigEvent)
+                                    REGISTER_EVENTS(BaseComponentSystem<ComponentTypes...>, Events::RefreshObjectComponentListEvent, Events::DestroyEntityEvent)
                                     {
             public:
                 explicit BaseComponentSystem(const std::string& systemName = std::string("Component System (" + Internal::CommaSeparatedList<ComponentTypes...>() + ")"));
@@ -39,9 +39,8 @@ namespace Spark {
                 std::vector<ComponentTuple> tuples_; // Tuples managed by this system.
 
             private:
+                void OnEvent(Events::RefreshObjectComponentListEvent* event) override;
                 void OnEvent(Events::DestroyEntityEvent* event) override;
-                void OnEvent(Events::AddComponentSystemConfigEvent* event) override;
-                void OnEvent(Events::RemoveComponentSystemConfigEvent* event) override;
 
                 // Used to retrieve a specific type of component from a given ComponentTuple, given that it exists.
                 template <class DesiredComponentType, unsigned Index, class ComponentType, class... AdditionalComponentTypes>

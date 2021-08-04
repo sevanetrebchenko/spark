@@ -5,6 +5,7 @@
 #include <spark/core/rename.h>
 #include <spark/ecs/components/types/base_component.h> // BaseComponent
 #include <spark/utilitybox/tools/assert_dev.h>
+#include <spark/ecs/entities/entity_manager.h>
 
 namespace Spark::ECS {
 
@@ -59,7 +60,26 @@ namespace Spark::ECS {
     }
 
     template<class... ComponentTypes>
-    void BaseComponentSystem<ComponentTypes...>::OnEvent(Events::DestroyEntityEvent *event) {
+    void BaseComponentSystem<ComponentTypes...>::OnEvent(Events::RefreshObjectComponentListEvent* event) {
+        ECS::EntityID entityID = event->GetEntityID();
+        const EntityComponentMap* entityComponents = Singleton<EntityManager>::GetInstance()->GetEntityComponentMap(entityID);
+
+        // Remove entity if it already exists.
+        auto tupleLocationIter = entityIDToIndex_.find(entityID);
+        if (tupleLocationIter != entityIDToIndex_.end()) {
+            RemoveEntity(entityID);
+        }
+
+        // (Re)-process entity.
+        ComponentTuple tuple { };
+        bool validEntity = FilterEntity(*entityComponents, tuple);
+        if (validEntity) {
+            InsertTuple(entityID, tuple);
+        }
+    }
+
+    template<class... ComponentTypes>
+    void BaseComponentSystem<ComponentTypes...>::OnEvent(Events::DestroyEntityEvent* event) {
         ECS::EntityID entityID = event->GetEntityID();
 
         auto tupleLocationIter = entityIDToIndex_.find(entityID);
@@ -69,47 +89,6 @@ namespace Spark::ECS {
         }
 
         RemoveEntity(entityID);
-    }
-
-    template<class... ComponentTypes>
-    void BaseComponentSystem<ComponentTypes...>::OnEvent(Events::AddComponentSystemConfigEvent *event) {
-        ECS::EntityID entityID = event->GetEntityID();
-        const EntityComponentMap& entityComponents = event->GetComponentMap();
-
-        // Re-filter entity components to determine if entity should be processed by system.
-        auto tupleLocationIter = entityIDToIndex_.find(entityID);
-        if (tupleLocationIter != entityIDToIndex_.end()) {
-            // Component tuple for this entity already exists.
-            return;
-        }
-
-        // Need to process entity.
-        ComponentTuple tuple {};
-        bool validEntity = FilterEntity(entityID, entityComponents);
-        if (validEntity) {
-            InsertTuple(entityID, tuple);
-        }
-    }
-
-    template<class... ComponentTypes>
-    void BaseComponentSystem<ComponentTypes...>::OnEvent(Events::RemoveComponentSystemConfigEvent *event) {
-        ECS::EntityID entityID = event->GetEntityID();
-        const EntityComponentMap& entityComponents = event->GetComponentMap();
-
-        // Re-filter entity components to determine if entity should be processed by system.
-        auto tupleLocationIter = entityIDToIndex_.find(entityID);
-        if (tupleLocationIter == entityIDToIndex_.end()) {
-            // Component tuple for this entity does not exist.
-            return;
-        }
-
-        // Need to process entity.
-        ComponentTuple tuple {};
-        bool validEntity = FilterEntity(entityID, entityComponents);
-        if (!validEntity) {
-            // Entity is no longer valid, remove from system.
-            RemoveEntity(entityID);
-        }
     }
 
     template<class... ComponentTypes>
