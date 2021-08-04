@@ -3,7 +3,7 @@
 #define SPARK_EVENT_INTERACTABLE_INTERFACE_H
 
 #include <spark/events/event_listener.h>
-#include "generators.h"
+#include "utility.h"
 
 namespace Spark {
     namespace Events {
