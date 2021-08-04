@@ -4,7 +4,7 @@
 
 #include <spark/core/rename.h>
 #include <spark/events/types/event.h> // Event, EventType
-#include <spark/ecs/ecs_typedefs.h>   // EntityID
+#include <spark/ecs/utility.h>
 
 namespace Spark {
     namespace Events {
@@ -61,38 +61,6 @@ namespace Spark {
 
             private:
                 ECS::EntityID entityID_;
-        };
-
-        class AddComponentSystemConfigEvent : public IEvent {
-            public:
-                static inline constexpr EventType StaticEventType = EventType::SystemAddComponentConfig;
-
-                AddComponentSystemConfigEvent(ECS::EntityID entityID, ECS::EntityComponentMap entityComponentMap);
-
-                NODISCARD std::string ToString() const override;
-
-                NODISCARD const ECS::EntityID& GetEntityID() const;
-                NODISCARD const ECS::EntityComponentMap& GetComponentMap() const;
-
-            private:
-                ECS::EntityID entityID_;
-                ECS::EntityComponentMap componentMap_;
-        };
-
-        class RemoveComponentSystemConfigEvent : public IEvent {
-            public:
-                static inline constexpr EventType StaticEventType = EventType::SystemRemoveComponentConfig;
-
-                RemoveComponentSystemConfigEvent(ECS::EntityID entityID, ECS::EntityComponentMap entityComponentMap);
-
-                NODISCARD std::string ToString() const override;
-
-                NODISCARD const ECS::EntityID& GetEntityID() const;
-                NODISCARD const ECS::EntityComponentMap& GetComponentMap() const;
-
-            private:
-                ECS::EntityID entityID_;
-                ECS::EntityComponentMap componentMap_;
         };
 
     }

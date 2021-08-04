@@ -4,22 +4,17 @@
 
 #include <spark/core/rename.h>
 #include <spark/ecs/components/types/base_component.h> // BaseComponent
-#include <spark/ecs/entities/entity_callback_type.h>   // CallbackType
-#include <spark/core/service_locator.h>                // ServiceLocator
-#include <spark/ecs/entities/entity_manager.h>         // EntityManager
 #include <spark/utilitybox/tools/assert_dev.h>
-
 
 namespace Spark::ECS {
 
     template <class... ComponentTypes>
     BaseComponentSystem<ComponentTypes...>::BaseComponentSystem(const std::string& systemName) : UtilityBox::Logger::ILoggable(systemName) {
-        // Ensure all components are derived from base component.
-        static_assert((std::is_base_of_v<BaseComponent, ComponentTypes> && ...), "Invalid template parameter provided to base BaseComponentSystem - component types must derive from ecs::components::BaseComponent.");
+        // Ensure data validity.
+        static_assert((std::is_base_of_v<BaseComponent, ComponentTypes> && ...), "Invalid template parameter provided to base BaseComponentSystem - component types must derive from BaseComponent.");
         static_assert(sizeof...(ComponentTypes) > 0, "ComponentSystem must operate on at least one component type.");
     }
 
-    // Destructor.
     template <class... ComponentTypes>
     BaseComponentSystem<ComponentTypes...>::~BaseComponentSystem() {
         indexToEntityID_.clear();
@@ -182,7 +177,7 @@ namespace Spark::ECS {
         std::swap(tuples_[entityIndex], tuples_[lastIndex]);
         tuples_.pop_back();
 
-        // Update indices of swapped element.
+        // Update mapping of swapped element.
         entityIDToIndex_.insert(lastEntityID, entityIndex);
         indexToEntityID_.insert(entityIndex, lastEntityID);
     }
@@ -216,7 +211,7 @@ namespace Spark::ECS {
 
     template<class... ComponentTypes>
     template<unsigned>
-    bool BaseComponentSystem<ComponentTypes...>::ProcessEntityComponent(ComponentTypeID /* Unused. */, BaseComponent* /* Unused. */, BaseComponentSystem::ComponentTuple& /* Unused. */) {
+    bool BaseComponentSystem<ComponentTypes...>::ProcessEntityComponent(ComponentTypeID, BaseComponent*, ComponentTuple&) {
         // Component is not managed by this system (doesn't exist in the tuple).
         return false;
     }

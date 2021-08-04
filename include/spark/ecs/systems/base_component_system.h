@@ -14,7 +14,10 @@ namespace Spark {
     namespace ECS {
 
         template <class ...ComponentTypes>
-        class BaseComponentSystem : public IBaseComponentSystem, UtilityBox::Logger::ILoggable, REGISTER_EVENTS(BaseComponentSystem<ComponentTypes...>, Events::DestroyEntityEvent, Events::AddComponentSystemConfigEvent, Events::RemoveComponentSystemConfigEvent) {
+        class BaseComponentSystem : public IBaseComponentSystem,
+                                    UtilityBox::Logger::ILoggable,
+                                    REGISTER_EVENTS(BaseComponentSystem<ComponentTypes...>, Events::DestroyEntityEvent, Events::AddComponentSystemConfigEvent, Events::RemoveComponentSystemConfigEvent)
+                                    {
             public:
                 explicit BaseComponentSystem(const std::string& systemName = std::string("Component System (" + Internal::CommaSeparatedList<ComponentTypes...>() + ")"));
                 ~BaseComponentSystem();

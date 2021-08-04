@@ -7,15 +7,23 @@ namespace Spark {
     template <typename Base>
     class Singleton {
         public:
-            Singleton() = default;
+            static Base* GetInstance();
+
+            // Singleton should not be copied/duplicated.
             Singleton(Singleton const &other) = delete;
             Singleton(Singleton &&other) = delete;
             void operator=(Singleton const &other) = delete;
 
         protected:
-            static Singleton* _instance;
+            Singleton() = default;
+            virtual ~Singleton() = default;
     };
 
 }
+
+#include <spark/utilitybox/tools/singleton.tpp>
+
+// Must be included with every singleton instance.
+#define REGISTER_SINGLETON(Base) friend class Spark::Singleton<Base>;
 
 #endif //SPARK_SINGLETON_H

@@ -3,22 +3,24 @@
 #define SPARK_COMPONENT_MANAGER_COLLECTION_H
 
 #include <spark/ecs/components/component_manager.h> // ComponentManager
+#include <spark/utilitybox/tools/singleton.h>
 
 namespace Spark {
     namespace ECS {
 
         template <class ...ComponentTypes>
-        class ComponentManagerCollection : public UtilityBox::Logger::ILoggable {
+        class ComponentManagerCollection : public Singleton<ComponentManagerCollection<ComponentTypes...>>, public UtilityBox::Logger::ILoggable {
             public:
-                static ComponentManagerCollection* GetInstance();
+                REGISTER_SINGLETON(ComponentManagerCollection<ComponentTypes...>);
 
                 template <class ComponentType>
                 ComponentManager<ComponentType>* GetComponentManager();
 
-            private:
+            protected:
                 ComponentManagerCollection();
-                ~ComponentManagerCollection();
+                ~ComponentManagerCollection() override;
 
+            private:
                 template <class ComponentType>
                 void CreateComponentSystem();
 
