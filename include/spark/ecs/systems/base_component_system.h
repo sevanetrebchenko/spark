@@ -2,24 +2,20 @@
 #ifndef SPARK_BASE_COMPONENT_SYSTEM_H
 #define SPARK_BASE_COMPONENT_SYSTEM_H
 
-#include <spark/core/rename.h>
-#include <spark/utilitybox/logger/logging_interface.h>   // ILoggable
-#include <spark/ecs/systems/base_component_system_interface.h> // IBaseComponentSystem
-
-#include <spark/events/event_interactable_interface.h>
-#include <spark/events/types/ecs_events.h>
-#include <spark/events/utility.h>
+#include "spark/core/utility.h"
+#include "spark/events/utility.h"
+#include "spark/ecs/systems/base_component_system_interface.h"
+#include "spark/events/types/ecs_events.h"
 
 namespace Spark {
     namespace ECS {
 
         template <class ...ComponentTypes>
         class BaseComponentSystem : public IBaseComponentSystem,
-                                    UtilityBox::Logger::ILoggable,
-                                    REGISTER_EVENTS(BaseComponentSystem<ComponentTypes...>, Events::RefreshObjectComponentListEvent, Events::DestroyEntityEvent)
+                                    REGISTER_EVENTS(BaseComponentSystem<ComponentTypes...>, Events::CreateEntityEvent, Events::DestroyEntityEvent, Events::RefreshObjectComponentListEvent)
                                     {
             public:
-                explicit BaseComponentSystem(const std::string& systemName = std::string("Component System (" + Internal::CommaSeparatedList<ComponentTypes...>() + ")"));
+                BaseComponentSystem();
                 ~BaseComponentSystem();
 
                 void Initialize() override;
@@ -39,8 +35,9 @@ namespace Spark {
                 std::vector<ComponentTuple> tuples_; // Tuples managed by this system.
 
             private:
-                void OnEvent(Events::RefreshObjectComponentListEvent* event) override;
+                void OnEvent(Events::CreateEntityEvent* event) override;
                 void OnEvent(Events::DestroyEntityEvent* event) override;
+                void OnEvent(Events::RefreshObjectComponentListEvent* event) override;
 
                 // Used to retrieve a specific type of component from a given ComponentTuple, given that it exists.
                 template <class DesiredComponentType, unsigned Index, class ComponentType, class... AdditionalComponentTypes>

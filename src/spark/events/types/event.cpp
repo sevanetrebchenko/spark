@@ -3,7 +3,7 @@
 
 namespace Spark::Events {
 
-    IEvent::Event(EventType eventType, EventCategory eventCategory) : _eventType(eventType), _eventCategory(eventCategory) {
+    IEvent::IEvent(EventType eventType, EventCategory eventCategory) : _eventType(eventType), _eventCategory(eventCategory) {
         // Nothing to do here.
     }
 
@@ -16,7 +16,7 @@ namespace Spark::Events {
     }
 
     bool IEvent::IsInEventCategory(EventCategory eventCategory) const {
-        return _eventCategory & eventCategory;
+        return true;//_eventCategory;// & eventCategory;
     }
 
     std::string IEvent::ConvertEventTypeToString(const EventType& eventType) {

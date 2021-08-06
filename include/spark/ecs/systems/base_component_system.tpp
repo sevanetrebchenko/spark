@@ -2,15 +2,13 @@
 #ifndef SPARK_BASE_COMPONENT_SYSTEM_TPP
 #define SPARK_BASE_COMPONENT_SYSTEM_TPP
 
-#include <spark/core/rename.h>
-#include <spark/ecs/components/types/base_component.h> // BaseComponent
-#include <spark/utilitybox/tools/assert_dev.h>
-#include <spark/ecs/entities/entity_manager.h>
+#include "spark/ecs/components/types/base_component.h"
+#include "spark/ecs/entities/entity_manager.h"
 
 namespace Spark::ECS {
 
     template <class... ComponentTypes>
-    BaseComponentSystem<ComponentTypes...>::BaseComponentSystem(const std::string& systemName) : UtilityBox::Logger::ILoggable(systemName) {
+    BaseComponentSystem<ComponentTypes...>::BaseComponentSystem() {
         // Ensure data validity.
         static_assert((std::is_base_of_v<BaseComponent, ComponentTypes> && ...), "Invalid template parameter provided to base BaseComponentSystem - component types must derive from BaseComponent.");
         static_assert(sizeof...(ComponentTypes) > 0, "ComponentSystem must operate on at least one component type.");
@@ -60,6 +58,32 @@ namespace Spark::ECS {
     }
 
     template<class... ComponentTypes>
+    void BaseComponentSystem<ComponentTypes...>::OnEvent(Events::CreateEntityEvent* event) {
+        ECS::EntityID entityID = event->GetEntityID();
+
+        auto tupleLocationIter = entityIDToIndex_.find(entityID);
+        if (tupleLocationIter == entityIDToIndex_.end()) {
+            // Don't remove entity that doesn't exist.
+            return;
+        }
+
+        RemoveEntity(entityID);
+    }
+
+    template<class... ComponentTypes>
+    void BaseComponentSystem<ComponentTypes...>::OnEvent(Events::DestroyEntityEvent* event) {
+        ECS::EntityID entityID = event->GetEntityID();
+
+        auto tupleLocationIter = entityIDToIndex_.find(entityID);
+        if (tupleLocationIter == entityIDToIndex_.end()) {
+            // Don't remove entity that doesn't exist.
+            return;
+        }
+
+        RemoveEntity(entityID);
+    }
+
+    template<class... ComponentTypes>
     void BaseComponentSystem<ComponentTypes...>::OnEvent(Events::RefreshObjectComponentListEvent* event) {
         ECS::EntityID entityID = event->GetEntityID();
         const EntityComponentMap* entityComponents = Singleton<EntityManager>::GetInstance()->GetEntityComponentMap(entityID);
@@ -76,19 +100,6 @@ namespace Spark::ECS {
         if (validEntity) {
             InsertTuple(entityID, tuple);
         }
-    }
-
-    template<class... ComponentTypes>
-    void BaseComponentSystem<ComponentTypes...>::OnEvent(Events::DestroyEntityEvent* event) {
-        ECS::EntityID entityID = event->GetEntityID();
-
-        auto tupleLocationIter = entityIDToIndex_.find(entityID);
-        if (tupleLocationIter == entityIDToIndex_.end()) {
-            // Don't remove entity that doesn't exist.
-            return;
-        }
-
-        RemoveEntity(entityID);
     }
 
     template<class... ComponentTypes>

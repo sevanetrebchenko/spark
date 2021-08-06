@@ -2,8 +2,7 @@
 #ifndef SPARK_ECS_UTILITY_H
 #define SPARK_ECS_UTILITY_H
 
-#include <spark/spark_pch.h>
-#include <spark/core/rename.h>
+#include "spark/core/utility.h"
 
 namespace Spark {
     namespace ECS {
@@ -13,10 +12,6 @@ namespace Spark {
         typedef std::uint32_t ComponentTypeID;
         typedef std::uint32_t EntityID;
         typedef std::unordered_map<ComponentTypeID, BaseComponent*> EntityComponentMap;
-
-        // Case agnostic string equality operator.
-        NODISCARD bool StringCompare(const std::string& first, const std::string& second);
-        NODISCARD EntityID GetEntityIDFromName(const std::string& entityName);
 
         namespace Internal {
             // Generates comma separated list of given components without trailing comma.
@@ -30,8 +25,9 @@ namespace Spark {
     }
 }
 
-#include <spark/ecs/utility.tpp>
+#include "spark/ecs/utility.tpp"
 
+#define INVALID_ID (EntityID)-1;
 #define REGISTER_COMPONENT(ClassName)                                         \
 public:                                                                       \
     static constexpr Spark::ECS::ComponentTypeID ID = STRINGHASH(#ClassName); \

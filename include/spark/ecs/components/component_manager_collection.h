@@ -2,19 +2,20 @@
 #ifndef SPARK_COMPONENT_MANAGER_COLLECTION_H
 #define SPARK_COMPONENT_MANAGER_COLLECTION_H
 
-#include <spark/ecs/components/component_manager.h> // ComponentManager
-#include <spark/utilitybox/tools/singleton.h>
+#include "spark/core/utility.h"
+#include "spark/ecs/components/component_manager.h"
+#include "spark/utilitybox/tools/singleton.h"
 
 namespace Spark {
     namespace ECS {
 
         template <class ...ComponentTypes>
-        class ComponentManagerCollection : public Singleton<ComponentManagerCollection<ComponentTypes...>>, public UtilityBox::Logger::ILoggable {
+        class ComponentManagerCollection : Singleton<ComponentManagerCollection<ComponentTypes...>> {
             public:
                 REGISTER_SINGLETON(ComponentManagerCollection<ComponentTypes...>);
 
                 template <class ComponentType>
-                ComponentManager<ComponentType>* GetComponentManager();
+                NODISCARD ComponentManager<ComponentType>* GetComponentManager();
 
             protected:
                 ComponentManagerCollection();
@@ -33,7 +34,7 @@ namespace Spark {
     }
 }
 
-#include <spark/ecs/components/component_manager_collection.tpp> // Template function definitions.
+#include "spark/ecs/components/component_manager_collection.tpp" // Template function definitions.
 
 #endif // SPARK_COMPONENT_MANAGER_COLLECTION_H
 

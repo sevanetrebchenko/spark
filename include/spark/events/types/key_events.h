@@ -8,7 +8,7 @@
 namespace Spark {
     namespace Events {
 
-        class KeyPressEvent : public Event {
+        class KeyPressEvent : public IEvent {
             public:
                 static inline constexpr EventType StaticEventType = EventType::KeyPressed;
                 explicit KeyPressEvent(int keyCode);
@@ -20,7 +20,7 @@ namespace Spark {
                 int _keyCode;
         };
 
-        class KeyReleaseEvent : public Event {
+        class KeyReleaseEvent : public IEvent {
             public:
                 static inline constexpr EventType StaticEventType = EventType::KeyReleased;
                 explicit KeyReleaseEvent(int keyCode);

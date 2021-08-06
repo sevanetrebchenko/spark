@@ -8,7 +8,7 @@
 namespace Spark {
     namespace Events {
 
-        template <class Base, class... EventTypes>
+        template <class CRTP, class... EventTypes>
         class IEventReceivable : REGISTER_ON_EVENT(EventTypes...) {
             public:
                 ~IEventReceivable();

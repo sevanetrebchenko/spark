@@ -1,5 +1,4 @@
 
-#include <spark/events/null_event_hub.h> // NullEventHub
 
 namespace Spark::Events {
 

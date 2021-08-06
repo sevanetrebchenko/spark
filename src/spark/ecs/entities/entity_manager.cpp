@@ -1,7 +1,11 @@
 
-#include <spark/ecs/entities/entity_manager.h>                 // EntityManager
+#include "spark/ecs/entities/entity_manager.h"
+#include "spark/utilitybox/logger/logger.h"
 
 namespace Spark::ECS {
+
+    EntityManager::EntityManager() : entityIDCounter(0) {
+    }
 
     void EntityManager::CreateEntity(const std::string& entityName) {
         std::string name = GetValidEntityName(entityName);
@@ -9,11 +13,14 @@ namespace Spark::ECS {
             LogWarning("Entity name cannot match that of a built-in component or another entity. Entity name changed from '%s' to '%s'.", entityName.c_str(), name.c_str());
         }
 
-        EntityID hashedID = GetEntityIDFromName(name);
+        EntityID entityID = GetNextEntityID();
 
+        entityNames_[entityID] = name;
+        entityIDs_[entityName] = entityID;
+
+        // All entities start with a transform.
         // Index operator creates a new default constructed entry.
-        entityComponents_[hashedID];
-        entityNames_[hashedID] = name;
+        entityComponents_[entityID][Transform::ID] = Singleton<ComponentManagerCollection<COMPONENT_TYPES>>::GetInstance()->GetComponentManager<Transform>()->CreateComponent();
     }
 
     void EntityManager::DestroyEntity(EntityID ID) {
@@ -33,10 +40,20 @@ namespace Spark::ECS {
         // Erase mappings.
         entityNames_.erase(entityNameIter);
         entityComponents_.erase(entityComponentMapIter);
+        entityIDs_.erase(entityIDs_.find(entityNameIter->second)); // Guaranteed to exist.
     }
 
     void EntityManager::DestroyEntity(const std::string& entityName) {
         DestroyEntity(GetEntityIDFromName(entityName));
+    }
+
+    EntityID EntityManager::GetEntityIDFromName(const std::string &entityName) const {
+        auto entityNameIter = entityIDs_.find(entityName);
+        if (entityNameIter != entityIDs_.end()) {
+            return entityNameIter->second;
+        }
+
+        return INVALID_ID;
     }
 
     std::string EntityManager::GetValidEntityName(const std::string& entityName) const {
@@ -75,6 +92,10 @@ namespace Spark::ECS {
         }
 
         return &componentMapIter->second;
+    }
+
+    EntityID EntityManager::GetNextEntityID() {
+        return entityIDCounter++;
     }
 
 }

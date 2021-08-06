@@ -22,11 +22,7 @@
 #include <cstdlib>
 #include <atomic>
 #include <thread>
-#include <tuple>
-#include <list>
-#include <forward_list>
-#include <set>
-#include <unordered_set>
+#include <csignal>
 
 // STL Containers
 #include <tuple>
@@ -35,5 +31,10 @@
 #include <queue>
 #include <stack>
 #include <string>
+#include <unordered_set>
+#include <forward_list>
+#include <tuple>
+#include <list>
+#include <set>
 
 #endif // SPARK_SPARK_PCH_H

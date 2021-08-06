@@ -2,7 +2,7 @@
 #ifndef SPARK_EVENT_H
 #define SPARK_EVENT_H
 
-#include <spark/core/rename.h>
+#include "spark/core/utility.h"
 
 namespace Spark {
     namespace Events {

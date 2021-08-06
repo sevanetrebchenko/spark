@@ -2,7 +2,9 @@
 #ifndef SPARK_ENTITY_MANAGER_TPP
 #define SPARK_ENTITY_MANAGER_TPP
 
-#include <spark/events/event_hub.h>
+#include "spark/events/event_hub.h"
+#include "spark/utilitybox/logger/logger.h"
+#include "spark/events/types/ecs_events.h"
 
 namespace Spark::ECS {
 
@@ -41,13 +43,13 @@ namespace Spark::ECS {
         }
 
         ComponentManager<ComponentType>* componentManager = Singleton<ComponentManagerCollection<COMPONENT_TYPES>>::GetInstance()->template GetComponentManager<ComponentType>();
-        componentManager->DeleteComponent(static_cast<TestComponent *>(componentIter->second));
+        componentManager->DeleteComponent(static_cast<ComponentType *>(componentIter->second));
         Singleton<Events::EventHub>::GetInstance()->Dispatch(new Events::RefreshObjectComponentListEvent(ID)); // Dispatch filtering event for component systems.
     }
 
     template<class... ComponentTypes>
     bool EntityManager::EntityNameMatchesComponentName(const std::string &entityName) const {
-        return (StringCompare(entityName, std::string(ComponentTypes::Name)) || ...);
+        return (::Spark::Internal::StringCompare(entityName, std::string(ComponentTypes::Name)) || ...);
     }
 
 }

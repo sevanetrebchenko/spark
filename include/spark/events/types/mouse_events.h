@@ -8,7 +8,7 @@
 namespace Spark {
     namespace Events {
 
-        class MouseButtonPressedEvent : public Event {
+        class MouseButtonPressedEvent : public IEvent {
             public:
                 static inline constexpr EventType StaticEventType = EventType::MouseButtonPressed;
                 explicit MouseButtonPressedEvent(int mouseButtonCode);
@@ -20,7 +20,7 @@ namespace Spark {
                 int _mouseButtonCode;
         };
 
-        class MouseButtonReleasedEvent : public Event {
+        class MouseButtonReleasedEvent : public IEvent {
             public:
                 static inline constexpr EventType StaticEventType = EventType::MouseButtonReleased;
                 explicit MouseButtonReleasedEvent(int mouseButtonCode);
@@ -32,7 +32,7 @@ namespace Spark {
                 int _mouseButtonCode;
         };
 
-        class MouseScrolledEvent : public Event {
+        class MouseScrolledEvent : public IEvent {
             public:
                 static inline constexpr EventType StaticEventType = EventType::MouseScrolled;
                 explicit MouseScrolledEvent(double scrollX, double scrollY);
@@ -45,7 +45,7 @@ namespace Spark {
                 double _scrollX, _scrollY;
         };
 
-        class MouseMovedEvent : public Event {
+        class MouseMovedEvent : public IEvent {
             public:
                 static inline constexpr EventType StaticEventType = EventType::MouseMoved;
                 explicit MouseMovedEvent(int mouseX, int mouseY);

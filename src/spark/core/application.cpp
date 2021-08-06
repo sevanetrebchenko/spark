@@ -1,7 +1,6 @@
 
 #include <spark/core/application.h>                    // Application
 #include <spark/core/service_locator.h>                // ServiceLocator
-#include <spark/events/event_hub_private_interface.h>  // IEventHubPrivate
 #include <spark/utilitybox/logger/logging_interface.h> // ILoggable
 #include <spark/events/event_interactable_interface.h> // IEventReceivable
 #include <spark/events/types/application_events.h>     // WindowCloseEvent, WindowResizeEvent
@@ -13,7 +12,7 @@ namespace Spark {
     //------------------------------------------------------------------------------------------------------------------
     // APPLICATION DATA
     //------------------------------------------------------------------------------------------------------------------
-    class Application::ApplicationData : public UtilityBox::Logger::ILoggable, public Events::IEventReceivable<Application::ApplicationData, Events::WindowCloseEvent, Events::WindowResizeEvent, Events::WindowMinimizedEvent> {
+    class Application::ApplicationData : public UtilityBox::Logger::ILoggable, REGISTER_EVENTS(Application::ApplicationData, Events::WindowCloseEvent, Events::WindowResizeEvent, Events::WindowMinimizedEvent) {
         public:
             ApplicationData();
             ~ApplicationData();
@@ -67,27 +66,27 @@ namespace Spark {
     }
 
     void Application::ApplicationData::Run() {
-        auto* eventHub = dynamic_cast<Events::IEventHubPrivate*>(ServiceLocator::GetEventHub());
-
-        while(_running) {
-            eventHub->OnUpdate();
-
-            if (!_windowMinimized) {
-                // Call OnUpdate for all layers.
-                for (Layer* layer : _layerStack) {
-                    layer->OnUpdate(_deltaTime);
-                }
-
-                // ImGui rendering.
-                _imGuiLayer->BeginFrame();
-                for (Layer* layer : _layerStack) {
-                    layer->OnImGuiRender();
-                }
-                _imGuiLayer->EndFrame();
-            }
-
-            _window->OnUpdate();
-        }
+//        auto* eventHub = dynamic_cast<Events::IEventHubPrivate*>(ServiceLocator::GetEventHub());
+//
+//        while(_running) {
+//            eventHub->OnUpdate();
+//
+//            if (!_windowMinimized) {
+//                // Call OnUpdate for all layers.
+//                for (Layer* layer : _layerStack) {
+//                    layer->OnUpdate(_deltaTime);
+//                }
+//
+//                // ImGui rendering.
+//                _imGuiLayer->BeginFrame();
+//                for (Layer* layer : _layerStack) {
+//                    layer->OnImGuiRender();
+//                }
+//                _imGuiLayer->EndFrame();
+//            }
+//
+//            _window->OnUpdate();
+//        }
     }
 
     void Application::ApplicationData::OnEvent(Events::WindowCloseEvent *event) {

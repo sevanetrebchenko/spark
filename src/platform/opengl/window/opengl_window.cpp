@@ -4,7 +4,7 @@
 #include <platform/opengl/window/opengl_window.h>         // OpenGLWindow
 #include <spark/utilitybox/logger/logging_interface.h>    // ILoggable
 #include <spark/graphics/renderer/rendering_context.h>    // RenderingContext
-#include <spark/utilitybox/logger/log_message_severity.h> // LogMessageSeverity
+#include <spark/utilitybox/logger/log_message_severity.h> // LogSeverity
 #include <spark/utilitybox/logger/logging_system.h>       // LoggingSystem
 #include <spark/core/service_locator.h>                   // ServiceLocator
 #include <spark/events/types/key_events.h>                // KeyPressedEvent, KeyReleasedEvent
@@ -16,7 +16,7 @@ namespace Spark::Graphics {
     //------------------------------------------------------------------------------------------------------------------
     // WINDOW DATA
     //------------------------------------------------------------------------------------------------------------------
-    class OpenGLWindow::OpenGLWindowData : public Events::IEventReceivable<OpenGLWindowData, Events::WindowResizeEvent>, public UtilityBox::Logger::ILoggable {
+    class OpenGLWindow::OpenGLWindowData {//}; : public Events::IEventReceivable<OpenGLWindowData, Events::WindowResizeEvent>, public UtilityBox::Logger::ILoggable {
         public:
             OpenGLWindowData(std::string windowName, int width, int height);
             ~OpenGLWindowData();
@@ -28,8 +28,8 @@ namespace Spark::Graphics {
             NODISCARD GLFWwindow* GetNativeWindow() const;
 
         private:
-            friend class Events::IEventReceivable<OpenGLWindowData, Events::WindowResizeEvent>;
-            void OnEvent(Events::WindowResizeEvent* windowResizeEvent) override;
+//            friend class Events::IEventReceivable<OpenGLWindowData, Events::WindowResizeEvent>;
+//            void OnEvent(Events::WindowResizeEvent* windowResizeEvent) override;
 
             void InitializeGLFW();
             void SetupGLFWCallbacks();
@@ -43,9 +43,10 @@ namespace Spark::Graphics {
 
     OpenGLWindow::OpenGLWindowData::OpenGLWindowData(std::string windowName, int width, int height) : _windowName(std::move(windowName)),
                                                                                                       _windowWidth(width),
-                                                                                                      _windowHeight(height),
-                                                                                                      IEventReceivable("OpenGL Window"),
-                                                                                                      UtilityBox::Logger::ILoggable("OpenGL Window") {
+                                                                                                      _windowHeight(height)
+//                                                                                                      IEventReceivable("OpenGL Window"),
+//                                                                                                      UtilityBox::Logger::ILoggable("OpenGL Window")
+                                                                                                      {
         // GLFW needs to be initialized before creating a GLFW window.
         InitializeGLFW();
 
@@ -82,112 +83,112 @@ namespace Spark::Graphics {
         return _window;
     }
 
-    void OpenGLWindow::OpenGLWindowData::OnEvent(Events::WindowResizeEvent *windowResizeEvent) {
-        GLint viewportData[4];
-        glGetIntegerv(GL_VIEWPORT, viewportData);
-
-        _windowWidth = windowResizeEvent->GetWidth();
-        _windowHeight = windowResizeEvent->GetHeight();
-
-        _context->SetViewport(viewportData[0], viewportData[1], _windowWidth, _windowHeight);
-    }
+//    void OpenGLWindow::OpenGLWindowData::OnEvent(Events::WindowResizeEvent *windowResizeEvent) {
+//        GLint viewportData[4];
+//        glGetIntegerv(GL_VIEWPORT, viewportData);
+//
+//        _windowWidth = windowResizeEvent->GetWidth();
+//        _windowHeight = windowResizeEvent->GetHeight();
+//
+//        _context->SetViewport(viewportData[0], viewportData[1], _windowWidth, _windowHeight);
+//    }
 
     void OpenGLWindow::OpenGLWindowData::InitializeGLFW() {
-        int initializationCode = glfwInit();
-        // Failed to initialize GLFW
-        if (!initializationCode) {
-            LogError("GLFW initialization failed with error code: %i.", initializationCode);
-            throw std::runtime_error("GLFW initialization failed.");
-        }
-        else {
-            LogDebug("GLFW successfully initialized.");
-        }
-
-        glfwSetErrorCallback([](int errorCode, const char *errorDescription) {
-            static UtilityBox::Logger::LoggingSystem errorLoggingSystem("GLFW Error");
-
-            switch (errorCode) {
-                case GLFW_NO_ERROR:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_NO_ERROR (error code: %i).", errorCode);
-                    break;
-                case GLFW_NOT_INITIALIZED:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_NOT_INITIALIZED (error code: %i).", errorCode);
-                    break;
-                case GLFW_NO_CURRENT_CONTEXT:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_NO_CURRENT_CONTEXT (error code: %i).", errorCode);
-                    break;
-                case GLFW_INVALID_ENUM:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_INVALID_ENUM (error code: %i).", errorCode);
-                    break;
-                case GLFW_INVALID_VALUE:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_INVALID_VALUE (error code: %i).", errorCode);
-                    break;
-                case GLFW_OUT_OF_MEMORY:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_OUT_OF_MEMORY (error code: %i).", errorCode);
-                    break;
-                case GLFW_API_UNAVAILABLE:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_API_UNAVAILABLE (error code: %i).", errorCode);
-                    break;
-                case GLFW_VERSION_UNAVAILABLE:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_VERSION_UNAVAILABLE (error code: %i).", errorCode);
-                    break;
-                case GLFW_PLATFORM_ERROR:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_PLATFORM_ERROR (error code: %i).", errorCode);
-                    break;
-                case GLFW_FORMAT_UNAVAILABLE:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_FORMAT_UNAVAILABLE (error code: %i).", errorCode);
-                    break;
-                case GLFW_NO_WINDOW_CONTEXT:
-                    errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "GLFW error occurred: GLFW_NO_WINDOW_CONTEXT (error code: %i).", errorCode);
-                    break;
-                default:
-                    break;
-            }
-
-            errorLoggingSystem.Log(UtilityBox::Logger::LogMessageSeverity::ERROR, "Provided error description: %s.", errorDescription);
-        });
+//        int initializationCode = glfwInit();
+//        // Failed to initialize GLFW
+//        if (!initializationCode) {
+//            LogError("GLFW initialization failed with error code: %i.", initializationCode);
+//            throw std::runtime_error("GLFW initialization failed.");
+//        }
+//        else {
+//            LogDebug("GLFW successfully initialized.");
+//        }
+//
+//        glfwSetErrorCallback([](int errorCode, const char *errorDescription) {
+//            static UtilityBox::Logger::LoggingSystem errorLoggingSystem("GLFW Error");
+//
+//            switch (errorCode) {
+//                case GLFW_NO_ERROR:
+//                    errorLoggingSystem.Log(UtilityBox::Logger::LogSeverity::ERROR, "GLFW error occurred: GLFW_NO_ERROR (error code: %i).", errorCode);
+//                    break;
+//                case GLFW_NOT_INITIALIZED:
+//                    errorLoggingSystem.Log(UtilityBox::Logger::LogSeverity::ERROR, "GLFW error occurred: GLFW_NOT_INITIALIZED (error code: %i).", errorCode);
+//                    break;
+//                case GLFW_NO_CURRENT_CONTEXT:
+//                    errorLoggingSystem.Log(UtilityBox::Logger::LogSeverity::ERROR, "GLFW error occurred: GLFW_NO_CURRENT_CONTEXT (error code: %i).", errorCode);
+//                    break;
+//                case GLFW_INVALID_ENUM:
+//                    errorLoggingSystem.Log(UtilityBox::Logger::LogSeverity::ERROR, "GLFW error occurred: GLFW_INVALID_ENUM (error code: %i).", errorCode);
+//                    break;
+//                case GLFW_INVALID_VALUE:
+//                    errorLoggingSystem.Log(UtilityBox::Logger::LogSeverity::ERROR, "GLFW error occurred: GLFW_INVALID_VALUE (error code: %i).", errorCode);
+//                    break;
+//                case GLFW_OUT_OF_MEMORY:
+//                    errorLoggingSystem.Log(UtilityBox::Logger::LogSeverity::ERROR, "GLFW error occurred: GLFW_OUT_OF_MEMORY (error code: %i).", errorCode);
+//                    break;
+//                case GLFW_API_UNAVAILABLE:
+//                    errorLoggingSystem.Log(UtilityBox::Logger::LogSeverity::ERROR, "GLFW error occurred: GLFW_API_UNAVAILABLE (error code: %i).", errorCode);
+//                    break;
+//                case GLFW_VERSION_UNAVAILABLE:
+//                    errorLoggingSystem.Log(UtilityBox::Logger::LogSeverity::ERROR, "GLFW error occurred: GLFW_VERSION_UNAVAILABLE (error code: %i).", errorCode);
+//                    break;
+//                case GLFW_PLATFORM_ERROR:
+//                    errorLoggingSystem.Log(UtilityBox::Logger::LogSeverity::ERROR, "GLFW error occurred: GLFW_PLATFORM_ERROR (error code: %i).", errorCode);
+//                    break;
+//                case GLFW_FORMAT_UNAVAILABLE:
+//                    errorLoggingSystem.Log(UtilityBox::Logger::LogSeverity::ERROR, "GLFW error occurred: GLFW_FORMAT_UNAVAILABLE (error code: %i).", errorCode);
+//                    break;
+//                case GLFW_NO_WINDOW_CONTEXT:
+//                    errorLoggingSystem.Log(UtilityBox::Logger::LogSeverity::ERROR, "GLFW error occurred: GLFW_NO_WINDOW_CONTEXT (error code: %i).", errorCode);
+//                    break;
+//                default:
+//                    break;
+//            }
+//
+//            errorLoggingSystem.Log(UtilityBox::Logger::LogSeverity::ERROR, "Provided error description: %s.", errorDescription);
+//        });
     }
 
     void OpenGLWindow::OpenGLWindowData::SetupGLFWCallbacks() {
-        // Window close callback
-        glfwSetWindowCloseCallback(_window, [](GLFWwindow* window) {
-            ServiceLocator::GetEventHub()->Dispatch(new Events::WindowCloseEvent());
-        });
-
-        // Window resize callback.
-        glfwSetWindowSizeCallback(_window, [](GLFWwindow* window, int newWidth, int newHeight) {
-            ServiceLocator::GetEventHub()->Dispatch(new Events::WindowResizeEvent(newWidth, newHeight));
-        });
-
-        // Window minimize callback.
-        glfwSetWindowIconifyCallback(_window, [](GLFWwindow* window, int minimized){
-            ServiceLocator::GetEventHub()->Dispatch(new Events::WindowMinimizedEvent((bool)minimized));
-        });
-
-        // Mouse button callback.
-        glfwSetMouseButtonCallback(_window, [](GLFWwindow* window, int mouseButton, int buttonAction, int /* MODS UNUSED */) {
-            if (buttonAction == GLFW_PRESS) {
-                ServiceLocator::GetEventHub()->Dispatch(new Events::MouseButtonPressedEvent(mouseButton));
-            }
-            else if (buttonAction == GLFW_RELEASE) {
-                ServiceLocator::GetEventHub()->Dispatch(new Events::MouseButtonReleasedEvent(mouseButton));
-            }
-        });
-
-        // Mouse scroll wheel callback.
-        glfwSetScrollCallback(_window, [](GLFWwindow* /* WINDOW UNUSED */, double xOffset, double yOffset) {
-            ServiceLocator::GetEventHub()->Dispatch(new Events::MouseScrolledEvent(xOffset, yOffset));
-        });
-
-        // Key callback.
-        glfwSetKeyCallback(_window, [](GLFWwindow* /* WINDOW UNUSED */, int keyCode, int /* SCANCODE UNUSED */, int keyAction, int /* MODS UNUSED */) {
-            if (keyAction == GLFW_PRESS) {
-                ServiceLocator::GetEventHub()->Dispatch(new Events::KeyPressEvent(keyCode));
-            }
-            else if (keyAction == GLFW_RELEASE) {
-                ServiceLocator::GetEventHub()->Dispatch(new Events::KeyReleaseEvent(keyCode));
-            }
-        });
+//        // Window close callback
+//        glfwSetWindowCloseCallback(_window, [](GLFWwindow* window) {
+//            ServiceLocator::GetEventHub()->Dispatch(new Events::WindowCloseEvent());
+//        });
+//
+//        // Window resize callback.
+//        glfwSetWindowSizeCallback(_window, [](GLFWwindow* window, int newWidth, int newHeight) {
+//            ServiceLocator::GetEventHub()->Dispatch(new Events::WindowResizeEvent(newWidth, newHeight));
+//        });
+//
+//        // Window minimize callback.
+//        glfwSetWindowIconifyCallback(_window, [](GLFWwindow* window, int minimized){
+//            ServiceLocator::GetEventHub()->Dispatch(new Events::WindowMinimizedEvent((bool)minimized));
+//        });
+//
+//        // Mouse button callback.
+//        glfwSetMouseButtonCallback(_window, [](GLFWwindow* window, int mouseButton, int buttonAction, int /* MODS UNUSED */) {
+//            if (buttonAction == GLFW_PRESS) {
+//                ServiceLocator::GetEventHub()->Dispatch(new Events::MouseButtonPressedEvent(mouseButton));
+//            }
+//            else if (buttonAction == GLFW_RELEASE) {
+//                ServiceLocator::GetEventHub()->Dispatch(new Events::MouseButtonReleasedEvent(mouseButton));
+//            }
+//        });
+//
+//        // Mouse scroll wheel callback.
+//        glfwSetScrollCallback(_window, [](GLFWwindow* /* WINDOW UNUSED */, double xOffset, double yOffset) {
+//            ServiceLocator::GetEventHub()->Dispatch(new Events::MouseScrolledEvent(xOffset, yOffset));
+//        });
+//
+//        // Key callback.
+//        glfwSetKeyCallback(_window, [](GLFWwindow* /* WINDOW UNUSED */, int keyCode, int /* SCANCODE UNUSED */, int keyAction, int /* MODS UNUSED */) {
+//            if (keyAction == GLFW_PRESS) {
+//                ServiceLocator::GetEventHub()->Dispatch(new Events::KeyPressEvent(keyCode));
+//            }
+//            else if (keyAction == GLFW_RELEASE) {
+//                ServiceLocator::GetEventHub()->Dispatch(new Events::KeyReleaseEvent(keyCode));
+//            }
+//        });
     }
 
     void OpenGLWindow::OpenGLWindowData::OnUpdate() {

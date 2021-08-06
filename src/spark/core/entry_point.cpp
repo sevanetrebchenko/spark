@@ -20,37 +20,38 @@ int main(int argc, char** argv) {
     Spark::UtilityBox::Memory::IAllocator<int, Spark::UtilityBox::Memory::IMemoryResource1> alloc1;
     Spark::UtilityBox::Memory::IAllocator<int, Spark::UtilityBox::Memory::IMemoryResource2> alloc2;
 
-
-    Spark::ECS::BaseComponentSystem<> a("ehe");
-
-    // Setup services for service locator.
-    Spark::ServiceLocator::ProvideService(Spark::Events::EventHub::GetInstance());
-
-    // Set up custom adapters.
-    Spark::UtilityBox::Logger::LoggingHub* loggingHub = Spark::UtilityBox::Logger::LoggingHub::GetInstance();
-    // Debug file adapter.
-    auto* debugFileAdapter = new Spark::UtilityBox::Logger::FileAdapter("debug_log.txt");
-    debugFileAdapter->GetConfiguration()->SetMessageSeverityCutoff(Spark::UtilityBox::Logger::LogMessageSeverity::DEBUG);
-
-    // Warning file adapter.
-    auto* warningFileAdapter = new Spark::UtilityBox::Logger::FileAdapter("warning_log.txt");
-    warningFileAdapter->GetConfiguration()->SetMessageSeverityCutoff(Spark::UtilityBox::Logger::LogMessageSeverity::WARNING);
-
-    // Error file adapter.
-    auto* errorFileAdapter = new Spark::UtilityBox::Logger::FileAdapter("error_log.txt");
-    errorFileAdapter->GetConfiguration()->SetMessageSeverityCutoff(Spark::UtilityBox::Logger::LogMessageSeverity::ERROR);
-
-    loggingHub->AttachCustomAdapter(debugFileAdapter);
-    loggingHub->AttachCustomAdapter(warningFileAdapter);
-    loggingHub->AttachCustomAdapter(errorFileAdapter);
-
-    Spark::ServiceLocator::ProvideService(loggingHub);
-    Spark::ServiceLocator::ProvideService(Spark::ECS::EntityManager::GetInstance());
-
-    // Application.
-    auto* application = Spark::CreateApplication();
-    application->Run();
-    delete application;
+    Spark::ECS::EntityManager a;
+//
+//    //Spark::ECS::BaseComponentSystem<> a("ehe");
+//
+//    // Setup services for service locator.
+//    Spark::ServiceLocator::ProvideService(Spark::Events::EventHub::GetInstance());
+//
+//    // Set up custom adapters.
+//    Spark::UtilityBox::Logger::LoggingHub* loggingHub = Spark::UtilityBox::Logger::LoggingHub::GetInstance();
+//    // Debug file adapter.
+//    auto* debugFileAdapter = new Spark::UtilityBox::Logger::FileAdapter("debug_log.txt");
+//    debugFileAdapter->GetConfiguration()->SetMessageSeverityCutoff(Spark::UtilityBox::Logger::LogSeverity::DEBUG);
+//
+//    // Warning file adapter.
+//    auto* warningFileAdapter = new Spark::UtilityBox::Logger::FileAdapter("warning_log.txt");
+//    warningFileAdapter->GetConfiguration()->SetMessageSeverityCutoff(Spark::UtilityBox::Logger::LogSeverity::WARNING);
+//
+//    // Error file adapter.
+//    auto* errorFileAdapter = new Spark::UtilityBox::Logger::FileAdapter("error_log.txt");
+//    errorFileAdapter->GetConfiguration()->SetMessageSeverityCutoff(Spark::UtilityBox::Logger::LogSeverity::ERROR);
+//
+//    loggingHub->AttachCustomAdapter(debugFileAdapter);
+//    loggingHub->AttachCustomAdapter(warningFileAdapter);
+//    loggingHub->AttachCustomAdapter(errorFileAdapter);
+//
+//    Spark::ServiceLocator::ProvideService(loggingHub);
+//    Spark::ServiceLocator::ProvideService(Spark::ECS::EntityManager::GetInstance());
+//
+//    // Application.
+//    auto* application = Spark::CreateApplication();
+//    application->Run();
+//    delete application;
 
     return 0;
 }

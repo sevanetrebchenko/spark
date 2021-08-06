@@ -3,9 +3,8 @@
 #define SPARK_ALL_COMPONENTS_H
 
 // Component includes go here:
-#include "types/transform_component.h"
-#include "types/base_component.h"
+#include "spark/ecs/components/types/transform_component.h"
 
-#define COMPONENT_TYPES Spark::ECS::TestComponent
+#define COMPONENT_TYPES Spark::ECS::Transform
 
 #endif // SPARK_ALL_COMPONENTS_H

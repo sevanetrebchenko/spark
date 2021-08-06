@@ -1,46 +1,22 @@
+
 #ifndef SPARK_TRANSFORM_COMPONENT_H
 #define SPARK_TRANSFORM_COMPONENT_H
 
-#include <glm/glm.hpp>
-#include <spark/ecs/components/types/base_component.h> // BaseComponent
+#include "spark/core/utility.h"
+#include "spark/ecs/components/types/base_component.h"
 
 namespace Spark {
     namespace ECS {
-        namespace Components {
 
-            struct TransformComponent : public BaseComponent {
-                public:
-                    static constexpr unsigned ID = STRINGHASH("TransformComponent");
-                    static constexpr const char* Name = "Transform";
+        struct Transform : public BaseComponent {
+            ~Transform() override;
+            void OnImGuiRender() override;
 
-                    TransformComponent();
-                    void OnImGuiRender() override;
+            bool _enabled = true;
 
-                    NODISCARD glm::mat4 GetModelMatrix();
+            REGISTER_COMPONENT(Transform)
+        };
 
-                    void SetParentTransform(TransformComponent* parent);
-
-                    NODISCARD glm::vec3 GetLocalPosition() const;
-                    NODISCARD glm::vec3 GetPosition() const;
-
-                    NODISCARD glm::vec2 GetLocalScale() const;
-                    NODISCARD glm::vec2 GetScale() const;
-
-                    NODISCARD float GetLocalRotation() const;
-                    NODISCARD float GetRotation() const;
-
-                private:
-                    TransformComponent* _parentTransform;
-                    bool _isDirty;
-
-                    float _rotation; // Rotation stored in radians.
-                    glm::vec2 _scale;
-                    glm::vec3 _position;
-
-                    glm::mat4 _modelMatrix;
-            };
-
-        }
     }
 }
 

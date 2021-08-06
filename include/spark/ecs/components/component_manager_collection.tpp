@@ -2,9 +2,9 @@
 #ifndef SPARK_COMPONENT_MANAGER_COLLECTION_TPP
 #define SPARK_COMPONENT_MANAGER_COLLECTION_TPP
 
-#include <spark/core/rename.h>
-#include <spark/utilitybox/logger/logging_interface.h>         // ILoggable
-#include <spark/ecs/components/component_manager_interface.h>  // IComponentManager
+#include "spark/core/utility.h"
+#include "spark/utilitybox/logger/logger.h"
+#include "spark/ecs/components/component_manager_interface.h"
 
 namespace Spark::ECS {
 
@@ -12,7 +12,7 @@ namespace Spark::ECS {
     template<class ComponentType>
     ComponentManager<ComponentType>* ComponentManagerCollection<ComponentTypes...>::GetComponentManager() {
         static_assert((std::is_base_of_v<BaseComponent, ComponentTypes> && ...), "Invalid template parameter provided to GetComponentManager - component types must derive from BaseComponent.");
-        static_assert((std::is_same_v<BaseComponent, ComponentTypes> || ...), "Invalid template parameter provided to GetComponentManager - component type is not currently registered in ComponentManagerCollection.");
+        static_assert((std::is_same_v<ComponentType, ComponentTypes> || ...), "Invalid component type provided to ComponentManagerCollection::GetComponentManager. There is no ComponentManager instance that handles provided component type.");
         return dynamic_cast<ComponentManager<ComponentType>*>(componentManagerMap_.find(ComponentType::ID)->second);
     }
 
@@ -31,7 +31,7 @@ namespace Spark::ECS {
     }
 
     template<class... ComponentTypes>
-    ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollection() : UtilityBox::Logger::ILoggable("Component Manager Collection") {
+    ComponentManagerCollection<ComponentTypes...>::ComponentManagerCollection() {
         static_assert((std::is_base_of_v<BaseComponent, ComponentTypes> && ...), "Invalid template parameter provided to base BaseComponentSystem - component types must derive from BaseComponent.");
         PARAMETER_PACK_EXPAND(CreateComponentSystem, ComponentTypes);
     }
