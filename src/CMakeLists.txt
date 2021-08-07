@@ -40,6 +40,10 @@ set(CORE_SOURCE_FILES
         # Spark - UtilityBox
         # Logger
         "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/logger/logger.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/logger/adapter/adapter.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/logger/adapter/adapter_configuration.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/logger/adapter/types/file_adapter.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/logger/adapter/types/standard_output_adapter.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/logger/timestamp.cpp"
         # Memory
         "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/memory/contiguous_pool_allocator.cpp"
