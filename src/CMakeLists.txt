@@ -17,15 +17,13 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/spark/ecs/entities/entity_manager.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/ecs/utility.cpp"
         # Spark - Events
-        "${PROJECT_SOURCE_DIR}/src/spark/events/types/event.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/events/types/mouse_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/events/types/application_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/events/types/ecs_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/events/types/key_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/events/types/mouse_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/events/event_hub.cpp"
-        "${PROJECT_SOURCE_DIR}/src/spark/events/null_event_hub.cpp"
-#        # Spark - Graphics
+        #        # Spark - Graphics
 #        "${PROJECT_SOURCE_DIR}/src/spark/graphics/renderer/imgui_layer.cpp"
 #        "${PROJECT_SOURCE_DIR}/src/spark/graphics/renderer/index_buffer_object.cpp"
 #        "${PROJECT_SOURCE_DIR}/src/spark/graphics/renderer/orthographic_camera.cpp"
@@ -49,7 +47,7 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/memory/contiguous_pool_allocator.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/memory/memory_formatter.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/memory/segmented_pool_allocator.cpp"
-         ../include/spark/ecs/components/types/transform_component.h spark/ecs/components/types/transform_component.cpp)
+        ../include/spark/ecs/components/types/transform.h spark/ecs/components/types/transform.cpp)
 
 # Make Spark Engine core library.
 add_library(spark ${CORE_SOURCE_FILES})

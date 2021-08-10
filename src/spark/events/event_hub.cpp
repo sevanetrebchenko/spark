@@ -1,8 +1,50 @@
 
-#include <spark/events/event_hub.h>                    // EventHub
-#include <spark/utilitybox/logger/logging_interface.h> // ILoggable
+#include "spark/events/event_hub.h"
+#include "spark/utilitybox/logger/logger.h"
 
 namespace Spark::Events {
+
+    void EventHub::AttachEventListener(IEventListener* toAdd) {
+        if (!toAdd) {
+            return;
+        }
+
+        // Ensure event listener has not already been added.
+        for (IEventListener* eventListener : listeners_) {
+            if (eventListener == toAdd) {
+                LogWarning("Adding instance of event listener that has already been registered with the EventHub. Listener will not be added.");
+                return;
+            }
+        }
+
+        listeners_.emplace_back(toAdd);
+    }
+
+    void EventHub::DetachEventListener(IEventListener* toRemove) {
+        if (!toRemove) {
+            return;
+        }
+
+        for (auto listenerIter = listeners_.begin(); listenerIter != listeners_.end(); ++listenerIter) {
+            if (*listenerIter == toRemove) {
+                listeners_.erase(listenerIter);
+                return;
+            }
+        }
+    }
+
+    void EventHub::Dispatch(IEvent* event) {
+        if (!event) {
+            return;
+        }
+
+        std::shared_ptr<const IEvent*> pointer = std::make_shared<const IEvent*>(event); // Gets cleaned up by RAII.
+
+        for (IEventListener* eventListener : listeners_) {
+            eventListener->OnEventReceived(pointer); // Make copy - ownership.
+        }
+    }
+
 //    class EventHub::EventHubData : public UtilityBox::Logger::ILoggable {
 //        public:
 //            EventHubData();

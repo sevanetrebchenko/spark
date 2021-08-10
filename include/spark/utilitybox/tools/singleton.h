@@ -21,7 +21,7 @@ namespace Spark {
 
 }
 
-#include <spark/utilitybox/tools/singleton.tpp>
+#include "spark/utilitybox/tools/singleton.tpp"
 
 // Must be included with every singleton instance.
 #define REGISTER_SINGLETON(Base) friend class Spark::Singleton<Base>;

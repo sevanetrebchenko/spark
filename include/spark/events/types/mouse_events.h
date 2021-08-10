@@ -2,60 +2,61 @@
 #ifndef SPARK_MOUSE_EVENTS_H
 #define SPARK_MOUSE_EVENTS_H
 
-#include <spark/core/rename.h>
-#include <spark/events/types/event.h> // Event, EventType
+#include "spark/core/utility.h"
+#include "spark/events/types/base_event.h"
 
 namespace Spark {
     namespace Events {
 
         class MouseButtonPressedEvent : public IEvent {
             public:
-                static inline constexpr EventType StaticEventType = EventType::MouseButtonPressed;
-                explicit MouseButtonPressedEvent(int mouseButtonCode);
+                REGISTER_EVENT(MouseButtonPressedEvent);
 
-                NODISCARD std::string ToString() const override;
+                explicit MouseButtonPressedEvent(int mouseButtonCode);
                 NODISCARD int GetMouseButtonCode() const;
 
             private:
-                int _mouseButtonCode;
+                int mouseButtonCode_;
         };
+
 
         class MouseButtonReleasedEvent : public IEvent {
             public:
-                static inline constexpr EventType StaticEventType = EventType::MouseButtonReleased;
-                explicit MouseButtonReleasedEvent(int mouseButtonCode);
+                REGISTER_EVENT(MouseButtonReleasedEvent);
 
-                NODISCARD std::string ToString() const override;
+                explicit MouseButtonReleasedEvent(int mouseButtonCode);
                 NODISCARD int GetMouseButtonCode() const;
 
             private:
-                int _mouseButtonCode;
+                int mouseButtonCode_;
         };
+
 
         class MouseScrolledEvent : public IEvent {
             public:
-                static inline constexpr EventType StaticEventType = EventType::MouseScrolled;
-                explicit MouseScrolledEvent(double scrollX, double scrollY);
+                REGISTER_EVENT(MouseScrolledEvent);
 
-                NODISCARD std::string ToString() const override;
+                explicit MouseScrolledEvent(double scrollX, double scrollY);
                 NODISCARD double GetScrollX() const;
                 NODISCARD double GetScrollY() const;
 
             private:
-                double _scrollX, _scrollY;
+                double scrollX_;
+                double scrollY_;
         };
+
 
         class MouseMovedEvent : public IEvent {
             public:
-                static inline constexpr EventType StaticEventType = EventType::MouseMoved;
-                explicit MouseMovedEvent(int mouseX, int mouseY);
+                REGISTER_EVENT(MouseMovedEvent);
 
-                NODISCARD std::string ToString() const override;
+                explicit MouseMovedEvent(int mouseX, int mouseY);
                 NODISCARD int GetMouseX() const;
                 NODISCARD int GetMouseY() const;
 
             private:
-                int _mouseX, _mouseY;
+                int mouseX_;
+                int mouseY_;
         };
 
     }

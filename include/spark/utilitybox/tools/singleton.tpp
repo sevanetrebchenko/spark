@@ -4,7 +4,7 @@
 
 namespace Spark {
 
-    template<typename Base>
+    template <typename Base>
     Base* Singleton<Base>::GetInstance() {
         // TODO: (Change?) Enforce default constructor requirement.
         static Base instance; // Scott Meyers singleton.

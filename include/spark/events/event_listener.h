@@ -2,46 +2,48 @@
 #ifndef SPARK_EVENT_LISTENER_H
 #define SPARK_EVENT_LISTENER_H
 
-#include <spark/core/rename.h>
-#include <spark/events/types/event.h>        // Event
-#include <spark/events/event_listener_interface.h> // IEventListener
+#include "spark/core/utility.h"
+#include "spark/events/utility.h"
+#include "spark/events/event_listener_interface.h"
+#include "spark/events/types/base_event.h"
+#include "spark/events/event_hub.h"
 
 namespace Spark {
     namespace Events {
 
-        // Template parameters for EventListener registration must derive from base Event class.
-        template <class ...EventTypes>
-        class EventListener : public IEventListener {
+        template <class CRTP, class... EventTypes>
+        class EventListener : public IEventListener,
+                              Spark::Internal::RequireUniqueTypes<EventTypes...>,
+                              Spark::Events::Internal::RequireOnEventForTypes<EventTypes...>
+                              {
             public:
-                explicit EventListener(const std::string& name, const std::function<void(std::queue<std::shared_ptr<IEvent*>>&)>& eventProcessingFunction);
+                EventListener();
                 ~EventListener();
 
-                NODISCARD bool OnEventReceived(std::shared_ptr<IEvent*> eventPointer) override;
-                NODISCARD const char* GetName() override;
-
             private:
-                void OnUpdate() override;
-                NODISCARD const std::vector<std::string>& GetEventTypesAsStrings() override;
+                void OnEventReceived(std::shared_ptr<const IEvent*> eventPtr) override;
+                void OnUpdate(float dt) override;
 
-                NODISCARD const char* GetName() const;
+                // Determine if system manages given type of event.
+                template <class EventType1, class EventType2, class ...AdditionalEventTypes>
+                NODISCARD bool ManagesEventType(const EventTypeID& eventType);
 
                 template <class EventType>
-                void AppendEventTypeAsString(std::vector<std::string>& eventTypes);
+                NODISCARD bool ManagesEventType(const EventTypeID& eventType);
 
+                // Get the derived class of the base event pointer.
                 template <class EventType1, class EventType2, class ...AdditionalEventTypes>
-                NODISCARD bool ManagesEventType(const EventType& eventType);
+                const EventType1* GetEventOfType(const IEvent* baseEvent);
 
-                template<class EventType>
-                NODISCARD bool ManagesEventType(const EventType& eventType);
+                template <class EventType>
+                const EventType* GetEventOfType(const IEvent* baseEvent);
 
-                std::string _name;
-                std::function<void(std::queue<std::shared_ptr<IEvent*>>&)> _processingFunction;
-                std::queue<std::shared_ptr<IEvent*>> _eventQueue;
+                std::queue<std::shared_ptr<const IEvent*>> eventQueue_; // Events received this frame.
         };
 
     }
 }
 
-#include <spark/events/event_listener.tpp> // Template function definitions.
+#include "spark/events/event_listener.tpp"
 
 #endif // SPARK_EVENT_LISTENER_H

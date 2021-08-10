@@ -1,5 +1,5 @@
 
-#include "../include/spark/ecs/components/types/transform_component.h"
+#include "../include/spark/ecs/components/types/transform.h"
 
 namespace Spark::ECS {
 

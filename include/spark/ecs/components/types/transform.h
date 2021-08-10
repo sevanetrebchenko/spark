@@ -1,6 +1,6 @@
 
-#ifndef SPARK_TRANSFORM_COMPONENT_H
-#define SPARK_TRANSFORM_COMPONENT_H
+#ifndef SPARK_TRANSFORM_H
+#define SPARK_TRANSFORM_H
 
 #include "spark/core/utility.h"
 #include "spark/ecs/components/types/base_component.h"
@@ -8,7 +8,7 @@
 namespace Spark {
     namespace ECS {
 
-        struct Transform : public BaseComponent {
+        struct Transform : public IComponent {
             ~Transform() override;
             void OnImGuiRender() override;
 
@@ -20,4 +20,4 @@ namespace Spark {
     }
 }
 
-#endif //SPARK_TRANSFORM_COMPONENT_H
+#endif //SPARK_TRANSFORM_H

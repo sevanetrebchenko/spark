@@ -7,13 +7,13 @@
 namespace Spark {
     namespace ECS {
 
-        struct BaseComponent {
-            virtual ~BaseComponent() = default;
+        struct IComponent {
+            virtual ~IComponent() = default;
             virtual void OnImGuiRender() = 0;
 
             bool _enabled = true;
 
-            REGISTER_COMPONENT(BaseComponent)
+            REGISTER_COMPONENT(IComponent)
         };
 
     }

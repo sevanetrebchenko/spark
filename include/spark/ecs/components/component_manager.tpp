@@ -10,7 +10,7 @@ namespace Spark::ECS {
     template <class ComponentType>
     ComponentManager<ComponentType>::ComponentManager() {
         // Make sure all component managers only manage valid types.
-        static_assert(std::is_base_of<BaseComponent, ComponentType>::value, "Invalid template parameter provided to base ComponentManager - component type must derive from BaseComponent.");
+        static_assert(std::is_base_of<IComponent, ComponentType>::value, "Invalid template parameter provided to base ComponentManager - component type must derive from IComponent.");
     }
 
     template <class ComponentType>

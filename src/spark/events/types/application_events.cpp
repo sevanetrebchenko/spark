@@ -1,61 +1,39 @@
 
-#include <spark/events/types/application_events.h> // WindowResizeEvent, WindowCloseEvent, Event
+#include "spark/events/types/application_events.h"
 
 namespace Spark::Events {
-    //------------------------------------------------------------------------------------------------------------------
-    // WINDOW RESIZE EVENT
-    //------------------------------------------------------------------------------------------------------------------
-    WindowResizeEvent::WindowResizeEvent(int width, int height) : IEvent(EventType::WindowResized, EventCategory::EventCategoryApplication), _width(width), _height(height) {
-        // Nothing to do here.
-    }
 
-    std::string WindowResizeEvent::ToString() const {
-        static std::stringstream format;
-        static std::string formattedString;
-        format << "Updated window dimensions: (" << _width << ", " << _height << ").";
-        formattedString = format.str();
-        format.str(std::string()); // Move string data to clear stringstream buffer.
-        return std::move(formattedString);
+    // WindowResizeEvent.
+    WindowResizeEvent::WindowResizeEvent(int previousWidth, int previousHeight, int width, int height) : previousWidth_(previousWidth),
+                                                                                                         previousHeight_(previousHeight),
+                                                                                                         width_(width),
+                                                                                                         height_(height)
+                                                                                                         {
     }
 
     int WindowResizeEvent::GetWidth() const {
-        return _width;
+        return width_;
     }
 
     int WindowResizeEvent::GetHeight() const {
-        return _height;
+        return height_;
+    }
+
+    int WindowResizeEvent::GetPreviousWidth() const {
+        return previousWidth_;
+    }
+
+    int WindowResizeEvent::GetPreviousHeight() const {
+        return previousHeight_;
     }
 
 
-    //------------------------------------------------------------------------------------------------------------------
-    // WINDOW CLOSE EVENT
-    //------------------------------------------------------------------------------------------------------------------
-    WindowCloseEvent::WindowCloseEvent() : IEvent(EventType::WindowCloseRequested, EventCategory::EventCategoryApplication) {
-        // Nothing to do here.
-    }
-
-    std::string WindowCloseEvent::ToString() const {
-        return "N/A";
-    }
-
-
-    //------------------------------------------------------------------------------------------------------------------
-    // WINDOW MINIMIZED EVENT
-    //------------------------------------------------------------------------------------------------------------------
-    WindowMinimizedEvent::WindowMinimizedEvent(bool minimized) : IEvent(EventType::WindowMinimized, EventCategory::EventCategoryApplication), _minimized(minimized) {
-        // Nothing to do here.
-    }
-
-    std::string WindowMinimizedEvent::ToString() const {
-        if (_minimized) {
-            return "Window minimized.";
-        }
-        else {
-            return "Window restored.";
-        }
+    // WindowMinimizedEvent.
+    WindowMinimizedEvent::WindowMinimizedEvent(bool minimized) : minimized_(minimized) {
     }
 
     bool WindowMinimizedEvent::GetMinimized() const {
-        return _minimized;
+        return minimized_;
     }
+
 }

@@ -53,10 +53,10 @@ namespace Spark {
 
                 // Used to check if a given component type
                 template <unsigned Index, class ComponentType, class ...AdditionalComponentTypes>
-                bool ProcessEntityComponent(ComponentTypeID componentTypeID, BaseComponent* component, ComponentTuple& componentTuple);
+                bool ProcessEntityComponent(ComponentTypeID componentTypeID, IComponent* component, ComponentTuple& componentTuple);
 
                 template <unsigned>
-                bool ProcessEntityComponent(ComponentTypeID, BaseComponent*, ComponentTuple&);
+                bool ProcessEntityComponent(ComponentTypeID, IComponent*, ComponentTuple&);
 
                 // Mapping relationships between Entity ID and index in entities_ vector.
                 std::unordered_map<EntityID, unsigned> entityIDToIndex_;

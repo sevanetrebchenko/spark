@@ -7,11 +7,11 @@
 namespace Spark {
     namespace ECS {
 
-        struct BaseComponent;
+        struct IComponent;
 
         typedef std::uint32_t ComponentTypeID;
         typedef std::uint32_t EntityID;
-        typedef std::unordered_map<ComponentTypeID, BaseComponent*> EntityComponentMap;
+        typedef std::unordered_map<ComponentTypeID, IComponent*> EntityComponentMap;
 
         namespace Internal {
             // Generates comma separated list of given components without trailing comma.

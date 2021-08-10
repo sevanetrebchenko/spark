@@ -2,35 +2,41 @@
 #ifndef SPARK_EVENTS_UTILITY_H
 #define SPARK_EVENTS_UTILITY_H
 
-#include <spark/core/utility.h>
-#include <spark/events/types/ecs_events.h>
+#include "spark/core/utility.h"
 
 namespace Spark {
-    namespace Internal {
+    namespace Events {
 
-        // OnEvent.
-        template <typename... EventTypes>
-        struct RequireOnEventForTypes {
-            static_assert(sizeof...(EventTypes) > 0, "Invalid number template arguments.");
-        };
+        typedef std::uint32_t EventTypeID;
 
-        template <typename EventType, typename... AdditionalEventTypes>
-        struct RequireOnEventForTypes<EventType, AdditionalEventTypes...> : RequireOnEventForTypes<EventType>, RequireOnEventForTypes<AdditionalEventTypes...> {
-            using RequireOnEventForTypes<EventType>::OnEvent;
-        };
+        namespace Internal {
 
-        template <typename EventType>
-        struct RequireOnEventForTypes<EventType> {
-            virtual void OnEvent(EventType* eventPointer) = 0;
-        };
+            // OnEvent.
+            template <typename... EventTypes>
+            struct RequireOnEventForTypes {
+                static_assert(sizeof...(EventTypes) > 0, "Invalid number template arguments provided to RequireOnEventForTypes.");
+            };
+
+            template <typename EventType, typename... AdditionalEventTypes>
+            struct RequireOnEventForTypes<EventType, AdditionalEventTypes...> : RequireOnEventForTypes<EventType>, RequireOnEventForTypes<AdditionalEventTypes...> {
+                using RequireOnEventForTypes<EventType>::OnEvent;
+            };
+
+            template <typename EventType>
+            struct RequireOnEventForTypes<EventType> {
+                virtual void OnEvent(const EventType* eventPointer) = 0;
+            };
+
+        }
 
     }
 }
 
-// MACRO FOR DEFINING PURE VIRTUAL OnEvent FUNCTION FOR DERIVED CLASSES TO IMPLEMENT.
-#define REGISTER_ON_EVENT(EVENT_TYPES...) Spark::Internal::RequireUniqueTypes<EVENT_TYPES>, Spark::Internal::RequireOnEventForTypes<EVENT_TYPES>
-
-// MACRO FOR REGISTERING CLASSES TO RECEIVE EVENTS OF GIVEN TYPES.
-#define REGISTER_EVENTS(BASE_CLASS, ...) Spark::Events::IEventReceivable<BASE_CLASS, __VA_ARGS__>
+#define REGISTER_EVENT(ClassName)                                              \
+public:                                                                        \
+    static constexpr Spark::Events::EventTypeID ID = STRINGHASH(#ClassName);   \
+    static constexpr const char* Name = #ClassName;                            \
+    NODISCARD Spark::Events::EventTypeID GetID() const override { return ID; } \
+private:
 
 #endif //SPARK_EVENTS_UTILITY_H

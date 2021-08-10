@@ -10,7 +10,7 @@ namespace Spark::ECS {
     template <class... ComponentTypes>
     BaseComponentSystem<ComponentTypes...>::BaseComponentSystem() {
         // Ensure data validity.
-        static_assert((std::is_base_of_v<BaseComponent, ComponentTypes> && ...), "Invalid template parameter provided to base BaseComponentSystem - component types must derive from BaseComponent.");
+        static_assert((std::is_base_of_v<IComponent, ComponentTypes> && ...), "Invalid template parameter provided to base BaseComponentSystem - component types must derive from IComponent.");
         static_assert(sizeof...(ComponentTypes) > 0, "ComponentSystem must operate on at least one component type.");
     }
 
@@ -124,9 +124,9 @@ namespace Spark::ECS {
     bool BaseComponentSystem<ComponentTypes...>::FilterEntity(const EntityComponentMap& entityComponents, BaseComponentSystem::ComponentTuple &tuple) const {
         unsigned numMatching = 0;
 
-        for (std::pair<EntityID, BaseComponent*> componentData : entityComponents) {
+        for (std::pair<EntityID, IComponent*> componentData : entityComponents) {
             ComponentTypeID componentTypeID = componentData.first;
-            BaseComponent* component = componentData.second;
+            IComponent* component = componentData.second;
 
             if (ProcessEntityComponent<0, ComponentTypes...>(componentTypeID, component, tuple)) {
                 ++numMatching;
@@ -184,7 +184,7 @@ namespace Spark::ECS {
 
     template<class... ComponentTypes>
     template<unsigned Index, class ComponentType, class... AdditionalComponentArgs>
-    bool BaseComponentSystem<ComponentTypes...>::ProcessEntityComponent(ComponentTypeID componentTypeID, BaseComponent *component, ComponentTuple &componentTuple) {
+    bool BaseComponentSystem<ComponentTypes...>::ProcessEntityComponent(ComponentTypeID componentTypeID, IComponent *component, ComponentTuple &componentTuple) {
         if (ComponentType::ID == componentTypeID) {
             ComponentType* derivedComponentType = dynamic_cast<ComponentType*>(component);
             SP_ASSERT(derivedComponentType != nullptr, "System failed to get matching component."); // Should never happen.
@@ -201,7 +201,7 @@ namespace Spark::ECS {
 
     template<class... ComponentTypes>
     template<unsigned>
-    bool BaseComponentSystem<ComponentTypes...>::ProcessEntityComponent(ComponentTypeID, BaseComponent*, ComponentTuple&) {
+    bool BaseComponentSystem<ComponentTypes...>::ProcessEntityComponent(ComponentTypeID, IComponent*, ComponentTuple&) {
         // Component is not managed by this system (doesn't exist in the tuple).
         return false;
     }
