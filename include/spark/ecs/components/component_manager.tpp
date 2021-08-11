@@ -26,9 +26,15 @@ namespace Spark::ECS {
 
     template <class ComponentType>
     ComponentType* ComponentManager<ComponentType>::CreateComponent() {
-        ComponentType* component = new ComponentType(); // Requires default constructor.
-        components_.push_front(component);
-        return component;
+        // Get to the last element - O(n)
+        typename std::forward_list<ComponentType>::iterator iter = components_.before_begin();
+        for (auto& element : components_) {
+            ++iter;
+        }
+
+        components_.emplace_after(iter, ComponentType { });
+        ComponentType& component = *(++iter);
+        return &component;
     }
 
     template <class ComponentType>

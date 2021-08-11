@@ -7,7 +7,10 @@
 namespace Spark {
     namespace Events {
 
+        class IEvent;
+
         typedef std::uint32_t EventTypeID;
+        typedef std::shared_ptr<const IEvent> EventHandle;
 
         namespace Internal {
 
@@ -36,7 +39,6 @@ namespace Spark {
 public:                                                                        \
     static constexpr Spark::Events::EventTypeID ID = STRINGHASH(#ClassName);   \
     static constexpr const char* Name = #ClassName;                            \
-    NODISCARD Spark::Events::EventTypeID GetID() const override { return ID; } \
-private:
+    NODISCARD Spark::Events::EventTypeID GetID() const override { return ID; }
 
 #endif //SPARK_EVENTS_UTILITY_H

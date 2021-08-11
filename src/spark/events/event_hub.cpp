@@ -33,15 +33,15 @@ namespace Spark::Events {
         }
     }
 
-    void EventHub::Dispatch(IEvent* event) {
-        if (!event) {
-            return;
-        }
-
-        std::shared_ptr<const IEvent*> pointer = std::make_shared<const IEvent*>(event); // Gets cleaned up by RAII.
-
+    void EventHub::Dispatch(const EventHandle& event) {
         for (IEventListener* eventListener : listeners_) {
-            eventListener->OnEventReceived(pointer); // Make copy - ownership.
+            eventListener->OnEventReceived(event);
+        }
+    }
+
+    void Spark::Events::EventHub::OnUpdate(float dt) {
+        for (IEventListener* eventListener : listeners_) {
+            eventListener->OnUpdate(dt); // Updated in the order listeners are inserted.
         }
     }
 

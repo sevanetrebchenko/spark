@@ -4,25 +4,25 @@
 namespace Spark::Events {
 
     // CreateEntityEvent.
-    CreateEntityEvent::CreateEntityEvent(ECS::EntityID entityID) : entityID_(entityID) {
+    EntityCreatedEvent::EntityCreatedEvent(ECS::EntityID entityID) : entityID_(entityID) {
     }
 
-    const ECS::EntityID &CreateEntityEvent::GetEntityID() const {
+    const ECS::EntityID &EntityCreatedEvent::GetEntityID() const {
         return entityID_;
     }
 
 
     // DestroyEntityEvent
-    DestroyEntityEvent::DestroyEntityEvent(ECS::EntityID entityID) : entityID_(entityID) {
+    EntityDestroyedEvent::EntityDestroyedEvent(ECS::EntityID entityID) : entityID_(entityID) {
     }
 
-    const ECS::EntityID &DestroyEntityEvent::GetEntityID() const {
+    const ECS::EntityID &EntityDestroyedEvent::GetEntityID() const {
         return entityID_;
     }
 
 
     // RefreshObjectComponentListEvent
-    RefreshObjectComponentListEvent::RefreshObjectComponentListEvent(ECS::EntityID ID) : entityID_(ID) {
+    RefreshObjectComponentListEvent::RefreshObjectComponentListEvent(ECS::EntityID entityID) : entityID_(entityID) {
     }
 
     const ECS::EntityID &RefreshObjectComponentListEvent::GetEntityID() const {

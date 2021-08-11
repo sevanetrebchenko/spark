@@ -21,7 +21,7 @@ namespace Spark {
                 ~EventListener();
 
             private:
-                void OnEventReceived(std::shared_ptr<const IEvent*> eventPtr) override;
+                void OnEventReceived(const EventHandle& eventPtr) override;
                 void OnUpdate(float dt) override;
 
                 // Determine if system manages given type of event.
@@ -31,14 +31,14 @@ namespace Spark {
                 template <class EventType>
                 NODISCARD bool ManagesEventType(const EventTypeID& eventType);
 
-                // Get the derived class of the base event pointer.
+                // Calls OnEvent with the derived class event pointer.
                 template <class EventType1, class EventType2, class ...AdditionalEventTypes>
-                const EventType1* GetEventOfType(const IEvent* baseEvent);
+                void DispatchEvent(const EventHandle& event);
 
                 template <class EventType>
-                const EventType* GetEventOfType(const IEvent* baseEvent);
+                void DispatchEvent(const EventHandle& event);
 
-                std::queue<std::shared_ptr<const IEvent*>> eventQueue_; // Events received this frame.
+                std::queue<EventHandle> eventQueue_; // Events received this frame.
         };
 
     }

@@ -40,6 +40,13 @@ namespace Spark {
 
                 NODISCARD bool EntityNameMatchesEntityName(const std::string& entityName) const;
 
+                // Checks component against all built-in components and "returns" it to the proper ComponentManager.
+                template <class ComponentType1, class ComponentType2, class... AdditionalComponentTypes>
+                void DeleteComponentHelper(ComponentTypeID componentID, IComponent* base);
+
+                template <class ComponentType>
+                void DeleteComponentHelper(ComponentTypeID componentID, IComponent* base);
+
                 EntityID entityIDCounter;
                 std::unordered_map<EntityID, std::string> entityNames_{ };
                 std::unordered_map<std::string, EntityID> entityIDs_{ };

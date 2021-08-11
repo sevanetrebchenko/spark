@@ -1,5 +1,4 @@
 
-#include <spark/core/service_locator.h>        // ServiceLocator
 #include <spark/events/event_hub.h>            // EventHub
 #include <spark/utilitybox/logger/logger.h>    // LoggingHub
 #include <spark/ecs/entities/entity_manager.h> // EntityManager
@@ -12,15 +11,45 @@
 
 #define ALLOC(TYPE, RESOURCE) Spark::UtilityBox::Memory::IAllocator<TYPE, Spark::UtilityBox::Memory::RESOURCE>
 
+struct TestSystem1 : public Spark::Events::EventListener<TestSystem1, Spark::Events::EntityCreatedEvent, Spark::Events::EntityDestroyedEvent> {
+    void OnEvent(const Spark::Events::EntityCreatedEvent* event) override {
+        std::cout << "TestSystem1: Received entity created event with ID: " << event->GetEntityID() << std::endl;
+    }
+
+    void OnEvent(const Spark::Events::EntityDestroyedEvent* event) override {
+        std::cout << "TestSystem1: Received entity destroyed event with ID: " << event->GetEntityID() << std::endl;
+    }
+};
+
+struct TestSystem2 : public Spark::Events::EventListener<TestSystem2, Spark::Events::EntityCreatedEvent, Spark::Events::EntityDestroyedEvent> {
+    void OnEvent(const Spark::Events::EntityCreatedEvent* event) override {
+        std::cout << "TestSystem2: Received entity created event with ID: " << event->GetEntityID() << std::endl;
+    }
+
+    void OnEvent(const Spark::Events::EntityDestroyedEvent* event) override {
+        std::cout << "TestSystem2: Received entity destroyed event with ID: " << event->GetEntityID() << std::endl;
+    }
+};
+
 int main(int argc, char** argv) {
 
-    std::vector<int, Spark::UtilityBox::Memory::IAllocator<int, Spark::UtilityBox::Memory::IMemoryResource1>> vec1;
-    std::vector<int, Spark::UtilityBox::Memory::IAllocator<int, Spark::UtilityBox::Memory::IMemoryResource2>> vec2;
+    Spark::ECS::EntityManager* em = Spark::Singleton<Spark::ECS::EntityManager>::GetInstance();
+    TestSystem1 ts1;
+    TestSystem2 ts2;
 
-    Spark::UtilityBox::Memory::IAllocator<int, Spark::UtilityBox::Memory::IMemoryResource1> alloc1;
-    Spark::UtilityBox::Memory::IAllocator<int, Spark::UtilityBox::Memory::IMemoryResource2> alloc2;
+    em->CreateEntity("test entity 1");
+    em->CreateEntity("test entity 2");
+    em->CreateEntity("test entity 3");
 
-    Spark::ECS::EntityManager a;
+    Spark::Singleton<Spark::Events::EventHub>::GetInstance()->OnUpdate(0);
+
+    em->DestroyEntity("test entity 3");
+    em->DestroyEntity("test entity 2");
+    em->DestroyEntity("test entity 1");
+
+    Spark::Singleton<Spark::Events::EventHub>::GetInstance()->OnUpdate(0);
+
+//    Spark::ECS::EntityManager a;
 //
 //    //Spark::ECS::BaseComponentSystem<> a("ehe");
 //

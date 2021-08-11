@@ -58,8 +58,8 @@ namespace Spark::ECS {
     }
 
     template<class... ComponentTypes>
-    void BaseComponentSystem<ComponentTypes...>::OnEvent(Events::CreateEntityEvent* event) {
-        ECS::EntityID entityID = event->GetEntityID();
+    void BaseComponentSystem<ComponentTypes...>::OnEvent(Events::EntityCreatedEvent* event) {
+        ECS::EntityID entityID = event->GetID();
 
         auto tupleLocationIter = entityIDToIndex_.find(entityID);
         if (tupleLocationIter == entityIDToIndex_.end()) {
@@ -71,8 +71,8 @@ namespace Spark::ECS {
     }
 
     template<class... ComponentTypes>
-    void BaseComponentSystem<ComponentTypes...>::OnEvent(Events::DestroyEntityEvent* event) {
-        ECS::EntityID entityID = event->GetEntityID();
+    void BaseComponentSystem<ComponentTypes...>::OnEvent(Events::EntityDestroyedEvent* event) {
+        ECS::EntityID entityID = event->GetID();
 
         auto tupleLocationIter = entityIDToIndex_.find(entityID);
         if (tupleLocationIter == entityIDToIndex_.end()) {
@@ -85,7 +85,7 @@ namespace Spark::ECS {
 
     template<class... ComponentTypes>
     void BaseComponentSystem<ComponentTypes...>::OnEvent(Events::RefreshObjectComponentListEvent* event) {
-        ECS::EntityID entityID = event->GetEntityID();
+        ECS::EntityID entityID = event->GetID();
         const EntityComponentMap* entityComponents = Singleton<EntityManager>::GetInstance()->GetEntityComponentMap(entityID);
 
         // Remove entity if it already exists.
@@ -157,7 +157,7 @@ namespace Spark::ECS {
 
         // Erase mapping for last element.
         unsigned lastIndex = tuples_.size() - 1;
-        SP_ASSERT(indexToEntityID_.find(lastIndex) != indexToEntityID_.end(), "Mappings for Entity ID to tuple index are configured incorrectly.");
+        SP_ASSERT(indexToEntityID_.find(lastIndex) != indexToEntityID_.end(), "Sanity check: mappings for Entity ID to tuple index are configured incorrectly.");
         EntityID lastEntityID = indexToEntityID_[lastIndex];
 
         entityIDToIndex_.erase(lastEntityID);
@@ -187,7 +187,7 @@ namespace Spark::ECS {
     bool BaseComponentSystem<ComponentTypes...>::ProcessEntityComponent(ComponentTypeID componentTypeID, IComponent *component, ComponentTuple &componentTuple) {
         if (ComponentType::ID == componentTypeID) {
             ComponentType* derivedComponentType = dynamic_cast<ComponentType*>(component);
-            SP_ASSERT(derivedComponentType != nullptr, "System failed to get matching component."); // Should never happen.
+            SP_ASSERT(derivedComponentType != nullptr, "Sanity check: system failed to get matching component."); // Should never happen.
             SP_ASSERT(std::get<Index>(componentTuple) == nullptr, "Component has already been emplaced in system ComponentTuple.");
 
             // Emplace in the tuple.

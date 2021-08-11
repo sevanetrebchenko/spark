@@ -3,11 +3,10 @@
 #define SPARK_ECS_UTILITY_H
 
 #include "spark/core/utility.h"
+#include "spark/ecs/components/types/base_component.h"
 
 namespace Spark {
     namespace ECS {
-
-        struct IComponent;
 
         typedef std::uint32_t ComponentTypeID;
         typedef std::uint32_t EntityID;
@@ -20,6 +19,7 @@ namespace Spark {
 
             template <typename ComponentType1, typename ComponentType2, typename... AdditionalComponentTypes>
             std::string CommaSeparatedList();
+
         }
 
     }

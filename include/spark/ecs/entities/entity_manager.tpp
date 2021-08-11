@@ -5,6 +5,7 @@
 #include "spark/events/event_hub.h"
 #include "spark/utilitybox/logger/logger.h"
 #include "spark/events/types/ecs_events.h"
+#include "spark/core/utility.h"
 
 namespace Spark::ECS {
 
@@ -18,7 +19,7 @@ namespace Spark::ECS {
         auto componentIter = componentMap.find(ComponentType::ID);
         if (componentIter == componentMap.end()) {
             componentMap.insert({ ComponentType::ID, component });
-            Singleton<Events::EventHub>::GetInstance()->Dispatch(new Events::RefreshObjectComponentListEvent(ID)); // Dispatch filtering event for component systems.
+            Singleton<Events::EventHub>::GetInstance()->Dispatch(MAKE_EVENT(Events::RefreshObjectComponentListEvent, ID)); // Dispatch filtering event for component systems.
         }
         else {
             LogWarning("Component add failure: Entity %u already has an instance of component of type: '%s'", ID, ComponentType::Name);
@@ -44,12 +45,31 @@ namespace Spark::ECS {
 
         ComponentManager<ComponentType>* componentManager = Singleton<ComponentManagerCollection<COMPONENT_TYPES>>::GetInstance()->template GetComponentManager<ComponentType>();
         componentManager->DeleteComponent(static_cast<ComponentType *>(componentIter->second));
-        Singleton<Events::EventHub>::GetInstance()->Dispatch(new Events::RefreshObjectComponentListEvent(ID)); // Dispatch filtering event for component systems.
+        Singleton<Events::EventHub>::GetInstance()->Dispatch(MAKE_EVENT(Events::RefreshObjectComponentListEvent, ID)); // Dispatch filtering event for component systems.
     }
 
     template<class... ComponentTypes>
     bool EntityManager::EntityNameMatchesComponentName(const std::string &entityName) const {
         return (::Spark::Internal::StringCompare(entityName, std::string(ComponentTypes::Name)) || ...);
+    }
+
+    template <class ComponentType1, class ComponentType2, class... AdditionalComponentTypes>
+    void EntityManager::DeleteComponentHelper(ComponentTypeID componentID, IComponent* base) {
+        if (componentID == ComponentType1::ID) {
+            ComponentType1* component = dynamic_cast<ComponentType1*>(base);
+            SP_ASSERT(component, "Sanity check: failed to get correct component type in DeleteComponentHelper."); // Should never happen.
+            Singleton<ComponentManagerCollection<COMPONENT_TYPES>>::GetInstance()->template GetComponentManager<ComponentType1>()->DeleteComponent(component);
+        }
+        else {
+            DeleteComponentHelper<ComponentType2, AdditionalComponentTypes...>(componentID, base);
+        }
+    }
+
+    template <class ComponentType>
+    void EntityManager::DeleteComponentHelper(ComponentTypeID componentID, IComponent* base) {
+        ComponentType* component = dynamic_cast<ComponentType*>(base);
+        SP_ASSERT(component, "Sanity check: failed to get correct component type in DeleteComponentHelper."); // Should never happen.
+        Singleton<ComponentManagerCollection<COMPONENT_TYPES>>::GetInstance()->template GetComponentManager<ComponentType>()->DeleteComponent(component);
     }
 
 }

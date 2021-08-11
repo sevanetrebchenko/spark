@@ -9,11 +9,14 @@
 namespace Spark {
     namespace Events {
 
-        class CreateEntityEvent : public IEvent {
+        class EntityCreatedEvent : public IEvent {
             public:
-                REGISTER_EVENT(CreateEntityEvent);
+                REGISTER_EVENT(EntityCreatedEvent);
+                ~EntityCreatedEvent() override {
+                    std::cout << "Entity created event destructor" << std::endl;
+                }
 
-                explicit CreateEntityEvent(ECS::EntityID entityID);
+                explicit EntityCreatedEvent(ECS::EntityID entityID);
                 NODISCARD const ECS::EntityID& GetEntityID() const;
 
             private:
@@ -21,11 +24,14 @@ namespace Spark {
         };
 
 
-        class DestroyEntityEvent : public IEvent {
+        class EntityDestroyedEvent : public IEvent {
             public:
-                REGISTER_EVENT(DestroyEntityEvent);
+                REGISTER_EVENT(EntityDestroyedEvent);
+                ~EntityDestroyedEvent() override {
+                    std::cout << "Entity destroyed event destructor" << std::endl;
+                }
 
-                explicit DestroyEntityEvent(ECS::EntityID entityID);
+                explicit EntityDestroyedEvent(ECS::EntityID entityID);
                 NODISCARD const ECS::EntityID& GetEntityID() const;
 
             private:

@@ -1,6 +1,7 @@
 
 #include "spark/ecs/entities/entity_manager.h"
 #include "spark/utilitybox/logger/logger.h"
+#include "spark/events/types/ecs_events.h"
 
 namespace Spark::ECS {
 
@@ -13,14 +14,15 @@ namespace Spark::ECS {
             LogWarning("Entity name cannot match that of a built-in component or another entity. Entity name changed from '%s' to '%s'.", entityName.c_str(), name.c_str());
         }
 
-        EntityID entityID = GetNextEntityID();
+        EntityID ID = GetNextEntityID();
 
-        entityNames_[entityID] = name;
-        entityIDs_[entityName] = entityID;
+        entityNames_[ID] = name;
+        entityIDs_[entityName] = ID;
 
         // All entities start with a transform.
         // Index operator creates a new default constructed entry.
-        entityComponents_[entityID][Transform::ID] = Singleton<ComponentManagerCollection<COMPONENT_TYPES>>::GetInstance()->GetComponentManager<Transform>()->CreateComponent();
+        entityComponents_[ID][Transform::ID] = static_cast<IComponent*>(Singleton<ComponentManagerCollection<COMPONENT_TYPES>>::GetInstance()->GetComponentManager<Transform>()->CreateComponent());
+        Singleton<Events::EventHub>::GetInstance()->Dispatch(std::make_shared<Events::EntityCreatedEvent>(ID));
     }
 
     void EntityManager::DestroyEntity(EntityID ID) {
@@ -37,10 +39,17 @@ namespace Spark::ECS {
             return; // Do not destroy entity that does not exist.
         }
 
+        // Return all components to corresponding managers.
+        for (std::pair<const ComponentTypeID, IComponent*>& data : entityComponentMapIter->second) {
+            DeleteComponentHelper<COMPONENT_TYPES>(data.first, data.second);
+        }
+
         // Erase mappings.
-        entityNames_.erase(entityNameIter);
         entityComponents_.erase(entityComponentMapIter);
         entityIDs_.erase(entityIDs_.find(entityNameIter->second)); // Guaranteed to exist.
+        entityNames_.erase(entityNameIter);
+
+        Singleton<Events::EventHub>::GetInstance()->Dispatch(std::make_shared<Events::EntityDestroyedEvent>(ID));
     }
 
     void EntityManager::DestroyEntity(const std::string& entityName) {
@@ -69,16 +78,20 @@ namespace Spark::ECS {
     }
 
     bool EntityManager::EntityNameMatchesEntityName(const std::string &entityName) const {
-        for (auto nameIter = entityNames_.begin(); nameIter != entityNames_.end(); ++nameIter) {
-            const std::string& name = nameIter->second;
+        if (entityNames_.empty()) {
+            return false;
+        }
 
-            if (name == entityName) {
+        for (const auto& nameIter : entityNames_) {
+            const std::string& name = nameIter.second;
+
+            if (::Spark::Internal::StringCompare(name, entityName)) {
                 // Current entity name matches an already existing name.
-                return false;
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     const EntityComponentMap* EntityManager::GetEntityComponentMap(const std::string &entityName) const {

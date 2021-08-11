@@ -3,16 +3,16 @@
 #define SPARK_BASE_COMPONENT_SYSTEM_H
 
 #include "spark/core/utility.h"
-#include "spark/events/utility.h"
 #include "spark/ecs/systems/base_component_system_interface.h"
 #include "spark/events/types/ecs_events.h"
+#include "spark/events/event_listener.h"
 
 namespace Spark {
     namespace ECS {
 
         template <class ...ComponentTypes>
         class BaseComponentSystem : public IBaseComponentSystem,
-                                    REGISTER_EVENTS(BaseComponentSystem<ComponentTypes...>, Events::CreateEntityEvent, Events::DestroyEntityEvent, Events::RefreshObjectComponentListEvent)
+                                    Events::EventListener<BaseComponentSystem<ComponentTypes...>, Events::EntityCreatedEvent, Events::EntityDestroyedEvent, Events::RefreshObjectComponentListEvent>
                                     {
             public:
                 BaseComponentSystem();
@@ -35,8 +35,8 @@ namespace Spark {
                 std::vector<ComponentTuple> tuples_; // Tuples managed by this system.
 
             private:
-                void OnEvent(Events::CreateEntityEvent* event) override;
-                void OnEvent(Events::DestroyEntityEvent* event) override;
+                void OnEvent(Events::EntityCreatedEvent* event) override;
+                void OnEvent(Events::EntityDestroyedEvent* event) override;
                 void OnEvent(Events::RefreshObjectComponentListEvent* event) override;
 
                 // Used to retrieve a specific type of component from a given ComponentTuple, given that it exists.

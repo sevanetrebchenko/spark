@@ -2,6 +2,8 @@
 #ifndef SPARK_ECS_UTILITY_TPP
 #define SPARK_ECS_UTILITY_TPP
 
+#include "spark/ecs/components/component_manager_collection.h"
+
 namespace Spark::ECS::Internal {
 
     template <typename ComponentType>

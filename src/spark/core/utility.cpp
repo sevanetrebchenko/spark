@@ -1,5 +1,5 @@
 
-#include "../core/utility.h"
+#include "spark/core/utility.h"
 
 namespace Spark::Internal {
 
@@ -12,7 +12,7 @@ namespace Spark::Internal {
 
     bool StringCompare(const std::string &first, const std::string &second) {
         return std::equal(first.begin(), first.end(), second.begin(), second.end(), [](char one, char two) {
-            return tolower(one) == tolower(two);
+            return tolower(static_cast<unsigned char>(one)) == tolower(static_cast<unsigned char>(two));
         });
     }
 

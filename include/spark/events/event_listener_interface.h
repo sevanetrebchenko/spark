@@ -10,7 +10,7 @@ namespace Spark {
 
         class IEventListener {
             public:
-                virtual void OnEventReceived(std::shared_ptr<const IEvent*> event) = 0;
+                virtual void OnEventReceived(const EventHandle& event) = 0;
                 virtual void OnUpdate(float dt) = 0;
         };
 

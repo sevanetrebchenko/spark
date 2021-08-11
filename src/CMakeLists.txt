@@ -13,6 +13,7 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/spark/core/entry_point.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/core/layer_stack.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/core/layer.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/core/utility.cpp"
         # Spark - ECS
         "${PROJECT_SOURCE_DIR}/src/spark/ecs/entities/entity_manager.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/ecs/utility.cpp"

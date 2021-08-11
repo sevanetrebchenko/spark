@@ -21,22 +21,18 @@ namespace Spark::Events {
     }
 
     template <class CRTP, class... EventTypes>
-    void EventListener<CRTP, EventTypes...>::OnEventReceived(std::shared_ptr<const IEvent*> eventPtr) {
-        const IEvent* event = *eventPtr; // Guaranteed to exist.
-        SP_ASSERT(event, "Provided event pointer to OnEventReceived is null.");
-
-        if (ManagesEventType<EventTypes...>(event->GetID())) {
-            eventQueue_.emplace(eventPtr);
+    void EventListener<CRTP, EventTypes...>::OnEventReceived(const EventHandle& event) {
+        const IEvent& data = *event;
+        if (ManagesEventType<EventTypes...>(data.GetID())) {
+            eventQueue_.emplace(event); // Intentional copy.
         }
     }
 
     template <class CRTP, class... EventTypes>
     void EventListener<CRTP, EventTypes...>::OnUpdate(float) {
         while (!eventQueue_.empty()) {
-            const std::shared_ptr<const IEvent*>& data = eventQueue_.front(); // Create reference to not increase ref count.
-            auto event = GetEventOfType<EventTypes...>(*data);
-            SP_ASSERT(event, "Provided event pointer to OnUpdate is null.");
-            static_cast<CRTP*>(this)->OnEvent(event);
+            const EventHandle& data = eventQueue_.front();
+            DispatchEvent<EventTypes...>(data);
             eventQueue_.pop();
         }
     }
@@ -60,21 +56,25 @@ namespace Spark::Events {
 
     template <class CRTP, class... EventTypes>
     template <class EventType1, class EventType2, class ...AdditionalEventTypes>
-    const EventType1* EventListener<CRTP, EventTypes...>::GetEventOfType(const IEvent* baseEvent) {
-        if (const EventType1* event = dynamic_cast<const EventType1*>(baseEvent)) {
-            return event;
+    void EventListener<CRTP, EventTypes...>::DispatchEvent(const EventHandle& event) {
+        if (event->GetID() == EventType1::ID) {
+            // Found correct event type, cast it to appropriate type to pass into OnEvent functions.
+            std::shared_ptr<const EventType1> derived = std::dynamic_pointer_cast<const EventType1>(event);
+            SP_ASSERT(derived, "Sanity check: failed to get registered derived event type from base event type.");
+            static_cast<CRTP*>(this)->OnEvent(&(*derived)); // Address of data.
         }
         else {
-            GetEventOfType<EventType2, AdditionalEventTypes...>(baseEvent);
+            DispatchEvent<EventType2, AdditionalEventTypes...>(event);
         }
     }
 
     template <class CRTP, class... EventTypes>
     template <class EventType>
-    const EventType* EventListener<CRTP, EventTypes...>::GetEventOfType(const IEvent* baseEvent) {
-        const EventType* event = dynamic_cast<const EventType*>(baseEvent);
-        SP_ASSERT(event, "Failed to acquire correct event type in function GetEventOfType."); // Should never happen.
-        return event;
+    void EventListener<CRTP, EventTypes...>::DispatchEvent(const EventHandle& event) {
+        SP_ASSERT(event->GetID() == EventType::ID, "Sanity check - failed to get correct type of event.");
+        std::shared_ptr<const EventType> derived = std::dynamic_pointer_cast<const EventType>(event);
+        SP_ASSERT(derived, "Sanity check: failed to get registered derived event type from base event type.");
+        static_cast<CRTP*>(this)->OnEvent(&(*derived)); // Address of data.
     }
 
 }

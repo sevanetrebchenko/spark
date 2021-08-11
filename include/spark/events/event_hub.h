@@ -16,7 +16,7 @@ namespace Spark {
                 void AttachEventListener(IEventListener* eventListener);
                 void DetachEventListener(IEventListener* eventListener);
 
-                void Dispatch(IEvent* event);
+                void Dispatch(const EventHandle& event);
                 void OnUpdate(float dt);
 
             private:
@@ -25,5 +25,7 @@ namespace Spark {
 
     }
 }
+
+#define MAKE_EVENT(EventType, ...) std::make_shared<const Spark::Events::IEvent>(new EventType(__VA_ARGS__))
 
 #endif // SPARK_EVENT_HUB_H
