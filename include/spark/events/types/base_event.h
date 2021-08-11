@@ -10,9 +10,7 @@ namespace Spark {
 
         class IEvent {
             public:
-                virtual ~IEvent() {
-                    std::cout << "Default" << std::endl;
-                }
+                virtual ~IEvent() = default;
                 NODISCARD virtual EventTypeID GetID() const = 0;
         };
 
