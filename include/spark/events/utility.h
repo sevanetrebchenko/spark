@@ -14,7 +14,9 @@ namespace Spark {
 
         namespace Internal {
 
-            // OnEvent.
+            // Creates one virtual OnEvent function for each provided template argument.
+            // Function signature is as follows:
+            // void OnEvent(const GivenEventType*);
             template <typename... EventTypes>
             struct RequireOnEventForTypes {
                 static_assert(sizeof...(EventTypes) > 0, "Invalid number template arguments provided to RequireOnEventForTypes.");

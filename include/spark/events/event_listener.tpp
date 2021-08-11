@@ -12,8 +12,10 @@ namespace Spark::Events {
 
     template <class CRTP, class... EventTypes>
     EventListener<CRTP, EventTypes...>::~EventListener() {
-        // Clear all remaining events.
+        // Distribute all remaining events.
         while (!eventQueue_.empty()) {
+            const EventHandle& data = eventQueue_.front();
+            DispatchEvent<EventTypes...>(data);
             eventQueue_.pop();
         }
 
