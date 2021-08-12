@@ -4,7 +4,7 @@
 
 namespace Spark {
 
-//    class Layer : public UtilityBox::Logger::ILoggable {
+//    class Layer : public LoggingHub::LoggingHub::ILoggable {
 //        public:
 //            /**
 //             * Construct a new layer with a given name.

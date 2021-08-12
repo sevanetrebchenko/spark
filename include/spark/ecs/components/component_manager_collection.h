@@ -2,9 +2,9 @@
 #ifndef SPARK_COMPONENT_MANAGER_COLLECTION_H
 #define SPARK_COMPONENT_MANAGER_COLLECTION_H
 
-#include "spark/core/utility.h"
+#include "spark/utility.h"
 #include "spark/ecs/components/component_manager.h"
-#include "spark/utilitybox/tools/singleton.h"
+#include "spark/tools/singleton.h"
 
 namespace Spark {
     namespace ECS {

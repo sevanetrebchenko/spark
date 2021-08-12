@@ -2,8 +2,7 @@
 #ifndef SPARK_EVENT_LISTENER_H
 #define SPARK_EVENT_LISTENER_H
 
-#include "spark/core/utility.h"
-#include "spark/events/utility.h"
+#include "spark/utility.h"
 #include "spark/events/event_listener_interface.h"
 #include "spark/events/types/base_event.h"
 #include "spark/events/event_hub.h"
@@ -13,8 +12,8 @@ namespace Spark {
 
         template <class CRTP, class... EventTypes>
         class EventListener : public IEventListener,
-                              Spark::Internal::RequireUniqueTypes<EventTypes...>,
-                              Spark::Events::Internal::RequireOnEventForTypes<EventTypes...>
+                              ::Spark::Internal::RequireUniqueTypes<EventTypes...>,
+                              ::Spark::Events::Internal::RequireOnEventForTypes<EventTypes...>
                               {
             public:
                 EventListener();

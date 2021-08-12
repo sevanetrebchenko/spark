@@ -1,6 +1,6 @@
 
 #include "spark/events/event_hub.h"
-#include "spark/utilitybox/logger/logger.h"
+#include "spark/logger/logger.h"
 
 namespace Spark::Events {
 
@@ -39,7 +39,7 @@ namespace Spark::Events {
         }
     }
 
-    void Spark::Events::EventHub::OnUpdate(float dt) {
+    void EventHub::OnUpdate(float dt) {
         for (IEventListener* eventListener : listeners_) {
             eventListener->OnUpdate(dt); // Updated in the order listeners are inserted.
         }

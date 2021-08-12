@@ -12,7 +12,7 @@
 //    //------------------------------------------------------------------------------------------------------------------
 //    // APPLICATION DATA
 //    //------------------------------------------------------------------------------------------------------------------
-//    class Application::ApplicationData : public UtilityBox::Logger::ILoggable, REGISTER_EVENTS(Application::ApplicationData, Events::WindowCloseEvent, Events::WindowResizeEvent, Events::WindowMinimizedEvent) {
+//    class Application::ApplicationData : public LoggingHub::LoggingHub::ILoggable, REGISTER_EVENTS(Application::ApplicationData, Events::WindowCloseEvent, Events::WindowResizeEvent, Events::WindowMinimizedEvent) {
 //        public:
 //            ApplicationData();
 //            ~ApplicationData();
@@ -38,7 +38,7 @@
 //            LayerStack _layerStack;
 //    };
 //
-//    Application::ApplicationData::ApplicationData() : UtilityBox::Logger::ILoggable("Application"),
+//    Application::ApplicationData::ApplicationData() : LoggingHub::LoggingHub::ILoggable("Application"),
 //                                                      IEventReceivable("Application"),
 //                                                      _window(Graphics::IWindow::Create()),
 //                                                      _imGuiLayer(Graphics::IImGuiLayer::Create(_window->GetNativeWindow()))

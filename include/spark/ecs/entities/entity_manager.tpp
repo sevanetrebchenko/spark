@@ -3,9 +3,9 @@
 #define SPARK_ENTITY_MANAGER_TPP
 
 #include "spark/events/event_hub.h"
-#include "spark/utilitybox/logger/logger.h"
+#include "spark/logger/logger.h"
 #include "spark/events/types/ecs_events.h"
-#include "spark/core/utility.h"
+#include "spark/utility.h"
 
 namespace Spark::ECS {
 

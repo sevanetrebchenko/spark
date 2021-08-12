@@ -2,8 +2,8 @@
 #ifndef SPARK_COMPONENT_MANAGER_COLLECTION_TPP
 #define SPARK_COMPONENT_MANAGER_COLLECTION_TPP
 
-#include "spark/core/utility.h"
-#include "spark/utilitybox/logger/logger.h"
+#include "spark/utility.h"
+#include "spark/logger/logger.h"
 #include "spark/ecs/components/component_manager_interface.h"
 
 namespace Spark::ECS {

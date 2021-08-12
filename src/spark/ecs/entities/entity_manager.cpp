@@ -1,7 +1,8 @@
 
 #include "spark/ecs/entities/entity_manager.h"
-#include "spark/utilitybox/logger/logger.h"
+#include "spark/logger/logger.h"
 #include "spark/events/types/ecs_events.h"
+#include "spark/ecs/components/all_components.h"
 
 namespace Spark::ECS {
 

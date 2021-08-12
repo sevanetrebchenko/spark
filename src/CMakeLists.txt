@@ -12,7 +12,6 @@ set(CORE_SOURCE_FILES
         # Systems
         # Entities
         "${PROJECT_SOURCE_DIR}/src/spark/ecs/entities/entity_manager.cpp"
-        "${PROJECT_SOURCE_DIR}/src/spark/ecs/utility.cpp"
         # Spark - Events
         "${PROJECT_SOURCE_DIR}/src/spark/events/types/mouse_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/events/types/application_events.cpp"
@@ -20,25 +19,25 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/spark/events/types/key_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/events/types/mouse_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/events/event_hub.cpp"
-        # Spark - UtilityBox
-        # Logger
-        "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/logger/logger.cpp"
-        "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/logger/adapter/adapter.cpp"
-        "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/logger/adapter/adapter_configuration.cpp"
-        "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/logger/adapter/types/file_adapter.cpp"
-        "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/logger/adapter/types/standard_output_adapter.cpp"
-        "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/logger/timestamp.cpp"
+        # Spark - LoggingHub
+        # LoggingHub
+        "${PROJECT_SOURCE_DIR}/src/spark/logger/logger.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/logger/adapter/adapter.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/logger/adapter/adapter_configuration.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/logger/adapter/types/file_adapter.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/logger/adapter/types/standard_output_adapter.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/logger/timestamp.cpp"
         # Memory
-        "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/memory/contiguous_pool_allocator.cpp"
-        "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/memory/memory_formatter.cpp"
-        "${PROJECT_SOURCE_DIR}/src/spark/utilitybox/memory/segmented_pool_allocator.cpp"
-        )
+        "${PROJECT_SOURCE_DIR}/src/spark/memory/contiguous_pool_allocator.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/memory/memory_formatter.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/memory/segmented_pool_allocator.cpp"
+        ${PROJECT_SOURCE_DIR}/src/spark/utility.cpp)
 
 # Make Spark Engine core library.
 add_library(spark ${CORE_SOURCE_FILES})
 
 # Enable precompiled headers. #TODO: Check to make sure target_precompile_headers exists in CMake.
-target_precompile_headers(spark PRIVATE "../include/spark/spark_pch.h")
+target_precompile_headers(spark PRIVATE "../include/spark/utility.h")
 
 # Public include files.
 set(SPARK_PUBLIC_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include")

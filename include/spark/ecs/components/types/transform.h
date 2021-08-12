@@ -2,9 +2,8 @@
 #ifndef SPARK_TRANSFORM_H
 #define SPARK_TRANSFORM_H
 
-#include "spark/core/utility.h"
+#include "spark/utility.h"
 #include "spark/ecs/components/types/base_component.h"
-#include "spark/ecs/utility.h"
 
 namespace Spark {
     namespace ECS {

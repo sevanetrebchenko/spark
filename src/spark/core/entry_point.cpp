@@ -1,11 +1,11 @@
 
 #include <spark/events/event_hub.h>            // EventHub
-#include <spark/utilitybox/logger/logger.h>    // LoggingHub
+#include <spark/logger/logger.h>    // LoggingHub
 #include <spark/ecs/entities/entity_manager.h> // EntityManager
 #include <spark/core/application.h>            // CreateApplication
-#include <spark/utilitybox/logger/adapter/types/file_adapter.h> // FileAdapter
+#include <spark/logger/adapter/types/file_adapter.h> // FileAdapter
 
-#include <spark/utilitybox/memory/allocator.h>
+#include <spark/memory/allocator.h>
 
 #include <spark/ecs/systems/base_component_system.h>
 
@@ -57,18 +57,18 @@ int main(int argc, char** argv) {
 //    Spark::ServiceLocator::ProvideService(Spark::Events::EventHub::GetInstance());
 //
 //    // Set up custom adapters.
-//    Spark::UtilityBox::Logger::LoggingHub* loggingHub = Spark::UtilityBox::Logger::LoggingHub::GetInstance();
+//    Spark::LoggingHub::LoggingHub::LoggingHub* loggingHub = Spark::LoggingHub::LoggingHub::LoggingHub::GetInstance();
 //    // Debug file adapter.
-//    auto* debugFileAdapter = new Spark::UtilityBox::Logger::FileAdapter("debug_log.txt");
-//    debugFileAdapter->GetConfiguration()->SetMessageSeverityCutoff(Spark::UtilityBox::Logger::LogSeverity::DEBUG);
+//    auto* debugFileAdapter = new Spark::LoggingHub::LoggingHub::FileAdapter("debug_log.txt");
+//    debugFileAdapter->GetConfiguration()->SetMessageSeverityCutoff(Spark::LoggingHub::LoggingHub::LogSeverity::DEBUG);
 //
 //    // Warning file adapter.
-//    auto* warningFileAdapter = new Spark::UtilityBox::Logger::FileAdapter("warning_log.txt");
-//    warningFileAdapter->GetConfiguration()->SetMessageSeverityCutoff(Spark::UtilityBox::Logger::LogSeverity::WARNING);
+//    auto* warningFileAdapter = new Spark::LoggingHub::LoggingHub::FileAdapter("warning_log.txt");
+//    warningFileAdapter->GetConfiguration()->SetMessageSeverityCutoff(Spark::LoggingHub::LoggingHub::LogSeverity::WARNING);
 //
 //    // Error file adapter.
-//    auto* errorFileAdapter = new Spark::UtilityBox::Logger::FileAdapter("error_log.txt");
-//    errorFileAdapter->GetConfiguration()->SetMessageSeverityCutoff(Spark::UtilityBox::Logger::LogSeverity::ERROR);
+//    auto* errorFileAdapter = new Spark::LoggingHub::LoggingHub::FileAdapter("error_log.txt");
+//    errorFileAdapter->GetConfiguration()->SetMessageSeverityCutoff(Spark::LoggingHub::LoggingHub::LogSeverity::ERROR);
 //
 //    loggingHub->AttachCustomAdapter(debugFileAdapter);
 //    loggingHub->AttachCustomAdapter(warningFileAdapter);

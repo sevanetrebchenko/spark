@@ -2,8 +2,8 @@
 #ifndef SPARK_EVENT_HUB_H
 #define SPARK_EVENT_HUB_H
 
-#include "spark/core/utility.h"
-#include "spark/utilitybox/tools/singleton.h"
+#include "spark/utility.h"
+#include "spark/tools/singleton.h"
 #include "spark/events/event_listener_interface.h"
 
 namespace Spark {
@@ -26,6 +26,6 @@ namespace Spark {
     }
 }
 
-#define MAKE_EVENT(EventType, ...) std::make_shared<const Spark::Events::IEvent>(new EventType(__VA_ARGS__))
+#define MAKE_EVENT(EventType, ...) std::make_shared<const ::Spark::Events::IEvent>(new EventType(__VA_ARGS__))
 
 #endif // SPARK_EVENT_HUB_H

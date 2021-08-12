@@ -7,7 +7,7 @@
 //-------------------------------
 
 //--- Core -------------------------------------------------------------------------------------------------------------
-#include <spark/core/utility.h>
+#include <spark/utility.h>
 #include <spark/core/application.h>
 #include <spark/core/layer.h>
 
@@ -25,9 +25,9 @@
 
 
 //--- Utility ----------------------------------------------------------------------------------------------------------
-#include <spark/utilitybox/logger/logger.h>
-#include <spark/utilitybox/logger/adapter/adapter.h>
-#include <spark/utilitybox/logger/adapter/adapter_configuration.h>
-#include <spark/utilitybox/logger/log_record.h>
+#include <spark/logger/logger.h>
+#include <spark/logger/adapter/adapter.h>
+#include <spark/logger/adapter/adapter_configuration.h>
+#include <spark/logger/log_record.h>
 
 #endif // SPARK_SPARK_H

@@ -1,5 +1,5 @@
 
-#include "spark/core/utility.h"
+#include "spark/utility.h"
 
 namespace Spark::Internal {
 

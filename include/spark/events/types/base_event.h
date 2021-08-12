@@ -2,8 +2,7 @@
 #ifndef SPARK_BASE_EVENT_H
 #define SPARK_BASE_EVENT_H
 
-#include "spark/core/utility.h"
-#include "spark/events/utility.h"
+#include "spark/utility.h"
 
 namespace Spark {
     namespace Events {

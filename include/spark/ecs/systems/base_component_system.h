@@ -2,7 +2,7 @@
 #ifndef SPARK_BASE_COMPONENT_SYSTEM_H
 #define SPARK_BASE_COMPONENT_SYSTEM_H
 
-#include "spark/core/utility.h"
+#include "spark/utility.h"
 #include "spark/ecs/systems/base_component_system_interface.h"
 #include "spark/events/types/ecs_events.h"
 #include "spark/events/event_listener.h"

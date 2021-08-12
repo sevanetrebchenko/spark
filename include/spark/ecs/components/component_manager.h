@@ -2,7 +2,7 @@
 #ifndef SPARK_COMPONENT_MANAGER_H
 #define SPARK_COMPONENT_MANAGER_H
 
-#include "spark/core/utility.h"
+#include "spark/utility.h"
 #include "spark/ecs/components/component_manager_interface.h"
 
 namespace Spark {
