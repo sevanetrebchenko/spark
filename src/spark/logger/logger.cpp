@@ -304,13 +304,13 @@ namespace Spark::Logger {
 
         switch (messageSeverity) {
             case LogSeverity::DEBUG:
-                format << "  DEBUG  ";
+                format << "DEBUG";
                 break;
             case LogSeverity::WARNING:
-                format << " WARNING ";
+                format << "WARNING";
                 break;
             case LogSeverity::ERROR:
-                format << "  ERROR  ";
+                format << "ERROR";
                 break;
         }
 
