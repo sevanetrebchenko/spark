@@ -3,15 +3,15 @@
 
 namespace Spark::Logger {
 
-    AdapterConfiguration::AdapterConfiguration(std::string n) : globalFormattingString("%x\n[%c] | [ %d ] | [ %s ]\n\t%f\n%x\n[ %t ] - %m\n\n"),
+    AdapterConfiguration::AdapterConfiguration(std::string n) : globalFormattingString("[ %t ] [ %s ] - %m [ %f ]\n"),
                                                                 timestampFormattingString("%m %s %l"),
                                                                 calendarFormatString("%A %d, %B %Y - %H:%M:%S"),
-                                                                locationFormatString("in %f, %u:%l"),
+                                                                locationFormatString("in %f -> %u:%l"),
                                                                 name(std::move(n)),
                                                                 severityCutoff(LogSeverity::DEBUG),
-                                                                wrapMessage(true),
-                                                                wrapLimit(100),
-                                                                separatorLength(100)
+                                                                wrapMessage(false),
+                                                                wrapLimit(120),
+                                                                separatorLength(120)
                                                                 {
     }
 

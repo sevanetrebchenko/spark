@@ -13,26 +13,27 @@
 
 struct TestSystem1 : public Spark::Events::EventListener<TestSystem1, Spark::Events::EntityCreatedEvent, Spark::Events::EntityDestroyedEvent> {
     void OnEvent(const Spark::Events::EntityCreatedEvent* event) override {
-        std::cout << "TestSystem1: Received entity created event with ID: " << event->GetEntityID() << std::endl;
+        LogDebug("TestSystem1: Received entity created event with ID: %u", event->GetEntityID());
     }
 
     void OnEvent(const Spark::Events::EntityDestroyedEvent* event) override {
-        std::cout << "TestSystem1: Received entity destroyed event with ID: " << event->GetEntityID() << std::endl;
+        LogDebug("TestSystem1: Received entity destroyed event with ID: %u", event->GetEntityID());
     }
 };
 
 struct TestSystem2 : public Spark::Events::EventListener<TestSystem2, Spark::Events::EntityCreatedEvent, Spark::Events::EntityDestroyedEvent> {
     void OnEvent(const Spark::Events::EntityCreatedEvent* event) override {
-        std::cout << "TestSystem2: Received entity created event with ID: " << event->GetEntityID() << std::endl;
+        LogDebug("TestSystem2: Received entity created event with ID: %u", event->GetEntityID());
     }
 
     void OnEvent(const Spark::Events::EntityDestroyedEvent* event) override {
-        std::cout << "TestSystem2: Received entity destroyed event with ID: " << event->GetEntityID() << std::endl;
+        LogDebug("TestSystem2: Received entity destroyed event with ID: %u", event->GetEntityID());
     }
 };
 
 
 int main(int argc, char** argv) {
+    Spark::Logger::TimeStamp::Init();
     Spark::Singleton<Spark::Logger::LoggingHub>::GetInstance()->AddAdapter(new Spark::Logger::FileAdapter("log.txt", Spark::Logger::AdapterConfiguration{"Log"}));
 
     Spark::ECS::EntityManager* em = Spark::Singleton<Spark::ECS::EntityManager>::GetInstance();
