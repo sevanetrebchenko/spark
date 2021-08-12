@@ -31,7 +31,9 @@ struct TestSystem2 : public Spark::Events::EventListener<TestSystem2, Spark::Eve
     }
 };
 
+
 int main(int argc, char** argv) {
+    Spark::Singleton<Spark::Logger::LoggingHub>::GetInstance()->AddAdapter(new Spark::Logger::FileAdapter("log.txt", Spark::Logger::AdapterConfiguration{"Log"}));
 
     Spark::ECS::EntityManager* em = Spark::Singleton<Spark::ECS::EntityManager>::GetInstance();
     TestSystem1 ts1;

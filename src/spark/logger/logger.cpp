@@ -5,14 +5,12 @@ namespace Spark::Logger {
 
     LoggingHub::LoggingHub() : processingBufferSize_(64u),
                                processingBuffer_(new char[processingBufferSize_]),
-                               logCounter_(0),
-                               asynchronousInterval_(std::chrono::milliseconds(500)),
+                               asynchronousInterval_(std::chrono::milliseconds(200)),
                                distributeMessages_(true),
-                               printingBufferLocation_(&buffer1_)
+                               printingBufferLocation_(&buffer1_),
+                               distributingThread_(std::thread(&LoggingHub::DistributeMessages, this))
                                {
-        distributingThread_ = std::move(std::thread(&LoggingHub::DistributeMessages, this));
     }
-
 
     LoggingHub::~LoggingHub() {
         // Wait for both buffers to be completely empty.
@@ -100,20 +98,21 @@ namespace Spark::Logger {
     }
 
     void LoggingHub::DistributeMessages() {
+        std::vector<std::string> messages { };
+
         while (distributeMessages_) {
             PrintingBuffer& buffer = SwitchBuffers();
 
             while (!buffer.empty()) {
-                static std::vector<std::string> messages;
-
                 const LogRecord& data = buffer.front();
 
                 for (IAdapter* adapter : adapters_) {
                     const AdapterConfiguration& adapterConfiguration = adapter->GetAdapterConfiguration();
 
                     if (data.messageSeverity >= adapterConfiguration.severityCutoff) {
-                        messages = std::move(ProcessMessage(adapterConfiguration, data));
+                        messages = ProcessMessage(data, adapter->GetLogCount(), adapterConfiguration);
                         adapter->OutputMessages(messages);
+                        messages.clear();
                     }
                 }
 
@@ -141,17 +140,17 @@ namespace Spark::Logger {
     }
 
 
-    std::vector<std::string> LoggingHub::ProcessMessage(const AdapterConfiguration& adapterConfiguration, const LogRecord& logRecord) {
-        static std::vector<std::string> processedMessages;
-        static std::stringstream format;
+    std::vector<std::string> LoggingHub::ProcessMessage(const LogRecord& logRecord, int logCount, const AdapterConfiguration& adapterConfiguration) {
+        std::vector<std::string> processedMessages;
+        std::stringstream format;
 
-        std::size_t currentCharacterCount = 0;
+        int currentCharacterCount = 0;
         for (const char* traversalIndex = adapterConfiguration.globalFormattingString.c_str(); *traversalIndex != '\0'; ++traversalIndex) {
             // Get to the character after the next '%'.
             while (*traversalIndex != '%') {
                 // Reached the end of the processing string.
                 if (*traversalIndex == '\0') {
-                    return std::move(processedMessages);
+                    return processedMessages;
                 }
 
                 // Emplace finished sentence and clear formatting stringstream.
@@ -181,37 +180,37 @@ namespace Spark::Logger {
                 case 't':
                     appendedElement = FormatTimestamp(logRecord.timeStamp, adapterConfiguration.timestampFormattingString);
                     format << appendedElement;
-                    currentCharacterCount += appendedElement.length();
+                    currentCharacterCount += (int)appendedElement.length();
                     break;
                 // Log count
                 case 'c':
-                    appendedElement = FormatLogCount();
+                    appendedElement = FormatLogCount(logCount);
                     format << appendedElement;
-                    currentCharacterCount += appendedElement.length();
+                    currentCharacterCount += (int)appendedElement.length();
                     break;
                 // Calendar date
                 case 'd':
                     appendedElement = FormatCalendarInformation(adapterConfiguration.calendarFormatString);
                     format << appendedElement;
-                    currentCharacterCount += appendedElement.length();
+                    currentCharacterCount += (int)appendedElement.length();
                     break;
                 // Message severity.
                 case 's':
                     appendedElement = FormatSeverity(logRecord.messageSeverity);
                     format << appendedElement;
-                    currentCharacterCount += appendedElement.length();
+                    currentCharacterCount += (int)appendedElement.length();
                     break;
                 // File, function, line number.
                 case 'f':
                     appendedElement = FormatLocation(logRecord.filename, logRecord.function, logRecord.lineNumber, adapterConfiguration.locationFormatString);
                     format << appendedElement;
-                    currentCharacterCount += appendedElement.length();
+                    currentCharacterCount += (int)appendedElement.length();
                     break;
                 // Separating line.
                 case 'x':
                     appendedElement = FormatSeparator(adapterConfiguration.separatorLength);
                     format << appendedElement;
-                    currentCharacterCount += appendedElement.length();
+                    currentCharacterCount += (int)appendedElement.length();
                     break;
                 // Message
                 case 'm':
@@ -225,15 +224,15 @@ namespace Spark::Logger {
             }
         }
 
-        return std::move(processedMessages);
+        return processedMessages;
     }
 
-    std::vector<std::string> LoggingHub::FormatMessage(const std::string &message, std::size_t characterStart, bool wrap, std::size_t wrapLimit) {
-        static std::vector<std::string> formattedStrings;
-        static std::stringstream format;
+    std::vector<std::string> LoggingHub::FormatMessage(const std::string &message, int characterStart, int wrapLimit, bool wrap) {
+        std::vector<std::string> formattedStrings;
+        std::stringstream format;
 
         if (wrap) {
-            std::size_t availableMessageSpace = wrapLimit - characterStart;
+            int availableMessageSpace = wrapLimit - characterStart;
 
             // Message cannot fit on one line, tokenize.
             if (message.length() > (availableMessageSpace)) {
@@ -297,11 +296,11 @@ namespace Spark::Logger {
             formattedStrings.emplace_back(message);
         }
 
-        return std::move(formattedStrings);
+        return formattedStrings;
     }
 
     std::string LoggingHub::FormatSeverity(const LogSeverity &messageSeverity) {
-        static std::stringstream format;
+        std::stringstream format;
 
         switch (messageSeverity) {
             case LogSeverity::DEBUG:
@@ -321,7 +320,7 @@ namespace Spark::Logger {
     }
 
     std::string LoggingHub::FormatTimestamp(const TimeStamp &timeStamp, const std::string& formatString) {
-        static std::stringstream format;
+        std::stringstream format;
         for (const char* traversalIndex = formatString.c_str(); *traversalIndex != '\0'; ++traversalIndex) {
             // Get to the character after the next '%'.
             while (*traversalIndex != '%') {
@@ -340,17 +339,17 @@ namespace Spark::Logger {
                 // Minutes.
                 case 'm':
                     format << std::setfill('0') << std::setw(3);
-                    format << timeStamp.GetMinutes();
+                    format << timeStamp.GetMinutes() << "m";
                     break;
                 // Seconds.
                 case 's':
                     format << std::setfill('0') << std::setw(2);
-                    format << timeStamp.GetSeconds();
+                    format << timeStamp.GetSeconds() << "s";
                     break;
                 // Milliseconds.
                 case 'l':
                     format << std::setfill('0') << std::setw(4);
-                    format << timeStamp.GetMillis();
+                    format << timeStamp.GetMillis() << "ms";
                     break;
                 default:
                     format << *traversalIndex;
@@ -363,7 +362,7 @@ namespace Spark::Logger {
     }
 
     std::string LoggingHub::FormatLocation(const std::string &file, const std::string &function, int lineNumber, const std::string& formatString) {
-        static std::stringstream format;
+        std::stringstream format;
         for (const char* traversalIndex = formatString.c_str(); *traversalIndex != '\0'; ++traversalIndex) {
             // Get to the character after the next '%'.
             while (*traversalIndex != '%') {
@@ -402,40 +401,43 @@ namespace Spark::Logger {
     }
 
     std::string LoggingHub::FormatCalendarInformation(const std::string& formatString) {
-        static std::time_t _calendarTime = std::time(nullptr);  // Gets filled with the current time when formatting calendar buffer.
-        static unsigned _calendarBufferSize = 64u;                    // Size of the calendar buffer.
-        static char* _calendarBuffer = new char[_calendarBufferSize]; // Calendar buffer.
+        std::time_t calendarTime = std::time(nullptr);  // Gets filled with the current time when formatting calendar buffer.
+        unsigned calendarBufferSize = 64u;                    // Size of the calendar buffer.
+        char* calendarBuffer = new char[calendarBufferSize];         // Calendar buffer.
 
-        while(!std::strftime(_calendarBuffer, _calendarBufferSize, formatString.c_str(), std::localtime(&_calendarTime))) {
-            _calendarBufferSize *= 2;
-            delete[] _calendarBuffer;
-            _calendarBuffer = new char[_calendarBufferSize];
+        while(!std::strftime(calendarBuffer, calendarBufferSize, formatString.c_str(), std::localtime(&calendarTime))) {
+            calendarBufferSize *= 2;
+            delete[] calendarBuffer;
+            calendarBuffer = new char[calendarBufferSize];
         }
 
         // Reset to get the most updated calendar time.
-        _calendarTime = std::time(nullptr);
+        calendarTime = std::time(nullptr);
 
-        return _calendarBuffer;
+        std::string data = calendarBuffer;
+        delete[] calendarBuffer;
+
+        return data;
     }
 
-    std::string LoggingHub::FormatLogCount() {
-        static std::stringstream format;
+    std::string LoggingHub::FormatLogCount(unsigned logCount) {
+        std::stringstream format;
 
         format << std::setfill('0') << std::setw(4);
-        format << logCounter_ / 1000;
+        format << logCount / 1000;
 
         format << ' ';
 
         format << std::setfill('0') << std::setw(4);
-        format << logCounter_ % 1000;
+        format << logCount % 1000;
 
         std::string formattedMessage = format.str();
         format.str(std::string("")); // Clear format.
         return std::move(formattedMessage);
     }
 
-    std::string LoggingHub::FormatSeparator(std::size_t separatorLength) {
-        static std::stringstream format;
+    std::string LoggingHub::FormatSeparator(int separatorLength) {
+        std::stringstream format;
         format << std::setw(separatorLength) << std::setfill('-') << "";
 
         std::string formattedMessage = format.str();

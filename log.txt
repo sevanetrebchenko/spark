@@ -1,0 +1,12 @@
+----------------------------------------------------------------------------------------------------
+[0000 0000] | [ Wednesday 11, August 2021 - 23:19:03 ] | [   DEBUG   ]
+	in component_manager_collection.tpp, CreateComponentSystem:22
+----------------------------------------------------------------------------------------------------
+[ 000m 00s 0000ms ] - Constructing ComponentManager of component type: 'Transform'.
+
+----------------------------------------------------------------------------------------------------
+[0000 0001] | [ Wednesday 11, August 2021 - 23:19:03 ] | [   DEBUG   ]
+	in component_manager_collection.tpp, DestroyComponentSystem:29
+----------------------------------------------------------------------------------------------------
+[ 000m 00s 0002ms ] - Destroying ComponentManager of component type: 'Transform'.
+

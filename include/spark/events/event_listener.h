@@ -13,7 +13,7 @@ namespace Spark {
         template <class CRTP, class... EventTypes>
         class EventListener : public IEventListener,
                               ::Spark::Internal::RequireUniqueTypes<EventTypes...>,
-                              ::Spark::Events::Internal::RequireOnEventForTypes<EventTypes...>
+                              Internal::RequireOnEventForTypes<EventTypes...>
                               {
             public:
                 EventListener();

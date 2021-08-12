@@ -3,7 +3,8 @@
 
 namespace Spark::Logger {
 
-    IAdapter::IAdapter(AdapterConfiguration configuration) : configuration_(std::move(configuration)) {
+    IAdapter::IAdapter(AdapterConfiguration configuration) : logCount_(0),
+                                                             configuration_(std::move(configuration)) {
     }
 
     const AdapterConfiguration& IAdapter::GetAdapterConfiguration() const {
@@ -18,6 +19,12 @@ namespace Spark::Logger {
         for (const std::string& message : messages) {
             OutputMessage(message);
         }
+
+        ++logCount_;
+    }
+
+    int IAdapter::GetLogCount() const {
+        return logCount_;
     }
 
 }

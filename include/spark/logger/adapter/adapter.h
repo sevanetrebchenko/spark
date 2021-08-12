@@ -17,11 +17,14 @@ namespace Spark {
 
                 NODISCARD const AdapterConfiguration& GetAdapterConfiguration() const;
                 NODISCARD const std::string& GetName() const;
+                NODISCARD int GetLogCount() const;
 
             protected:
+                // Message is null terminated.
                 virtual void OutputMessage(const std::string& message) = 0;
 
             private:
+                int logCount_;
                 AdapterConfiguration configuration_;
         };
 

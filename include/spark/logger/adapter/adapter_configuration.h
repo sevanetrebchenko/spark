@@ -45,8 +45,8 @@ namespace Spark {
             std::string name;
             LogSeverity severityCutoff;
             bool wrapMessage;
-            std::size_t wrapLimit;
-            std::size_t separatorLength;
+            int wrapLimit;
+            int separatorLength;
         };
 
     }

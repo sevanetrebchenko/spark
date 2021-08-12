@@ -33,20 +33,19 @@ namespace Spark {
                 void DistributeMessages();
 
                 NODISCARD std::string ProcessFormatString(const char* formatString, std::va_list argsList);
-                NODISCARD std::vector<std::string> ProcessMessage(const AdapterConfiguration& adapterConfiguration, const LogRecord& logRecord);
-                NODISCARD std::vector<std::string> FormatMessage(const std::string &message, std::size_t characterStart, bool wrap, std::size_t wrapLimit);
+                NODISCARD std::vector<std::string> ProcessMessage(const LogRecord& logRecord, int logCount, const AdapterConfiguration& adapterConfiguration);
+                NODISCARD std::vector<std::string> FormatMessage(const std::string &message, int characterStart, int wrapLimit, bool wrap);
                 NODISCARD std::string FormatSeverity(const LogSeverity &messageSeverity);
                 NODISCARD std::string FormatTimestamp(const TimeStamp &timeStamp, const std::string& formatString);
                 NODISCARD std::string FormatLocation(const std::string& file, const std::string& function, int lineNumber, const std::string& formatString);
                 NODISCARD std::string FormatCalendarInformation(const std::string& formatString);
-                NODISCARD std::string FormatLogCount();
-                NODISCARD std::string FormatSeparator(std::size_t separatorLength);
+                NODISCARD std::string FormatLogCount(unsigned logCount);
+                NODISCARD std::string FormatSeparator(int separatorLength);
 
                 unsigned processingBufferSize_;
                 char* processingBuffer_;
 
                 // Formatting.
-                unsigned logCounter_;
                 std::vector<IAdapter*> adapters_;
 
                 // While one buffer is being emptied, it should NOT be printed to.

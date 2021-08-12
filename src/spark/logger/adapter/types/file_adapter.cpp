@@ -13,7 +13,7 @@ namespace Spark::Logger {
     }
 
     void FileAdapter::OutputMessage(const std::string &message) {
-        output_ << message << std::endl;
+        output_ << message;
     }
 
 }
