@@ -1,12 +1,12 @@
 # PROJECT FILES
 set(CORE_SOURCE_FILES
-        # Spark - Core
+        # Core / Utility
         "${PROJECT_SOURCE_DIR}/src/spark/core/application.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/core/entry_point.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/core/layer_stack.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/core/layer.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/core/utility.cpp"
-        # Spark - ECS
+        "${PROJECT_SOURCE_DIR}/src/spark/utility.cpp"
         # Components
         "${PROJECT_SOURCE_DIR}/src/spark/ecs/components/types/transform.cpp"
         # Systems
@@ -19,7 +19,6 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/spark/events/types/key_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/events/types/mouse_events.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/events/event_hub.cpp"
-        # Spark - LoggingHub
         # LoggingHub
         "${PROJECT_SOURCE_DIR}/src/spark/logger/logger.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/logger/adapter/adapter.cpp"
@@ -28,10 +27,11 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/spark/logger/adapter/types/standard_output_adapter.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/logger/timestamp.cpp"
         # Memory
-        "${PROJECT_SOURCE_DIR}/src/spark/memory/contiguous_pool_allocator.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/memory/resources/segmented_pool_resource.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/memory/allocators/segmented_pool_allocator.cpp"
+        "${PROJECT_SOURCE_DIR}/src/spark/memory/allocator.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/memory/memory_formatter.cpp"
-        "${PROJECT_SOURCE_DIR}/src/spark/memory/segmented_pool_allocator.cpp"
-        ${PROJECT_SOURCE_DIR}/src/spark/utility.cpp)
+        )
 
 # Make Spark Engine core library.
 add_library(spark ${CORE_SOURCE_FILES})

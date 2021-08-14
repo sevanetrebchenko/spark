@@ -23,6 +23,7 @@
 #include <atomic>
 #include <thread>
 #include <csignal>
+#include <cstddef>
 #pragma endregion
 
 #pragma region Standard Containers
