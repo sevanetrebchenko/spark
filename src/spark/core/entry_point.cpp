@@ -6,6 +6,7 @@
 #include <spark/logger/adapter/types/file_adapter.h> // FileAdapter
 
 #include <spark/memory/allocator.h>
+#include <spark/memory/allocators/segmented_pool_allocator.h>
 
 #include <spark/ecs/systems/base_component_system.h>
 
@@ -51,6 +52,14 @@ int main(int argc, char** argv) {
     em->DestroyEntity("test entity 1");
 
     Spark::Singleton<Spark::Events::EventHub>::GetInstance()->OnUpdate(0);
+
+    SegmentedList<int> allco;
+
+    for (int i = 0; i < 10; ++i) {
+        allco.push_back(i);
+    }
+    allco.clear();
+
 
 //    Spark::ECS::EntityManager a;
 //

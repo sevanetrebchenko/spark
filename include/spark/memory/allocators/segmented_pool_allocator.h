@@ -8,20 +8,21 @@
 namespace Spark {
 	namespace Memory {
 
-		template <typename T>
-		class SegmentedPoolAllocator final : public IAllocator<T, SegmentedPoolResource> {
-			public:
-				SegmentedPoolAllocator();
-				~SegmentedPoolAllocator() override;
+        template <typename T>
+        class SegmentedPoolAllocator {//}; : public IAllocator<T, SegmentedPoolResource> {
+            public:
+                typedef T value_type;
 
-				NODISCARD void* allocate(std::size_t numBytes) override;
-				void deallocate(void* address, std::size_t numBytes) override;
+                template <class U> explicit SegmentedPoolAllocator(SegmentedPoolAllocator<U> const&) noexcept {}
 
-				NODISCARD bool operator==(const SegmentedPoolAllocator& other) const override;
-				NODISCARD bool operator!=(const SegmentedPoolAllocator& other) const override;
-		};
+                SegmentedPoolAllocator();
+                ~SegmentedPoolAllocator();
 
-	}
+                T* allocate(std::size_t numObjects);
+                void deallocate(T* address, std::size_t numObjects);
+        };
+
+    }
 }
 
 #include "spark/memory/allocators/segmented_pool_allocator.tpp"

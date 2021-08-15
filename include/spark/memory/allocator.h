@@ -9,25 +9,24 @@ namespace Spark {
 	namespace Memory {
 
 		// C++17 compliant allocator.
-		template <typename T, typename MemoryResource>
+		template <typename T, class MemoryResource>
 		class IAllocator {
 			public:
 				typedef T value_type;
 
-				IAllocator();
+				IAllocator() = default;
 				virtual ~IAllocator();
 
-				NODISCARD virtual constexpr void* allocate(std::size_t numBytes) = 0;
-				virtual constexpr void deallocate(void* address, std::size_t numBytes) = 0;
-
-				NODISCARD virtual bool operator==(const IAllocator& other) const = 0;
-				NODISCARD virtual bool operator!=(const IAllocator& other) const = 0;
+				NODISCARD virtual constexpr T* allocate(std::size_t numBytes) = 0;
+				virtual constexpr void deallocate(T* address, std::size_t numBytes) = 0;
 
 			protected:
-				MemoryResource memoryResource_;
+				MemoryResource* memoryResource_;
 		};
 
 	}
 }
+
+#include "spark/memory/allocator.tpp"
 
 #endif //SPARK_ALLOCATOR_H

@@ -8,11 +8,11 @@ namespace Spark {
 
 		class IMemoryResource {
 			public:
-				IMemoryResource();
-				virtual ~IMemoryResource();
+				IMemoryResource() = default;
+				virtual ~IMemoryResource() = default;
 
-				NODISCARD virtual void* allocate(std::size_t numBytes) = 0;
-				virtual void deallocate(void* address, std::size_t numBytes) = 0;
+				NODISCARD virtual void* allocate(std::size_t numObjects) = 0;
+				virtual void deallocate(void* address, std::size_t numObjects) = 0;
 		};
 
 	}
