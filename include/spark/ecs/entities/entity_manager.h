@@ -3,7 +3,7 @@
 #define SPARK_ENTITY_MANAGER_H
 
 #include "spark/utility.h"
-#include "spark/ecs/components/all_components.h"
+#include "spark/ecs/components/all_component_types.h"
 #include "spark/ecs/components/component_manager_collection.h"
 
 namespace Spark {

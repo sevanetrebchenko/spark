@@ -28,6 +28,8 @@ namespace Spark::Logger {
     }
 
     void LoggingHub::LogMessage(const std::string &filename, const std::string &function, int lineNumber, LogSeverity messageSeverity, const TimeStamp& timeStamp, const char *formatString, ...) {
+        std::lock_guard<std::mutex> lock(logMutex_);
+
         // Process variadic log message.
         std::va_list argsList;
         va_start(argsList, formatString);

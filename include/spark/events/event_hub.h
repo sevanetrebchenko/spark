@@ -9,7 +9,7 @@
 namespace Spark {
     namespace Events {
 
-        class EventHub : Singleton<EventHub> {
+        class EventHub : public Singleton<EventHub> {
             public:
                 REGISTER_SINGLETON(EventHub);
 

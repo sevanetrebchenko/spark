@@ -10,7 +10,7 @@ namespace Spark {
     namespace ECS {
 
         template <class ...ComponentTypes>
-        class ComponentManagerCollection : Singleton<ComponentManagerCollection<ComponentTypes...>> {
+        class ComponentManagerCollection : public Singleton<ComponentManagerCollection<ComponentTypes...>> {
             public:
                 REGISTER_SINGLETON(ComponentManagerCollection<ComponentTypes...>);
 

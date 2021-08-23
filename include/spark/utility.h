@@ -24,6 +24,8 @@
 #include <thread>
 #include <csignal>
 #include <cstddef>
+#include <variant>
+#include <random>
 #pragma endregion
 
 #pragma region Standard Containers
@@ -158,6 +160,22 @@ namespace Spark {
             static constexpr const char* Name = #ClassName;                              \
             NODISCARD ::Spark::Events::EventTypeID GetID() const override { return ID; }
 
+    }
+
+    // Job system utility functionality.
+    namespace Job {
+        namespace Internal {
+
+            // Overload for accessing std::variant element using visitor paradigm.
+            template <typename ...Types>
+            struct Visitor : Types... {
+                using Types::operator()...;
+            };
+
+            template <typename ...Types>
+            Visitor(Types...) -> Visitor<Types...>;
+
+        }
     }
 
 }

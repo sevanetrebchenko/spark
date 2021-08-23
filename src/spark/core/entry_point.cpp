@@ -9,6 +9,8 @@
 #include <spark/memory/allocators/segmented_pool_allocator.h>
 
 #include <spark/ecs/systems/base_component_system.h>
+#include "spark/job/job_system.h"
+#include "spark/job/job_handle_manager.h"
 
 #define ALLOC(TYPE, RESOURCE) Spark::UtilityBox::Memory::IAllocator<TYPE, Spark::UtilityBox::Memory::RESOURCE>
 
@@ -32,10 +34,14 @@ struct TestSystem2 : public Spark::Events::EventListener<TestSystem2, Spark::Eve
     }
 };
 
-
 int main(int argc, char** argv) {
     Spark::Logger::TimeStamp::Init();
     Spark::Singleton<Spark::Logger::LoggingHub>::GetInstance()->AddAdapter(new Spark::Logger::FileAdapter("log.txt", Spark::Logger::AdapterConfiguration{"Log"}));
+
+    {
+        auto handle = Spark::Singleton<Spark::Job::JobSystem>::GetInstance()->Schedule<Spark::Job::Test>(6);
+        //handle->Complete();
+    }
 
     Spark::ECS::EntityManager* em = Spark::Singleton<Spark::ECS::EntityManager>::GetInstance();
     TestSystem1 ts1;
@@ -52,14 +58,6 @@ int main(int argc, char** argv) {
     em->DestroyEntity("test entity 1");
 
     Spark::Singleton<Spark::Events::EventHub>::GetInstance()->OnUpdate(0);
-
-    SegmentedList<int> allco;
-
-    for (int i = 0; i < 10; ++i) {
-        allco.push_back(i);
-    }
-    allco.clear();
-
 
 //    Spark::ECS::EntityManager a;
 //
@@ -94,5 +92,6 @@ int main(int argc, char** argv) {
 //    application->Run();
 //    delete application;
 
+    std::cout << "end of main" << std::endl;
     return 0;
 }

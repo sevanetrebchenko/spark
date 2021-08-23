@@ -12,7 +12,7 @@
 namespace Spark {
     namespace Logger {
 
-        class LoggingHub : Singleton<LoggingHub> {
+        class LoggingHub : public Singleton<LoggingHub> {
             public:
                 REGISTER_SINGLETON(LoggingHub);
 
@@ -53,6 +53,7 @@ namespace Spark {
                 PrintingBuffer buffer2_;
 
                 std::mutex bufferMutex_;
+                std::mutex logMutex_;
                 std::chrono::milliseconds asynchronousInterval_; // Interval at which thread switches buffers and processes messages.
                 std::atomic<bool> distributeMessages_;
                 std::atomic<std::queue<LogRecord>*> printingBufferLocation_;

@@ -12,7 +12,7 @@
 #include <spark/core/layer.h>
 
 //--- ECS --------------------------------------------------------------------------------------------------------------
-#include <spark/ecs/components/all_components.h>
+#include <spark/ecs/components/all_component_types.h>
 #include <spark/ecs/systems/base_component_system.h>
 
 //--- Events -----------------------------------------------------------------------------------------------------------

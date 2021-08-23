@@ -31,7 +31,7 @@ set(CORE_SOURCE_FILES
         "${PROJECT_SOURCE_DIR}/src/spark/memory/allocators/segmented_pool_allocator.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/memory/allocator.cpp"
         "${PROJECT_SOURCE_DIR}/src/spark/memory/memory_formatter.cpp"
-        )
+        spark/job/job_system.cpp ../include/spark/job/worker/worker.h spark/job/worker.cpp ../include/spark/job/job_handle.h spark/job/job_handle.cpp spark/job/job.cpp spark/memory/object_handle.cpp ../include/spark/job/all_job_types.h spark/job/work_stealing_queue.cpp ../include/spark/job/worker_pool.h spark/job/worker_pool.cpp ../include/spark/job/job_handle_manager.h spark/job/job_handle_manager.cpp)
 
 # Make Spark Engine core library.
 add_library(spark ${CORE_SOURCE_FILES})

@@ -2,7 +2,7 @@
 #include "spark/ecs/entities/entity_manager.h"
 #include "spark/logger/logger.h"
 #include "spark/events/types/ecs_events.h"
-#include "spark/ecs/components/all_components.h"
+#include "spark/ecs/components/all_component_types.h"
 
 namespace Spark::ECS {
 
