@@ -13,6 +13,7 @@ namespace Spark {
                 explicit RingBuffer(std::size_t capacity);
                 ~RingBuffer();
 
+                void Store(std::size_t index, const T& object);
                 void Store(std::size_t index, T&& object);
                 T Load(std::size_t index);
 

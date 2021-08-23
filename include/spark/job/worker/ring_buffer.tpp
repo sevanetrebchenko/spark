@@ -2,6 +2,8 @@
 #ifndef SPARK_RING_BUFFER_TPP
 #define SPARK_RING_BUFFER_TPP
 
+#include "ring_buffer.h"
+
 namespace Spark::Job {
 
     template <typename T>
@@ -16,6 +18,11 @@ namespace Spark::Job {
     template <typename T>
     RingBuffer<T>::~RingBuffer() {
         delete[] buffer_;
+    }
+
+    template <typename T>
+    void RingBuffer<T>::Store(std::size_t index, const T& object) {
+        buffer_[index & mask_] = object;
     }
 
     template <typename T>

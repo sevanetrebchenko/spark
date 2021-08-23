@@ -38,6 +38,11 @@ int main(int argc, char** argv) {
     Spark::Logger::TimeStamp::Init();
     Spark::Singleton<Spark::Logger::LoggingHub>::GetInstance()->AddAdapter(new Spark::Logger::FileAdapter("log.txt", Spark::Logger::AdapterConfiguration{"Log"}));
 
+    Spark::Job::RingBuffer<int> a(8);
+    a.Store(0, 8);
+    int b = 0;
+    a.Store(0, b);
+
     {
         auto handle = Spark::Singleton<Spark::Job::JobSystem>::GetInstance()->Schedule<Spark::Job::Test>(6);
         //handle->Complete();
