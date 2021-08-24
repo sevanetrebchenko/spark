@@ -29,9 +29,6 @@ namespace Spark::Job {
                 ExecuteJob(job.value());
             }
         }
-
-        std::cout << "Thread finished" << std::endl;
-        std::cout.flush();
     }
 
     std::optional<JobEntry> Worker::GetJob() {

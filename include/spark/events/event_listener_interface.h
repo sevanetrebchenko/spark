@@ -2,7 +2,7 @@
 #ifndef SPARK_EVENT_LISTENER_INTERFACE_H
 #define SPARK_EVENT_LISTENER_INTERFACE_H
 
-#include "spark/utility.h"
+#include "spark/events/event_definitions.h"
 
 namespace Spark {
     namespace Events {

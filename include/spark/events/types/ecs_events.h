@@ -4,6 +4,7 @@
 
 #include "spark/utility.h"
 #include "spark/events/types/event.h"
+#include "spark/ecs/ecs_definitions.h"
 
 namespace Spark {
     namespace Events {

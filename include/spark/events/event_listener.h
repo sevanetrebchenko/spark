@@ -6,6 +6,7 @@
 #include "spark/events/event_listener_interface.h"
 #include "spark/events/types/event.h"
 #include "spark/events/event_hub.h"
+#include "spark/events/event_definitions.h"
 
 namespace Spark {
     namespace Events {

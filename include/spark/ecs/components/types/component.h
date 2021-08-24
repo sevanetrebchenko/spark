@@ -2,6 +2,8 @@
 #ifndef SPARK_COMPONENT_H
 #define SPARK_COMPONENT_H
 
+#include "spark/ecs/ecs_definitions.h"
+
 namespace Spark {
     namespace ECS {
 

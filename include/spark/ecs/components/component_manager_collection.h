@@ -4,6 +4,7 @@
 
 #include "spark/utility.h"
 #include "spark/ecs/components/component_manager.h"
+#include "spark/ecs/ecs_definitions.h"
 #include "spark/tools/singleton.h"
 
 namespace Spark {

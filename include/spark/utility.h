@@ -99,39 +99,20 @@ namespace Spark {
 
     // ECS utility functionality.
     namespace ECS {
-
-        class IComponent; // Forward declaration.
-
-        typedef std::uint32_t ComponentTypeID;
-        typedef std::uint32_t EntityID;
-        typedef std::unordered_map<ComponentTypeID, IComponent*> EntityComponentMap;
-
         namespace Internal {
+
             // Generates comma separated list of given components without trailing comma.
             template <typename ComponentType>
             std::string CommaSeparatedList();
 
             template <typename ComponentType1, typename ComponentType2, typename... AdditionalComponentTypes>
             std::string CommaSeparatedList();
+
         }
-
-        #define INVALID_ID (EntityID)-1;
-        #define REGISTER_COMPONENT(ClassName)                                           \
-        public:                                                                         \
-            static constexpr ::Spark::ECS::ComponentTypeID ID = STRINGHASH(#ClassName); \
-            static constexpr const char* Name = #ClassName;                             \
-        private:
-
     }
 
     // Events utility functionality.
     namespace Events {
-
-        class IEvent; // Forward declaration.
-
-        typedef std::uint32_t EventTypeID;
-        typedef std::shared_ptr<const IEvent> EventHandle;
-
         namespace Internal {
 
             // Creates one virtual OnEvent function for each provided template argument.
@@ -153,13 +134,6 @@ namespace Spark {
             };
 
         }
-
-        #define REGISTER_EVENT(ClassName)                                                \
-        public:                                                                          \
-            static constexpr ::Spark::Events::EventTypeID ID = STRINGHASH(#ClassName);   \
-            static constexpr const char* Name = #ClassName;                              \
-            NODISCARD ::Spark::Events::EventTypeID GetID() const override { return ID; }
-
     }
 
     // Job system utility functionality.

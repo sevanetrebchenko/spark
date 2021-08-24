@@ -6,6 +6,7 @@
 #include "spark/ecs/systems/base_component_system_interface.h"
 #include "spark/events/types/ecs_events.h"
 #include "spark/events/event_listener.h"
+#include "spark/ecs/ecs_definitions.h"
 
 namespace Spark {
     namespace ECS {

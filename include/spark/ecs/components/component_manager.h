@@ -4,6 +4,7 @@
 
 #include "spark/utility.h"
 #include "spark/ecs/components/component_manager_interface.h"
+#include "spark/ecs/ecs_definitions.h"
 
 namespace Spark {
     namespace ECS {

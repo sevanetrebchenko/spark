@@ -5,6 +5,7 @@
 #include "spark/utility.h"
 #include "spark/tools/singleton.h"
 #include "spark/events/event_listener_interface.h"
+#include "spark/events/event_definitions.h"
 
 namespace Spark {
     namespace Events {

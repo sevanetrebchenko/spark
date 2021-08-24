@@ -1,14 +1,7 @@
 
-#include <spark/utility.h>
+#include "spark/utility.h"
 
 namespace Spark {
-    namespace ECS {
-
-        EntityID GetEntityIDFromName(const std::string &entityName) {
-            return STRINGHASH(entityName.c_str());
-        }
-
-    }
 
     namespace Internal {
 
