@@ -3,7 +3,7 @@
 #define SPARK_COMPONENT_MANAGER_TPP
 
 #include "spark/utility.h"
-#include "spark/ecs/components/types/base_component.h"
+#include "spark/ecs/components/types/component.h"
 
 namespace Spark::ECS {
 

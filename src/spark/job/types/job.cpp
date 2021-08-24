@@ -1,5 +1,5 @@
 
-#include "spark/job/job.h"
+#include "spark/job/types/job.h"
 
 namespace Spark::Job {
 

@@ -1,6 +1,6 @@
 
-#ifndef SPARK_BASE_COMPONENT_H
-#define SPARK_BASE_COMPONENT_H
+#ifndef SPARK_COMPONENT_H
+#define SPARK_COMPONENT_H
 
 namespace Spark {
     namespace ECS {
@@ -16,4 +16,4 @@ namespace Spark {
 }
 
 
-#endif // SPARK_BASE_COMPONENT_H
+#endif // SPARK_COMPONENT_H

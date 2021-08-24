@@ -4,13 +4,13 @@
 
 #include "spark/utility.h"
 #include "spark/job/job_handle.h"
+#include "spark/job/job_definitions.h"
 
 namespace Spark {
     namespace Job {
 
         class JobHandleManager {
             public:
-                typedef std::unique_ptr<JobHandle, std::function<void(JobHandle*)>> ManagedJobHandle;
 
                 explicit JobHandleManager(std::size_t capacity);
                 ~JobHandleManager();

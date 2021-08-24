@@ -2,16 +2,13 @@
 #ifndef SPARK_WORK_STEALING_QUEUE_H
 #define SPARK_WORK_STEALING_QUEUE_H
 
-#include "spark/job/all_job_types.h"
+#include "spark/job/job_types.h"
 #include "spark/job/worker/ring_buffer.h"
 #include "spark/job/job_handle.h"
+#include "spark/job/job_definitions.h"
 
 namespace Spark {
     namespace Job {
-
-        // Job system typedefs.
-        typedef std::variant<std::monostate, JOB_TYPES> JobVariant; // Allow default constructable std::variant via std::monostate.
-        typedef std::pair<JobHandle*, JobVariant> JobEntry;
 
         class WorkStealingQueue {
             public:

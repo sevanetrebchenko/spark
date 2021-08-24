@@ -3,7 +3,7 @@
 #define SPARK_KEY_EVENTS_H
 
 #include "spark/utility.h"
-#include "spark/events/types/base_event.h"
+#include "spark/events/types/event.h"
 
 namespace Spark {
     namespace Events {

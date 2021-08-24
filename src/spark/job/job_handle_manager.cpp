@@ -14,9 +14,10 @@ namespace Spark::Job {
     }
 
     JobHandleManager::~JobHandleManager() {
+        delete[] jobHandles_;
     }
 
-    JobHandleManager::ManagedJobHandle JobHandleManager::GetAvailableJobHandle() {
+    ManagedJobHandle JobHandleManager::GetAvailableJobHandle() {
         unsigned index = indices_.top();
         ManagedJobHandle handle(&jobHandles_[index], ::Spark::Internal::CallbackFromMemberFn(this, &JobHandleManager::ReturnJobHandle));
         indices_.pop();
@@ -25,6 +26,8 @@ namespace Spark::Job {
     }
 
     void JobHandleManager::ReturnJobHandle(JobHandle* jobHandle) {
+        std::cout << "Returning" << std::endl;
+
         bool found = false;
         unsigned index = 0;
 
@@ -39,6 +42,7 @@ namespace Spark::Job {
 
         if (!found) {
             LogWarning("JobHandleManager::ReturnJobHandle called with unregistered handle.");
+            return;
         }
 
         indices_.push(index); // Reuse this JobHandle.

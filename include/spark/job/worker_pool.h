@@ -13,6 +13,8 @@ namespace Spark {
                 explicit WorkerPool(unsigned capacity = std::thread::hardware_concurrency());
                 ~WorkerPool();
 
+                void Shutdown();
+
                 NODISCARD unsigned GetCapacity() const;
                 NODISCARD Worker* GetRandomWorker() const;
 

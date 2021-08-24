@@ -1,6 +1,6 @@
 
-#ifndef SPARK_BASE_EVENT_H
-#define SPARK_BASE_EVENT_H
+#ifndef SPARK_EVENT_H
+#define SPARK_EVENT_H
 
 #include "spark/utility.h"
 
@@ -16,4 +16,4 @@ namespace Spark {
     }
 }
 
-#endif // SPARK_BASE_EVENT_H
+#endif // SPARK_EVENT_H

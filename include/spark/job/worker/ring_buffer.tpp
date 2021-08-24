@@ -2,8 +2,6 @@
 #ifndef SPARK_RING_BUFFER_TPP
 #define SPARK_RING_BUFFER_TPP
 
-#include "ring_buffer.h"
-
 namespace Spark::Job {
 
     template <typename T>

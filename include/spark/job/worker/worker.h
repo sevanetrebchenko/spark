@@ -3,7 +3,8 @@
 #define SPARK_WORKER_H
 
 #include "spark/utility.h"
-#include "work_stealing_queue.h"
+#include "spark/job/worker/work_stealing_queue.h"
+#include "spark/job/job_definitions.h"
 
 namespace Spark {
     namespace Job {
@@ -14,6 +15,8 @@ namespace Spark {
 
                 Worker();
                 ~Worker();
+
+                void Terminate();
 
                 template <typename T, typename ...Args>
                 bool Schedule(JobHandle* handle, Args&& ...args);

@@ -19,15 +19,19 @@ namespace Spark::Job {
     }
 
     Worker::~Worker() {
-        workerThreadActive_ = false;
-        workerThread_.join();
     }
 
     void Worker::Distribute() {
-        while (workerThreadActive_) {
+        while (workerThreadActive_.load()) {
             std::optional<JobEntry> job = GetJob();
-            job.has_value() ? ExecuteJob(job.value()) : std::this_thread::yield();
+
+            if (job.has_value()) {
+                ExecuteJob(job.value());
+            }
         }
+
+        std::cout << "Thread finished" << std::endl;
+        std::cout.flush();
     }
 
     std::optional<JobEntry> Worker::GetJob() {
@@ -76,6 +80,12 @@ namespace Spark::Job {
         if (jobHandle) {
             jobHandle->Signal();
         }
+    }
+
+    void Worker::Terminate() {
+        workerThreadActive_.store(false);
+        SP_ASSERT(workerThread_.joinable(), "Thread is not joinable.");
+        workerThread_.join();
     }
 
 }

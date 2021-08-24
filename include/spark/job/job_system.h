@@ -5,10 +5,11 @@
 #include "spark/utility.h"
 #include "spark/tools/singleton.h"
 #include "spark/job/worker/worker.h"
-#include "spark/job/job.h"
+#include "spark/job/types/job.h"
 #include "spark/job/job_handle.h"
 #include "spark/job/worker_pool.h"
 #include "spark/job/job_handle_manager.h"
+#include "spark/job/job_definitions.h"
 
 namespace Spark {
     namespace Job {
@@ -21,7 +22,7 @@ namespace Spark {
                 ~JobSystem() override;
 
                 template <typename T, typename ...Args>
-                JobHandleManager::ManagedJobHandle Schedule(Args&& ...args);
+                ManagedJobHandle Schedule(Args&& ...args);
 
             private:
                 template <typename Target, typename ...Types>

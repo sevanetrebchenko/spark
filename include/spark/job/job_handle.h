@@ -3,7 +3,7 @@
 #define SPARK_JOB_HANDLE_H
 
 #include "spark/utility.h"
-#include "spark/job/job.h"
+#include "spark/job/types/job.h"
 
 namespace Spark {
     namespace Job {

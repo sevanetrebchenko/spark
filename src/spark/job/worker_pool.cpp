@@ -33,4 +33,10 @@ namespace Spark::Job {
         return &workers_[distribution(generator)];
     }
 
+    void WorkerPool::Shutdown() {
+        for (unsigned i = 0; i < workerCapacity_; ++i) {
+            workers_[i].Terminate();
+        }
+    }
+
 }

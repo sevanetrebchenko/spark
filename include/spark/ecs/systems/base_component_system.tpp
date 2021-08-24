@@ -2,7 +2,7 @@
 #ifndef SPARK_BASE_COMPONENT_SYSTEM_TPP
 #define SPARK_BASE_COMPONENT_SYSTEM_TPP
 
-#include "spark/ecs/components/types/base_component.h"
+#include "spark/ecs/components/types/component.h"
 #include "spark/ecs/entities/entity_manager.h"
 
 namespace Spark::ECS {

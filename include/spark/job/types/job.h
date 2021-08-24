@@ -18,6 +18,11 @@ namespace Spark {
                     a_ = a;
                 }
 
+                ~Test() override {
+                    std::cerr << "Destructor" << std::endl;
+                    std::cerr.flush();
+                }
+
                 Test& operator=(const Test& rh) {
                     this->a_ = rh.a_;
                     return *this;

@@ -19,7 +19,7 @@
 #include <spark/events/types/application_events.h>
 #include <spark/events/types/mouse_events.h>
 #include <spark/events/types/key_events.h>
-#include <spark/events/types/base_event.h>
+#include <spark/events/types/event.h>
 
 //--- Renderer ---------------------------------------------------------------------------------------------------------
 
