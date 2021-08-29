@@ -35,27 +35,28 @@ namespace Spark::Job {
         std::int64_t top = top_.load(relaxed);
 
         if (top <= bottom) {
-            if (top == bottom) {
-                // Buffer is not empty, one job remains (bottom was incremented at the start of the function).
-                // Last job could get stolen by another worker.
-                if (!top_.compare_exchange_strong(top, top + 1, seq_cst, relaxed)) {
-                    // top was incremented to match bottom + 1, there are no more elements in the array.
-                    // Failed race against Steal.
-                    bottom_.store(bottom + 1, relaxed); // Revert back to canonical state.
-                    return std::nullopt;
-                }
+            std::optional<JobEntry> jobEntry = buffer_.Load(bottom);
 
-                // Race successful against Steal, object will be popped off.
-                bottom_.store(bottom + 1, relaxed);
+            if (top != bottom) {
+                // More than 1 item left in the queue.
+                return jobEntry;
             }
 
-            // Job that needs to be popped is at location 'bottom'.
-            std::optional<JobEntry> jobEntry = { std::move(buffer_.Load(bottom)) };
+            // Buffer is not empty, one job remains (bottom was incremented at the start of the function).
+            // Last job could get stolen by another worker.
+            if (!top_.compare_exchange_strong(top, top + 1, seq_cst, relaxed)) {
+                // top was incremented to match bottom + 1, there are no more elements in the array.
+                // Failed race against Steal.
+                return std::nullopt;
+            }
+
+            // Race successful against Steal, object will be popped off.
+            bottom_.store(top + 1, relaxed);
             return jobEntry;
         }
         else {
             // Buffer is empty.
-            bottom_.store(bottom + 1, relaxed);
+            bottom_.store(top, relaxed);
             return std::nullopt;
         }
     }
@@ -67,7 +68,7 @@ namespace Spark::Job {
 
         if (top < bottom) {
             // Job may be overwritten immediately after acquire happened.
-            std::optional<JobEntry> jobEntry = { std::move(buffer_.Load(top)) };
+            std::optional<JobEntry> jobEntry = { buffer_.Load(top) };
 
             if (!top_.compare_exchange_strong(top, top + 1, seq_cst, relaxed)) {
                 // Concurrent steal operation removed this job.

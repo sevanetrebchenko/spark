@@ -7,17 +7,11 @@ namespace Spark::Job {
     template <typename T, typename... Args>
     ManagedJobHandle JobSystem::Schedule(Args&& ...args) {
         ValidateJobType<T, JOB_TYPES>();
-
         Worker* worker = workerPool_.GetRandomWorker();
+
         ManagedJobHandle managedJobHandle = jobHandleManager_.GetAvailableJobHandle();
-
-        bool success = worker->Schedule<T, Args...>(managedJobHandle.get(), std::forward<Args>(args)...);
-
-        if (!success) {
-            // Worker buffer full.
-        }
-
-        return std::move(managedJobHandle);
+        worker->Schedule<T>(managedJobHandle.get(), std::forward<Args>(args)... );
+        return managedJobHandle;
     }
 
     template <typename Target, typename... Types>

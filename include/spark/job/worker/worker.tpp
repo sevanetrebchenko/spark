@@ -5,8 +5,9 @@
 namespace Spark::Job {
 
     template <typename T, typename ...Args>
-    bool Worker::Schedule(JobHandle* handle, Args&& ...args) {
-        return deque_.Emplace<T, Args...>(handle, std::forward<Args>(args)...);
+    void Worker::Schedule(JobHandle* handle, Args&& ...args) {
+        std::cout << this << " emplacing" << std::endl;
+        deque_.Emplace<T>(handle, std::forward<Args>(args)...);
     }
 
 }

@@ -318,7 +318,7 @@ namespace Spark::Logger {
 
         std::string formattedMessage = format.str();
         format.str(std::string("")); // Clear format.
-        return std::move(formattedMessage);
+        return formattedMessage;
     }
 
     std::string LoggingHub::FormatTimestamp(const TimeStamp &timeStamp, const std::string& formatString) {
@@ -330,7 +330,7 @@ namespace Spark::Logger {
                 if (*traversalIndex == '\0') {
                     std::string formattedMessage = format.str();
                     format.str(std::string("")); // Clear format.
-                    return std::move(formattedMessage);
+                    return formattedMessage;
                 }
 
                 format << *traversalIndex++;
@@ -360,7 +360,7 @@ namespace Spark::Logger {
 
         std::string formattedMessage = format.str();
         format.str(std::string("")); // Clear format.
-        return std::move(formattedMessage);
+        return formattedMessage;
     }
 
     std::string LoggingHub::FormatLocation(const std::string &file, const std::string &function, int lineNumber, const std::string& formatString) {
@@ -372,7 +372,7 @@ namespace Spark::Logger {
                 if (*traversalIndex == '\0') {
                     std::string formattedMessage = format.str();
                     format.str(std::string("")); // Clear format.
-                    return std::move(formattedMessage);
+                    return formattedMessage;
                 }
 
                 format << *traversalIndex++;
@@ -399,7 +399,7 @@ namespace Spark::Logger {
 
         std::string formattedMessage = format.str();
         format.str(std::string("")); // Clear format.
-        return std::move(formattedMessage);
+        return formattedMessage;
     }
 
     std::string LoggingHub::FormatCalendarInformation(const std::string& formatString) {
@@ -435,7 +435,7 @@ namespace Spark::Logger {
 
         std::string formattedMessage = format.str();
         format.str(std::string("")); // Clear format.
-        return std::move(formattedMessage);
+        return formattedMessage;
     }
 
     std::string LoggingHub::FormatSeparator(int separatorLength) {
@@ -444,7 +444,7 @@ namespace Spark::Logger {
 
         std::string formattedMessage = format.str();
         format.str(std::string("")); // Clear format.
-        return std::move(formattedMessage);
+        return formattedMessage;
     }
 
 }

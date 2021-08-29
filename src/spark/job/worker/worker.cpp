@@ -2,18 +2,11 @@
 #include "spark/job/worker/worker.h"
 #include "spark/job/job_system.h"
 
-// Number of total jobs this queue can hold.
-#define CAPACITY 4096
-
 namespace Spark::Job {
-
-    std::size_t Worker::GetCapacity() {
-        return CAPACITY;
-    }
 
     Worker::Worker() : workerThreadActive_(true),
                        workerThread_(std::thread(&Worker::Distribute, this)),
-                       deque_(CAPACITY)
+                       deque_(WORKER_JOB_CAPACITY)
                        {
 
     }
@@ -26,8 +19,29 @@ namespace Spark::Job {
             std::optional<JobEntry> job = GetJob();
 
             if (job.has_value()) {
+                JobHandle* jobHandle = job->first;
+
+                // Don't execute job if job is not staged for execution.
+                while (!jobHandle->IsReady()) {
+                    std::cout << "job not ready" << std::endl;
+                    std::cout.flush();
+                    std::this_thread::yield();
+                }
+
+                // Don't execute job if dependencies are not complete.
+                for (const JobHandle* dependency : jobHandle->GetDependencies()) {
+                    if (!dependency->IsComplete()) {
+                        std::cout << "dependency not ready" << std::endl;
+                        std::cout.flush();
+                        std::this_thread::yield();
+                    }
+                }
+
+                std::cout << this << " executing" << std::endl;
                 ExecuteJob(job.value());
             }
+
+            //std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
     }
 
@@ -50,9 +64,11 @@ namespace Spark::Job {
                 return std::nullopt;
             }
 
+            std::cout << this << " stole from " << worker << std::endl;
             return stolenJob;
         }
 
+        std::cout << this << " popped" << std::endl;
         return job.value();
     }
 
@@ -83,6 +99,9 @@ namespace Spark::Job {
         workerThreadActive_.store(false);
         SP_ASSERT(workerThread_.joinable(), "Thread is not joinable.");
         workerThread_.join();
+
+        std::cout << "terminating" << std::endl;
+        deque_.Print();
     }
 
 }

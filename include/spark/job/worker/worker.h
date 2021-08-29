@@ -11,24 +11,22 @@ namespace Spark {
 
         class Worker {
             public:
-                static std::size_t GetCapacity();
-
                 Worker();
                 ~Worker();
 
                 void Terminate();
 
-                template <typename T, typename ...Args>
-                bool Schedule(JobHandle* handle, Args&& ...args);
+                template <typename T, typename... Args>
+                void Schedule(JobHandle* jobHandle, Args&& ...args);
 
             private:
                 void Distribute();
 
                 std::optional<JobEntry> GetJob();
                 void ExecuteJob(JobEntry& job);
+                void ReturnJob(JobEntry& job);
 
                 WorkStealingQueue deque_;
-
                 std::atomic<bool> workerThreadActive_;
                 std::thread workerThread_;
         };

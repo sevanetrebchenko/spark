@@ -52,7 +52,7 @@ namespace Spark {
 
                 void InsertTuple(EntityID entityID, ComponentTuple& tuple);
 
-                // Used to check if a given component type
+                // Emplaces given component type in tuple.
                 template <unsigned Index, class ComponentType, class ...AdditionalComponentTypes>
                 bool ProcessEntityComponent(ComponentTypeID componentTypeID, IComponent* component, ComponentTuple& componentTuple);
 

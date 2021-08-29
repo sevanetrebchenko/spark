@@ -34,19 +34,47 @@ struct TestSystem2 : public Spark::Events::EventListener<TestSystem2, Spark::Eve
     }
 };
 
+using namespace Spark::Job;
+
+// No dependency, single scope.
+void HandleTest1() {
+    std::cout << "Test 1" << std::endl;
+    ManagedJobHandle handle1 = Spark::Singleton<JobSystem>::GetInstance()->Schedule<Test>(5);
+}
+
+// No dependency, outside scope.
+ManagedJobHandle HandleTest2() {
+    std::cout << "Test 2" << std::endl;
+    return Spark::Singleton<JobSystem>::GetInstance()->Schedule<Test>(5);
+}
+
+// Single dependency, single scope.
+void HandleTest3() {
+    std::cout << "Test 3" << std::endl;
+    ManagedJobHandle handle1 = Spark::Singleton<JobSystem>::GetInstance()->Schedule<Test>(5);
+    ManagedJobHandle handle2 = Spark::Singleton<JobSystem>::GetInstance()->Schedule<Test>(8);
+
+    handle2->AddDependency(handle1);
+}
+
+// Single dependency, outside scope.
+ManagedJobHandle HandleTest4() {
+    std::cout << "Test 4" << std::endl;
+    ManagedJobHandle handle1 = Spark::Singleton<JobSystem>::GetInstance()->Schedule<Test>(5);
+    ManagedJobHandle handle2 = Spark::Singleton<JobSystem>::GetInstance()->Schedule<Test>(8);
+
+    handle2->AddDependency(handle1);
+    return handle2;
+}
+
 int main(int argc, char** argv) {
     Spark::Logger::TimeStamp::Init();
     Spark::Singleton<Spark::Logger::LoggingHub>::GetInstance()->AddAdapter(new Spark::Logger::FileAdapter("log.txt", Spark::Logger::AdapterConfiguration{"Log"}));
 
-    Spark::Job::RingBuffer<int> a(8);
-    a.Store(0, 8);
-    int b = 0;
-    a.Store(0, b);
-
     {
-        auto handle = Spark::Singleton<Spark::Job::JobSystem>::GetInstance()->Schedule<Spark::Job::Test>(6);
-        //handle->Complete();
+        HandleTest1();
     }
+
 
     Spark::ECS::EntityManager* em = Spark::Singleton<Spark::ECS::EntityManager>::GetInstance();
     TestSystem1 ts1;
@@ -97,6 +125,9 @@ int main(int argc, char** argv) {
 //    application->Run();
 //    delete application;
 
+
     std::cout << "end of main" << std::endl;
+    std::cout.flush();
+    std::cerr.flush();
     return 0;
 }

@@ -19,8 +19,6 @@ namespace Spark {
                 }
 
                 ~Test() override {
-                    std::cerr << "Destructor" << std::endl;
-                    std::cerr.flush();
                 }
 
                 Test& operator=(const Test& rh) {
@@ -38,7 +36,7 @@ namespace Spark {
 
                 void Execute() override {
                     std::cerr << "sleeping..." << std::endl;
-                    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
                     std::cerr << "Printing out Test job result: " << a_ << std::endl;
                     std::cerr.flush();
                 }

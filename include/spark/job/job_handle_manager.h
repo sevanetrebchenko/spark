@@ -4,20 +4,19 @@
 
 #include "spark/utility.h"
 #include "spark/job/job_handle.h"
-#include "spark/job/job_definitions.h"
 
 namespace Spark {
     namespace Job {
 
         class JobHandleManager {
             public:
-
                 explicit JobHandleManager(std::size_t capacity);
                 ~JobHandleManager();
 
                 NODISCARD ManagedJobHandle GetAvailableJobHandle();
 
             private:
+                void GarbageCollect();
                 void ReturnJobHandle(JobHandle* jobHandle);
 
                 std::size_t capacity_;

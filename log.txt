@@ -11,4 +11,4 @@
 [ 000m 00s 0002ms ] DEBUG - TestSystem2: Received entity destroyed event with ID: 2 (in entry_point.cpp, OnEvent:33)
 [ 000m 00s 0002ms ] DEBUG - TestSystem2: Received entity destroyed event with ID: 1 (in entry_point.cpp, OnEvent:33)
 [ 000m 00s 0002ms ] DEBUG - TestSystem2: Received entity destroyed event with ID: 0 (in entry_point.cpp, OnEvent:33)
-[ 000m 00s 0002ms ] DEBUG - Destroying ComponentManager of component type: 'Transform'. (in component_manager_collection.tpp, DestroyComponentSystem:29)
+[ 000m 00s 0003ms ] DEBUG - Destroying ComponentManager of component type: 'Transform'. (in component_manager_collection.tpp, DestroyComponentSystem:29)

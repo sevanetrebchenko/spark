@@ -45,7 +45,7 @@ target_include_directories(spark PUBLIC ${SPARK_PUBLIC_INCLUDE_DIRS})
 
 # COMPILER
 # Set C++ requirements.
-target_compile_options(spark PUBLIC -std=c++17)
+target_compile_options(spark PUBLIC -std=c++17 -Wpessimizing-move -Wredundant-move)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 # Set compiler flags.

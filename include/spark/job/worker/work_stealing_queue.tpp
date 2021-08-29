@@ -18,7 +18,7 @@ namespace Spark::Job {
         }
 
         // Construct object.
-        buffer_.Store(bottom, std::make_pair<JobHandle*, JobVariant>(std::add_rvalue_reference<JobHandle*>::type(handle), std::move(JobVariant { std::forward<Args>(args)... } )));
+        buffer_.Store(bottom, std::make_pair<JobHandle*, JobVariant>(std::add_rvalue_reference<JobHandle*>::type(handle), JobVariant { std::forward<Args>(args)... } ));
 
         std::atomic_thread_fence(release);
         bottom_.store(bottom + 1, relaxed);

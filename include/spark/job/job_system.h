@@ -21,6 +21,8 @@ namespace Spark {
                 JobSystem();
                 ~JobSystem() override;
 
+                // Job automatically gets scheduled for execution when JobHandle goes out of scope.
+                // This allows for dependency setup between jobs without having to synchronize.
                 template <typename T, typename ...Args>
                 ManagedJobHandle Schedule(Args&& ...args);
 

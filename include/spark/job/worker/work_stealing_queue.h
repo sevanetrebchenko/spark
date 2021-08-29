@@ -7,6 +7,11 @@
 #include "spark/job/job_handle.h"
 #include "spark/job/job_definitions.h"
 
+#   include <emmintrin.h>
+#   define JOB_YIELD() _mm_pause()
+#   define JOB_COMPILER_BARRIER asm volatile("" ::: "memory")
+#   define JOB_MEMORY_BARRIER asm volatile("mfence" ::: "memory")
+
 namespace Spark {
     namespace Job {
 
@@ -26,6 +31,10 @@ namespace Spark {
 
                 // Note: Should ONLY be called by OTHER threads.
                 std::optional<JobEntry> Steal();
+
+                void Print() {
+                    std::cout << "deque: " << bottom_ << ", " << top_ << std::endl;
+                }
 
             private:
                 std::size_t capacity_;
