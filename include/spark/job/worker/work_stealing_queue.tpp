@@ -8,20 +8,9 @@ namespace Spark::Job {
 
     template <typename T, typename... Args>
     bool WorkStealingQueue::Emplace(JobHandle* handle, Args&& ...args) {
-        std::int64_t bottom = bottom_.load(relaxed);
-        std::int64_t top = top_.load(acquire);
-
-        if ((bottom - top) + 1 > capacity_) {
-            // Queue is full.
-            LogWarning("Worker queue is at maximum capacity (%u).", capacity_);
-            return false;
-        }
-
+        std::scoped_lock<std::mutex> lock(mutex_);
         // Construct object.
-        buffer_.Store(bottom, std::make_pair<JobHandle*, JobVariant>(std::add_rvalue_reference<JobHandle*>::type(handle), JobVariant { std::forward<Args>(args)... } ));
-
-        std::atomic_thread_fence(release);
-        bottom_.store(bottom + 1, relaxed);
+        collection_[bottom_++ & mask_] = std::make_pair<JobHandle*, JobVariant>(std::add_rvalue_reference<JobHandle*>::type(handle), JobVariant { std::forward<Args>(args)... } ); // Increment bottom.
         return true;
     }
 

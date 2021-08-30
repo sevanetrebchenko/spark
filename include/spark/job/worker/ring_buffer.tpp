@@ -30,7 +30,7 @@ namespace Spark::Job {
 
     template <typename T>
     T RingBuffer<T>::Load(std::size_t index) {
-        return std::move(buffer_[index & mask_]);
+        return buffer_[index & mask_];
     }
 
 }

@@ -19,29 +19,29 @@ namespace Spark::Job {
             std::optional<JobEntry> job = GetJob();
 
             if (job.has_value()) {
-                JobHandle* jobHandle = job->first;
+                JobEntry& entry = job.value();
+                JobHandle* jobHandle = entry.first;
 
                 // Don't execute job if job is not staged for execution.
-                while (!jobHandle->IsReady()) {
-                    std::cout << "job not ready" << std::endl;
-                    std::cout.flush();
-                    std::this_thread::yield();
+                if (!jobHandle->IsReady()) {
+                    ReturnJob(entry);
+                    continue;
                 }
 
                 // Don't execute job if dependencies are not complete.
+                bool execute = true;
+
                 for (const JobHandle* dependency : jobHandle->GetDependencies()) {
                     if (!dependency->IsComplete()) {
-                        std::cout << "dependency not ready" << std::endl;
-                        std::cout.flush();
-                        std::this_thread::yield();
+                        ReturnJob(entry);
+                        execute = false;
                     }
                 }
 
-                std::cout << this << " executing" << std::endl;
-                ExecuteJob(job.value());
+                if (execute) {
+                    ExecuteJob(job.value());
+                }
             }
-
-            //std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
     }
 
@@ -64,11 +64,9 @@ namespace Spark::Job {
                 return std::nullopt;
             }
 
-            std::cout << this << " stole from " << worker << std::endl;
             return stolenJob;
         }
 
-        std::cout << this << " popped" << std::endl;
         return job.value();
     }
 
@@ -99,9 +97,10 @@ namespace Spark::Job {
         workerThreadActive_.store(false);
         SP_ASSERT(workerThread_.joinable(), "Thread is not joinable.");
         workerThread_.join();
+    }
 
-        std::cout << "terminating" << std::endl;
-        deque_.Print();
+    void Worker::ReturnJob(JobEntry& job) {
+        deque_.Push(job.first, job.second);
     }
 
 }

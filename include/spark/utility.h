@@ -26,6 +26,7 @@
 #include <cstddef>
 #include <variant>
 #include <random>
+#include <condition_variable>
 #pragma endregion
 
 #pragma region Standard Containers

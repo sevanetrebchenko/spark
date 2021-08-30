@@ -39,7 +39,10 @@ using namespace Spark::Job;
 // No dependency, single scope.
 void HandleTest1() {
     std::cout << "Test 1" << std::endl;
-    ManagedJobHandle handle1 = Spark::Singleton<JobSystem>::GetInstance()->Schedule<Test>(5);
+
+    for (int i = 0; i < 5000; ++i) {
+        ManagedJobHandle handle1 = Spark::Singleton<JobSystem>::GetInstance()->Schedule<Test>(i);
+    }
 }
 
 // No dependency, outside scope.

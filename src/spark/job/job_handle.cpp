@@ -89,9 +89,9 @@ namespace Spark::Job {
         isComplete_.store(false);
         isReady_.store(false);
         markedForReturn_.store(false);
+        isUsed_.store(false);
 
         if (hard) {
-            isUsed_.store(false);
         }
 
         // Clear dependency flags.

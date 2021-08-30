@@ -18,6 +18,7 @@ namespace Spark::Job {
     }
 
     WorkerPool::~WorkerPool() {
+        std::cout << "deleting workers" << std::endl;
         delete[] workers_;
     }
 
@@ -30,7 +31,8 @@ namespace Spark::Job {
         static thread_local std::mt19937 generator(device());
         std::uniform_int_distribution<int> distribution(0, static_cast<int>(workerCapacity_) - 1);
 
-        return &workers_[distribution(generator)];
+        int index = distribution(generator);
+        return &workers_[index];
     }
 
     void WorkerPool::Shutdown() {
