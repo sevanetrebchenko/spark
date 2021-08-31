@@ -1,6 +1,7 @@
 
 #include "spark/job/worker/worker.h"
 #include "spark/job/job_system.h"
+#include "spark/logger/logger.h"
 
 namespace Spark::Job {
 

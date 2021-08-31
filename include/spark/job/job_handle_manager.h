@@ -10,18 +10,15 @@ namespace Spark {
 
         class JobHandleManager {
             public:
-                explicit JobHandleManager(std::size_t capacity);
+                JobHandleManager();
                 ~JobHandleManager();
 
                 NODISCARD ManagedJobHandle GetAvailableJobHandle();
 
             private:
-                void GarbageCollect();
                 void ReturnJobHandle(JobHandle* jobHandle);
 
-                std::size_t capacity_;
-                JobHandle* jobHandles_;
-                std::stack<unsigned> indices_;
+                std::unordered_set<JobHandle*> validHandles_;
         };
 
     }

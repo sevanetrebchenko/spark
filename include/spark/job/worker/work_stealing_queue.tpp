@@ -2,8 +2,6 @@
 #ifndef SPARK_WORK_STEALING_QUEUE_TPP
 #define SPARK_WORK_STEALING_QUEUE_TPP
 
-#include "spark/logger/logger.h"
-
 namespace Spark::Job {
 
     template <typename T, typename... Args>

@@ -4,7 +4,6 @@
 
 #include "spark/utility.h"
 #include "spark/job/job_types.h"
-#include "spark/job/worker/ring_buffer.h"
 #include "spark/job/job_handle.h"
 #include "spark/job/job_definitions.h"
 

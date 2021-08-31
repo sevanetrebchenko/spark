@@ -5,9 +5,9 @@
 namespace Spark::Job {
 
     JobHandle::JobHandle() : dependencies_(),
+                             waitedOnComplete_(false),
                              isComplete_(false),
-                             isReady_(false),
-                             isMarkedForReturn_(false)
+                             isReady_(false)
                              {
     }
 
@@ -15,13 +15,16 @@ namespace Spark::Job {
     }
 
     void JobHandle::Complete() {
-        if (!isMarkedForReturn_) {
+        if (!isComplete_) {
             // Begin execution on handle + dependencies.
             Stage();
 
             while (!isComplete_) {
                 std::this_thread::yield();
             }
+
+            waitedOnComplete_ = true;
+            isComplete_ = true;
         }
         else {
             // Prevent additional Complete() calls on used JobHandle.
@@ -30,12 +33,16 @@ namespace Spark::Job {
     }
 
     void JobHandle::Signal() {
-        SP_ASSERT(!isMarkedForReturn_, "Sanity check - Signal called on already used JobHandle.");
-        Reset(true);
+        if (isComplete_) {
+            std::cout << "used" << std::endl;
+        }
+//        SP_ASSERT(!isUsed_, "Sanity check - Signal called on already used JobHandle.");
+        isComplete_ = true;
+        isComplete_ = true;
     }
 
     void JobHandle::AddDependency(const ManagedJobHandle& managedJobHandle) {
-        if (!isMarkedForReturn_) {
+        if (!isComplete_) {
             JobHandle* jobHandle = managedJobHandle.get();
             dependencies_.emplace_back(jobHandle);
         }
@@ -48,45 +55,37 @@ namespace Spark::Job {
         return dependencies_;
     }
 
-    bool JobHandle::HasDependency() const {
-        return !dependencies_.empty();
-    }
-
-    bool JobHandle::IsComplete() const {
-        return isComplete_;
-    }
-
     bool JobHandle::IsReady() const {
         return isReady_;
     }
 
-    void JobHandle::Stage() {
-        if (!isMarkedForReturn_) {
+    void JobHandle::Stage(const std::function<void(JobHandle*)>& callback) {
+        if (!isComplete_) {
             // Mark all dependencies as ready for execution.
             for (JobHandle* dependency : dependencies_) {
-                dependency->Stage();
+                dependency->Stage(callback);
             }
 
             // Mark this as ready for execution.
-            isReady_.store(true);
+            isReady_ = true;
         }
         else {
             LogWarning("Calling Stage on used JobHandle, operation does not do anything.");
         }
     }
 
-    void JobHandle::Reset(bool markForReturn) {
+    void JobHandle::Reset() {
         isComplete_ = false;
         isReady_ = false;
-        isMarkedForReturn_ = markForReturn;
 
         // Clear dependency flags.
         for (JobHandle* dependency : dependencies_) {
-            dependency->Reset(markForReturn);
+            dependency->Reset();
         }
 
         // Clear dependencies.
         dependencies_.clear();
+        waitedOnComplete_ = false;
     }
 
 }

@@ -15,12 +15,10 @@ namespace Spark {
                 ~JobHandle();
 
                 void AddDependency(const ManagedJobHandle& managedJobHandle);
-                NODISCARD bool HasDependency() const;
 
                 // Blocks thread until job is complete.
                 void Complete();
 
-                NODISCARD bool IsComplete() const;
                 NODISCARD bool IsReady() const;
 
                 // Job handles should not be copied.
@@ -31,19 +29,22 @@ namespace Spark {
             private:
                 friend class JobHandleManager;
                 // Sets this and all dependencies to be ready for execution.
+                void Stage(const std::function<void(JobHandle*)>& callback);
                 void Stage();
 
                 // Reset handle to default values for reuse.
-                void Reset(bool markForReturn);
+                void Reset();
 
                 friend class Worker;
                 void Signal();
                 NODISCARD const std::vector<JobHandle*>& GetDependencies() const;
 
                 std::vector<JobHandle*> dependencies_;
+                bool waitedOnComplete_;
+                std::function<void(JobHandle*)> callback_;
+
                 std::atomic<bool> isComplete_;
                 std::atomic<bool> isReady_;
-                std::atomic<bool> isMarkedForReturn_;
         };
 
     }

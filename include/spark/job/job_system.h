@@ -30,6 +30,8 @@ namespace Spark {
                 template <typename Target, typename ...Types>
                 void ValidateJobType() const;
 
+                void ReturnJobHandle(JobHandle* jobHandle);
+
                 friend class Worker;
                 NODISCARD const WorkerPool& GetWorkerPool() const;
 
