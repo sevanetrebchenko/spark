@@ -8,10 +8,12 @@ namespace Spark::Job {
                        workerThread_(std::thread(&Worker::Distribute, this)),
                        deque_(WORKER_JOB_CAPACITY)
                        {
-
     }
 
     Worker::~Worker() {
+    	while (!waitlist_.empty()) {
+    		waitlist_.pop();
+    	}
     }
 
     void Worker::Distribute() {
@@ -23,8 +25,18 @@ namespace Spark::Job {
                 JobHandle* jobHandle = entry.first;
 
                 // Don't execute job if job is not staged for execution.
-                if (!jobHandle->IsReady()) {
-                    ReturnJob(entry);
+                int currentNumTries = 0;
+                const int maximumAllowedTries = 50;
+
+                // Try to execute the job a number of times before putting it on the waitlist.
+                while (!jobHandle->IsReady() && currentNumTries <= maximumAllowedTries) {
+                	++currentNumTries;
+                	std::this_thread::yield();
+                }
+
+                // Job still is not ready, or there were too many attempts to execute.
+                if (!jobHandle->IsReady() || currentNumTries > maximumAllowedTries) {
+					PutJobOnWaitlist(entry);
                     continue;
                 }
 
@@ -33,7 +45,7 @@ namespace Spark::Job {
 
                 for (const JobHandle* dependency : jobHandle->GetDependencies()) {
                     if (!dependency->IsComplete()) {
-                        ReturnJob(entry);
+						PutJobOnWaitlist(entry);
                         execute = false;
                     }
                 }
@@ -46,6 +58,16 @@ namespace Spark::Job {
     }
 
     std::optional<JobEntry> Worker::GetJob() {
+    	// Parse waiting jobs first.
+    	if (!waitlist_.empty()) {
+    		std::optional<JobEntry> job = { waitlist_.front() }; // Well-defined, guaranteed to exist.
+			SP_ASSERT(job.has_value(), "Job popped from worker waiting queue does not have value.");
+
+			waitlist_.pop();
+			return job;
+    	}
+
+    	// Proceed with work stealing if waiting queue has no job.
         std::optional<JobEntry> job = deque_.Pop();
 
         // Pop from this worker queue was empty.
@@ -99,8 +121,8 @@ namespace Spark::Job {
         workerThread_.join();
     }
 
-    void Worker::ReturnJob(JobEntry& job) {
-        deque_.Push(job.first, job.second);
+    void Worker::PutJobOnWaitlist(JobEntry& job) {
+    	waitlist_.emplace(std::move(job));
     }
 
 }

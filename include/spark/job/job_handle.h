@@ -22,7 +22,6 @@ namespace Spark {
 
                 NODISCARD bool IsComplete() const;
                 NODISCARD bool IsReady() const;
-                NODISCARD bool IsDependency() const;
 
                 // Job handles should not be copied.
                 JobHandle& operator=(const JobHandle& other) = delete;
@@ -35,8 +34,7 @@ namespace Spark {
                 void Stage();
 
                 // Reset handle to default values for reuse.
-                // Hard reset clears used flag.
-                void Reset(bool hard);
+                void Reset(bool markForReturn);
 
                 friend class Worker;
                 void Signal();
@@ -45,10 +43,7 @@ namespace Spark {
                 std::vector<JobHandle*> dependencies_;
                 std::atomic<bool> isComplete_;
                 std::atomic<bool> isReady_;
-                std::atomic<bool> isDependency_;
-                std::atomic<bool> markedForReturn_;
-
-                std::atomic<bool> isUsed_;
+                std::atomic<bool> isMarkedForReturn_;
         };
 
     }

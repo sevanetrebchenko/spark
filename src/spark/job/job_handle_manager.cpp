@@ -8,11 +8,11 @@ namespace Spark::Job {
     JobHandleManager::JobHandleManager(std::size_t capacity) : capacity_(capacity),
                                                                jobHandles_(new JobHandle[capacity])
                                                                {
-        // Populate available index stack.
-        for (unsigned index = capacity; index > 0; index--) {
-            indices_.push(index - 1);
-        }
-    }
+    	// Populate available index stack.
+    	for (unsigned index = capacity; index > 0; index--) {
+    		indices_.push(index - 1);
+    	}
+	}
 
     JobHandleManager::~JobHandleManager() {
         delete[] jobHandles_;
@@ -21,6 +21,10 @@ namespace Spark::Job {
     ManagedJobHandle JobHandleManager::GetAvailableJobHandle() {
         // Collect completed handles.
         GarbageCollect();
+
+        if (indices_.empty()) {
+        	throw std::runtime_error("uh oh");
+        }
 
         unsigned index = indices_.top();
         indices_.pop();
@@ -34,8 +38,8 @@ namespace Spark::Job {
             JobHandle& handle = jobHandles_[i];
 
             // Found handle marked for return.
-            if (handle.markedForReturn_.load()) {
-                handle.Reset(true); // Clear handle.
+            if (handle.isMarkedForReturn_.load()) {
+                handle.Reset(false); // Clear handle.
                 indices_.push(i);
             }
         }
@@ -59,22 +63,14 @@ namespace Spark::Job {
             return;
         }
 
-        jobHandle->Stage();
-        return;
-
-        // Dependencies will get scheduled through the parent.
-        if (!jobHandle->IsDependency()) {
-
-            // JobHandle can either be returned before or after job execution (depending on whether Complete() was used).
-            if (jobHandle->isUsed_.load()) {
-                // JobHandle has been used, job fully executed.
-                jobHandle->Reset(true);
-                indices_.push(index);
-            }
-            else {
-                // JobHandle has not been used, job waiting to execute.
-
-            }
+        // Job handle has been completed already.
+        if (jobHandle->isMarkedForReturn_) {
+        	// JobHandle has been used, job fully executed.
+        	jobHandle->Reset(false);
+        	indices_.push(index);
+        }
+        else {
+        	jobHandle->Stage();
         }
     }
 

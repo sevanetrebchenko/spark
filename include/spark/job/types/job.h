@@ -14,8 +14,6 @@ namespace Spark {
 
         class Test : public IJob {
             public:
-                static std::atomic<int> counter;
-
                 Test(int a){
                     a_ = a;
                 }
@@ -37,11 +35,6 @@ namespace Spark {
                 }
 
                 void Execute() override {
-                    std::cerr << "sleeping..." << std::endl;
-                    std::cerr << "Printing out Test job result: " << a_ << std::endl;
-                    std::cerr.flush();
-
-                    ++counter;
                 }
 
             private:

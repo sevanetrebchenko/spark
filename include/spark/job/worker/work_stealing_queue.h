@@ -36,6 +36,6 @@ namespace Spark {
     }
 }
 
-#include "work_stealing_queue.tpp"
+#include "spark/job/worker/work_stealing_queue.tpp"
 
 #endif //SPARK_WORK_STEALING_QUEUE_H

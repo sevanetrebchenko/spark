@@ -24,9 +24,10 @@ namespace Spark {
 
                 std::optional<JobEntry> GetJob();
                 void ExecuteJob(JobEntry& job);
-                void ReturnJob(JobEntry& job);
+                void PutJobOnWaitlist(JobEntry& job);
 
                 WorkStealingQueue deque_;
+                std::queue<JobEntry> waitlist_;
                 std::atomic<bool> workerThreadActive_;
                 std::thread workerThread_;
         };

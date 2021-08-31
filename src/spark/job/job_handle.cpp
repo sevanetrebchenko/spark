@@ -7,9 +7,7 @@ namespace Spark::Job {
     JobHandle::JobHandle() : dependencies_(),
                              isComplete_(false),
                              isReady_(false),
-                             isDependency_(false),
-                             markedForReturn_(false),
-                             isUsed_(false)
+                             isMarkedForReturn_(false)
                              {
     }
 
@@ -17,11 +15,11 @@ namespace Spark::Job {
     }
 
     void JobHandle::Complete() {
-        if (!isUsed_.load()) {
+        if (!isMarkedForReturn_) {
             // Begin execution on handle + dependencies.
             Stage();
 
-            while (!isComplete_.load()) {
+            while (!isComplete_) {
                 std::this_thread::yield();
             }
         }
@@ -32,18 +30,14 @@ namespace Spark::Job {
     }
 
     void JobHandle::Signal() {
-        SP_ASSERT(!isUsed_.load(), "Sanity check - Signal called on already used JobHandle.");
-        isComplete_.store(true);
-        markedForReturn_.store(true);
-        isUsed_.store(true);
+        SP_ASSERT(!isMarkedForReturn_, "Sanity check - Signal called on already used JobHandle.");
+        Reset(true);
     }
 
     void JobHandle::AddDependency(const ManagedJobHandle& managedJobHandle) {
-        if (!isUsed_.load()) {
+        if (!isMarkedForReturn_) {
             JobHandle* jobHandle = managedJobHandle.get();
             dependencies_.emplace_back(jobHandle);
-
-            jobHandle->isDependency_.store(true);
         }
         else {
             LogWarning("Calling AddDependency on used JobHandle, operation does not do anything.");
@@ -59,19 +53,15 @@ namespace Spark::Job {
     }
 
     bool JobHandle::IsComplete() const {
-        return isComplete_.load();
+        return isComplete_;
     }
 
     bool JobHandle::IsReady() const {
-        return isReady_.load();
-    }
-
-    bool JobHandle::IsDependency() const {
-        return isDependency_.load();
+        return isReady_;
     }
 
     void JobHandle::Stage() {
-        if (!isUsed_.load()) {
+        if (!isMarkedForReturn_) {
             // Mark all dependencies as ready for execution.
             for (JobHandle* dependency : dependencies_) {
                 dependency->Stage();
@@ -85,18 +75,14 @@ namespace Spark::Job {
         }
     }
 
-    void JobHandle::Reset(bool hard) {
-        isComplete_.store(false);
-        isReady_.store(false);
-        markedForReturn_.store(false);
-        isUsed_.store(false);
-
-        if (hard) {
-        }
+    void JobHandle::Reset(bool markForReturn) {
+        isComplete_ = false;
+        isReady_ = false;
+        isMarkedForReturn_ = markForReturn;
 
         // Clear dependency flags.
         for (JobHandle* dependency : dependencies_) {
-            dependency->Reset(hard);
+            dependency->Reset(markForReturn);
         }
 
         // Clear dependencies.
